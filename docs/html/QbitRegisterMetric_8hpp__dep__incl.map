@@ -1,0 +1,25 @@
+<map id="qureg/QbitRegisterMetric.hpp" name="qureg/QbitRegisterMetric.hpp">
+<area shape="rect" id="node2" href="$qureg_8hpp.html" title="qureg/qureg.hpp" alt="" coords="1115,80,1229,107"/>
+<area shape="rect" id="node3" href="$interface__api__memory_8cpp.html" title="interface/interface\l_api_memory.cpp" alt="" coords="119,155,246,196"/>
+<area shape="rect" id="node4" href="$interface__api__qasm_8cpp.html" title="interface/interface\l_api_qasm.cpp" alt="" coords="270,155,397,196"/>
+<area shape="rect" id="node5" href="$qhipster__interface__main_8cpp.html" title="interface/qhipster\l_interface_main.cpp" alt="" coords="421,155,560,196"/>
+<area shape="rect" id="node6" href="$highperfkernels_8hpp.html" title="qureg/highperfkernels.hpp" alt="" coords="736,162,907,189"/>
+<area shape="rect" id="node8" href="$qureg__apply1qubitgate_8cpp.html" title="Define the QbitRegister methods corresponding to the application of single&#45;qubit gates. " alt="" coords="5,244,219,271"/>
+<area shape="rect" id="node9" href="$qureg__apply2qubitgate_8cpp.html" title="qureg/qureg_apply2qubitgate.cpp" alt="" coords="243,244,456,271"/>
+<area shape="rect" id="node10" href="$qureg__applyctrl1qubitgate_8cpp.html" title="qureg/qureg_applyctrl1qubitgate.cpp" alt="" coords="481,244,711,271"/>
+<area shape="rect" id="node11" href="$qureg__applydiag_8cpp.html" title="qureg/qureg_applydiag.cpp" alt="" coords="931,244,1109,271"/>
+<area shape="rect" id="node12" href="$qureg__applyswap_8cpp.html" title="qureg/qureg_applyswap.cpp" alt="" coords="1133,244,1317,271"/>
+<area shape="rect" id="node13" href="$qureg__applytoffoli_8cpp.html" title="qureg/qureg_applytoffoli.cpp" alt="" coords="1342,244,1527,271"/>
+<area shape="rect" id="node14" href="$qureg__expectval_8cpp.html" title="Define the QbitRegister methods related to expectation values of Pauli strings. " alt="" coords="1083,162,1261,189"/>
+<area shape="rect" id="node15" href="$qureg__fusion_8cpp.html" title="qureg/qureg_fusion.cpp" alt="" coords="1285,162,1443,189"/>
+<area shape="rect" id="node16" href="$qureg__init_8cpp.html" title="qureg/qureg_init.cpp" alt="" coords="1467,162,1605,189"/>
+<area shape="rect" id="node17" href="$qureg__measure_8cpp.html" title="Define the QbitRegister methods related to measurement operations. " alt="" coords="1630,162,1802,189"/>
+<area shape="rect" id="node18" href="$qureg__permute_8cpp.html" title="qureg/qureg_permute.cpp" alt="" coords="1826,162,1995,189"/>
+<area shape="rect" id="node19" href="$qureg__utils_8cpp.html" title="Define the QbitRegister methods used as basic operations. " alt="" coords="2020,162,2167,189"/>
+<area shape="rect" id="node20" href="$benchgates_8cpp.html" title="tests/benchgates.cpp" alt="" coords="2191,162,2337,189"/>
+<area shape="rect" id="node21" href="$expect__value__test_8cpp.html" title="tests/expect_value\l_test.cpp" alt="" coords="2362,155,2494,196"/>
+<area shape="rect" id="node22" href="$noisy__circuit__test_8cpp.html" title="tests/noisy_circuit\l_test.cpp" alt="" coords="2519,155,2647,196"/>
+<area shape="rect" id="node23" href="$qft__test_8cpp.html" title="tests/qft_test.cpp" alt="" coords="2671,162,2795,189"/>
+<area shape="rect" id="node24" href="$testgates_8cpp.html" title="tests/testgates.cpp" alt="" coords="2819,162,2954,189"/>
+<area shape="rect" id="node7" href="$highperfkernels_8cpp.html" title="qureg/highperfkernels.cpp" alt="" coords="736,244,907,271"/>
+</map>

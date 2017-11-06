@@ -1,0 +1,21 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a31640da0e9d35404a0172c83684617da" title="openqu::mpi::Environment\l::is_usefull_rank" alt="" coords="117,271,291,312"/>
+<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="575,468,749,509"/>
+<area shape="rect" id="node13" href="$classQbitRegister.html#a09270ecf5143841b51c9b99bb1565270" title="QbitRegister::specializeon" alt="" coords="117,571,291,598"/>
+<area shape="rect" id="node14" href="$group__qureg.html#ga14455385632216213a23f82ef8f61c4e" title="??? " alt="" coords="364,606,515,633"/>
+<area shape="rect" id="node15" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="633,733,691,759"/>
+<area shape="rect" id="node16" href="$group__qureg.html#gafc50c9735e592dafbe8e5e49e196e2a0" title="QbitRegister::apply1QubitGate" alt="" coords="104,755,304,782"/>
+<area shape="rect" id="node17" href="$classQbitRegister.html#a7d76a5abd3cf6bce62238d7244160423" title="QbitRegister::applyControlled1\lQubitGate" alt="" coords="104,857,304,899"/>
+<area shape="rect" id="node18" href="$group__qureg.html#gab8202459af1477623fa59b0b61ccc9fb" title="??? " alt="" coords="130,806,278,833"/>
+<area shape="rect" id="node4" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="575,329,749,371"/>
+<area shape="rect" id="node5" href="$classopenqu_1_1mpi_1_1Environment.html#ac805495792381e266a692b5ef5813793" title="openqu::mpi::Environment\l::get_nrankspernode" alt="" coords="352,439,527,480"/>
+<area shape="rect" id="node6" href="$classopenqu_1_1mpi_1_1Environment.html#afc37936778ba8de4a10945edb92bf121" title="openqu::mpi::Environment\l::get_nnodes" alt="" coords="352,205,527,247"/>
+<area shape="rect" id="node7" href="$classopenqu_1_1mpi_1_1Environment.html#a3406847c742f21d93f14c31699d44ebd" title="openqu::mpi::Environment\l::get_nodeid" alt="" coords="352,271,527,312"/>
+<area shape="rect" id="node8" href="$classopenqu_1_1mpi_1_1Environment.html#af88901faa781700fddf33f38e17283d3" title="openqu::mpi::Environment\l::remaprank" alt="" coords="352,37,527,79"/>
+<area shape="rect" id="node11" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="593,191,731,218"/>
+<area shape="rect" id="node12" href="$namespaceopenqu_1_1mpi.html#ad9c19358966bbac39b7765ed0fc20660" title="Print from all MPI processes. " alt="" coords="376,337,503,363"/>
+<area shape="rect" id="node9" href="$classopenqu_1_1mpi_1_1Exception.html#ac4971a7f9e7377a5f29539e4179a4af5" title="openqu::mpi::Exception\l::Exception" alt="" coords="583,71,741,112"/>
+<area shape="rect" id="node10" href="$classopenqu_1_1mpi_1_1Exception.html#a83e67327c35a5c7d2c7ce8bedac8164e" title="openqu::mpi::Exception\l::~Exception" alt="" coords="583,5,741,47"/>
+<area shape="rect" id="node19" href="$classTimer.html#a90488c0efd4e80b865b0d3d3b92a525b" title="Timer::Breakdown" alt="" coords="375,657,503,683"/>
+<area shape="rect" id="node20" href="$namespaceopenqu.html#ad5b80c42dd813c0565e9f4f31fb13727" title="convert to a string " alt="" coords="603,657,721,683"/>
+</map>

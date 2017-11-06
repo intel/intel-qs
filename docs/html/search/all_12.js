@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['s_5fhandler',['S_handler',['../interface__api__qasm_8cpp.html#a131749ddc9931f3e7eda04d46360638e',1,'interface_api_qasm.cpp']]],
+  ['scalestate',['ScaleState',['../highperfkernels_8cpp.html#a5f38e4fe8c6dbd8373e443203cc0fa6b',1,'ScaleState(std::size_t start, std::size_t end, Type *state, const Type &amp;s, Timer *timer):&#160;highperfkernels.cpp'],['../highperfkernels_8hpp.html#a5f38e4fe8c6dbd8373e443203cc0fa6b',1,'ScaleState(std::size_t start, std::size_t end, Type *state, const Type &amp;s, Timer *timer):&#160;highperfkernels.cpp']]],
+  ['scalestate_3c_20complexdp_20_3e',['ScaleState&lt; ComplexDP &gt;',['../highperfkernels_8cpp.html#a2513b0c094c6530db416f0b10984a31d',1,'highperfkernels.cpp']]],
+  ['scalestate_3c_20complexsp_20_3e',['ScaleState&lt; ComplexSP &gt;',['../highperfkernels_8cpp.html#a6346d56363383c94f9d4be5f19f24f70',1,'highperfkernels.cpp']]],
+  ['sec',['sec',['../utils_8hpp.html#a0ad89918f7c38ab50bd01249fb98f97b',1,'utils.hpp']]],
+  ['set_5fbit',['set_bit',['../classQbitRegister.html#aafe2e8cb36e73a0ccfcc25d0012b4ea2',1,'QbitRegister']]],
+  ['set_5fthread_5faffinity',['set_thread_affinity',['../classqhipster_1_1openmp_1_1AffinityCoreI7.html#ae28902734837e24db71f76696dd7a337',1,'qhipster::openmp::AffinityCoreI7::set_thread_affinity()'],['../classqhipster_1_1openmp_1_1AffinityNoOmp.html#a6aac79ad5ff892af0acce93398154c2d',1,'qhipster::openmp::AffinityNoOmp::set_thread_affinity()'],['../classqhipster_1_1openmp_1_1IOmpAffinityV1.html#ac8f2dd044da4c62a45e63b156325eaf7',1,'qhipster::openmp::IOmpAffinityV1::set_thread_affinity()']]],
+  ['setnewperm',['SetNewPerm',['../classPermutation.html#a37e8745bcbba145e9f7de16e12e3c091',1,'Permutation']]],
+  ['sim',['Sim',['../group__sim.html',1,'']]],
+  ['simd',['SIMD',['../highperfkernels_8cpp.html#ad1ab836291a12a078c0b378699e1de73',1,'highperfkernels.cpp']]],
+  ['size',['size',['../classPermutation.html#ab251ed59e15b42286e0c1c999b01aec1',1,'Permutation::size()'],['../classQbitRegister.html#af3f0132480e9f922aff689e0b6a1881f',1,'QbitRegister::size()'],['../classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08',1,'openqu::mpi::Environment::size()'],['../classopenqu_1_1TinyMatrix.html#a800dac96d318a917001ccfe0a542cfb4',1,'openqu::TinyMatrix::size()']]],
+  ['size_5ftype',['size_type',['../classopenqu_1_1AlignedAllocator.html#a000f441c69ef2c7959aada306a02ca02',1,'openqu::AlignedAllocator::size_type()'],['../classopenqu_1_1TinyMatrix.html#a2a26622d4cd606bf986b64433e054da6',1,'openqu::TinyMatrix::size_type()']]],
+  ['sn_5fbw',['sn_bw',['../classTime.html#a38a24ffd8711c69ea4cc6aeec0a6e434',1,'Time']]],
+  ['sn_5ftime',['sn_time',['../classTime.html#ac74bcd27be7e1059dd225b86f707a776',1,'Time']]],
+  ['specialization',['Specialization',['../highperfkernels_8cpp.html#acd968d157b4e3e190159d147ae2479b8',1,'highperfkernels.cpp']]],
+  ['specialize',['specialize',['../classQbitRegister.html#aa65e5d861a3c5f212aa09200942a259b',1,'QbitRegister::specialize()'],['../highperfkernels_8cpp.html#a49b349aa14c546bf701f715c8692cdfd',1,'specialize():&#160;highperfkernels.cpp'],['../highperfkernels_8hpp.html#ab130eb58e81346d5f895fd1bad4fecf2',1,'specialize():&#160;highperfkernels.hpp']]],
+  ['specializeoff',['specializeoff',['../classQbitRegister.html#ace40b0ff380f66f676dcb53da22ad9d5',1,'QbitRegister']]],
+  ['specializeon',['specializeon',['../classQbitRegister.html#a09270ecf5143841b51c9b99bb1565270',1,'QbitRegister']]],
+  ['sprint',['sprint',['../classHeader.html#a327fb3b47f3c632859aff821bbc9be85',1,'Header::sprint()'],['../classTime.html#ace1b6afb09da5713d26acb239f2fbd0a',1,'Time::sprint()']]],
+  ['start',['start',['../classTime.html#afd96f8d4461a3477185080cb2f948a85',1,'Time::start()'],['../classTimer.html#a7b6515b02c968e32b333241fd808d778',1,'Timer::Start()']]],
+  ['state',['state',['../classQbitRegister.html#af3027b4c803ff2dfefc688c5feb9df47',1,'QbitRegister']]],
+  ['statestorage',['statestorage',['../classQbitRegister.html#a516faccd6ff8dd3bf70d1e57090a8f06',1,'QbitRegister']]],
+  ['stop',['Stop',['../classTimer.html#a6379e797f968aaee6ac3bb12dc6b81c5',1,'Timer']]],
+  ['swap',['swap',['../classQbitRegister.html#abe17b51e93e1f610db2dec154cee83e8',1,'QbitRegister']]]
+];

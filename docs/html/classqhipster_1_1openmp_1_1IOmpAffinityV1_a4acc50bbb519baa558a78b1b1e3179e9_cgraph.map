@@ -1,0 +1,5 @@
+<map id="qhipster::openmp::IOmpAffinityV1::~IOmpAffinityV1" name="qhipster::openmp::IOmpAffinityV1::~IOmpAffinityV1">
+<area shape="rect" id="node2" href="$classqhipster_1_1openmp_1_1IOmpAffinityV1.html#ac8f2dd044da4c62a45e63b156325eaf7" title="qhipster::openmp::IOmpAffinity\lV1::set_thread_affinity" alt="" coords="256,5,459,47"/>
+<area shape="rect" id="node3" href="$classqhipster_1_1openmp_1_1IOmpAffinityV1.html#a68f864fda69727c258f7f43de233a668" title="qhipster::openmp::IOmpAffinity\lV1::get_num_threads" alt="" coords="256,71,459,112"/>
+<area shape="rect" id="node4" href="$classqhipster_1_1openmp_1_1IOmpAffinityV1.html#a6e03d9ed56efe6fb285b44b1713586b3" title="qhipster::openmp::IOmpAffinity\lV1::get_affinity_string" alt="" coords="256,136,459,177"/>
+</map>

@@ -1,0 +1,51 @@
+<map id="assert" name="assert">
+<area shape="rect" id="node2" href="$group__NoisyQureg.html#ga3729907931febea597bdcdeb11d49ef4" title="NoisyQureg::NoiseGate" alt="" coords="379,157,541,184"/>
+<area shape="rect" id="node3" href="$classPermutation.html#a4532b440c083aa75ebf4aab69ee87568" title="Permutation::operator[]" alt="" coords="135,56,289,83"/>
+<area shape="rect" id="node4" href="$classPermutation.html#ac7b8bdc5aeede96370a80aa2ca91da8c" title="Permutation::Find" alt="" coords="149,107,275,133"/>
+<area shape="rect" id="node5" href="$classPermutation.html#a37e8745bcbba145e9f7de16e12e3c091" title="Permutation::SetNewPerm" alt="" coords="123,5,301,32"/>
+<area shape="rect" id="node7" href="$classPermutation.html#aa2f2a076a21a0f79081394146f8df1b1" title="Permutation::prange" alt="" coords="608,69,747,96"/>
+<area shape="rect" id="node8" href="$group__qureg.html#gafe0ffe91271466805943c6b6112f02fc" title="QbitRegister::HP_Distrpair" alt="" coords="371,1183,549,1209"/>
+<area shape="rect" id="node9" href="$group__qureg.html#gaedf1dd13993178f2a14983605b20e480" title="QbitRegister::apply1Qubit\lGate_helper" alt="" coords="374,1741,546,1782"/>
+<area shape="rect" id="node10" href="$group__qureg.html#gafc50c9735e592dafbe8e5e49e196e2a0" title="QbitRegister::apply1QubitGate" alt="" coords="112,259,312,285"/>
+<area shape="rect" id="node12" href="$benchgates_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="652,360,703,387"/>
+<area shape="rect" id="node13" href="$classQbitRegister.html#a672e66fb6d27f3b1f8144a796e21a72a" title="QbitRegister::apply2QubitGate" alt="" coords="360,528,560,555"/>
+<area shape="rect" id="node14" href="$classQbitRegister.html#a843fbe4c491202dfcaf87b6ca574df4b" title="QbitRegister::applyControlled1\lQubitGate_helper" alt="" coords="360,1653,560,1694"/>
+<area shape="rect" id="node15" href="$classQbitRegister.html#a7d76a5abd3cf6bce62238d7244160423" title="QbitRegister::applyControlled1\lQubitGate" alt="" coords="112,361,312,402"/>
+<area shape="rect" id="node17" href="$qft__test_8cpp.html#aa9dd8f6a5643e6d0a79644144d923222" title="qft" alt="" coords="441,477,479,504"/>
+<area shape="rect" id="node18" href="$classQbitRegister.html#a70e1d4b9c959323a1b29a9462d066d17" title="QbitRegister::applyDiag" alt="" coords="379,655,541,681"/>
+<area shape="rect" id="node19" href="$classQbitRegister.html#a1df7d4a899a7423b9558363ef12beb62" title="QbitRegister::applySwap\l_helper" alt="" coords="377,579,543,621"/>
+<area shape="rect" id="node20" href="$classQbitRegister.html#abe17b51e93e1f610db2dec154cee83e8" title="QbitRegister::swap" alt="" coords="145,781,279,808"/>
+<area shape="rect" id="node21" href="$group__qureg.html#gaff59d4b5e5e6c68516723fcbad2d9eea" title="Compute expectation value of a Pauli string for multiple qubits over the full&#45;register state..." alt="" coords="127,833,297,874"/>
+<area shape="rect" id="node22" href="$classQbitRegister.html#a4614a6c3c6a3a1506b4fcb7b0ac34a13" title="QbitRegister::applyFused\lGates" alt="" coords="127,898,297,939"/>
+<area shape="rect" id="node23" href="$classQbitRegister.html#afdf8d1d0421b4f67cb8123f0df049254" title="QbitRegister::QbitRegister" alt="" coords="124,964,300,991"/>
+<area shape="rect" id="node24" href="$classQbitRegister.html#ab8bdcc049e7c69a628fc5c5ed7909727" title="QbitRegister::resize" alt="" coords="391,723,529,749"/>
+<area shape="rect" id="node25" href="$classQbitRegister.html#ae289a23f862d4bd442acc71e6c672443" title="QbitRegister::Init" alt="" coords="399,839,521,865"/>
+<area shape="rect" id="node26" href="$classQbitRegister.html#a108498963225edf69d58793e4526a51b" title="QbitRegister::util\l_rand_init" alt="" coords="152,1117,272,1158"/>
+<area shape="rect" id="node27" href="$group__qureg.html#gaa3937a2f66ce48f4520955ca649b86e9" title="?? explanation needed ?? " alt="" coords="373,1002,547,1043"/>
+<area shape="rect" id="node28" href="$classQbitRegister.html#a7c454e32d59b5e8509889b4526e77795" title="QbitRegister::Permute" alt="" coords="136,1233,288,1260"/>
+<area shape="rect" id="node29" href="$group__qureg.html#gac2b1e448aba8723d62924739f4b07bed" title="??? " alt="" coords="129,1284,295,1311"/>
+<area shape="rect" id="node30" href="$group__qureg.html#ga3963f1b17db8cab57698dae064f19ffb" title="??? " alt="" coords="129,1335,295,1361"/>
+<area shape="rect" id="node31" href="$group__qureg.html#ga25006c0641b16e5e3ad9a9e54ff68419" title="??? " alt="" coords="119,1385,305,1412"/>
+<area shape="rect" id="node32" href="$group__qureg.html#ga629eb3a21a13e7f9be5acba78e2da4be" title="Print on screen some information about the state. " alt="" coords="147,1436,277,1463"/>
+<area shape="rect" id="node33" href="$group__qureg.html#ga1bea829eeff491bdfa7aeb350279622a" title="??? " alt="" coords="136,1487,288,1513"/>
+<area shape="rect" id="node34" href="$group__qureg.html#ga14455385632216213a23f82ef8f61c4e" title="??? " alt="" coords="385,1407,535,1433"/>
+<area shape="rect" id="node35" href="$group__qureg.html#gab8202459af1477623fa59b0b61ccc9fb" title="??? " alt="" coords="386,2044,534,2071"/>
+<area shape="rect" id="node36" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="147,528,277,555"/>
+<area shape="rect" id="node37" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="163,731,261,757"/>
+<area shape="rect" id="node38" href="$classTimer.html#ae7c0c1e7d12de4b8a6e7c64e451cdd2a" title="Timer::Reset" alt="" coords="163,1740,261,1767"/>
+<area shape="rect" id="node39" href="$classTimer.html#a7b6515b02c968e32b333241fd808d778" title="Timer::Start" alt="" coords="167,1791,257,1817"/>
+<area shape="rect" id="node40" href="$classTimer.html#ac1005d4867b5005a786532bcf3cbeac9" title="Timer::record_sn" alt="" coords="152,1841,272,1868"/>
+<area shape="rect" id="node41" href="$classTimer.html#a9fbff99ace84997159f50a315132e47c" title="Timer::record_dn" alt="" coords="152,1892,272,1919"/>
+<area shape="rect" id="node42" href="$classTimer.html#a74cc1b55da9e11deebace9358b133cb8" title="Timer::record_tn" alt="" coords="153,1943,271,1969"/>
+<area shape="rect" id="node43" href="$classTimer.html#a3ed4be0be81cd08097e11415abaf6c5c" title="Timer::record_cm" alt="" coords="150,1183,274,1209"/>
+<area shape="rect" id="node44" href="$classTimer.html#a6379e797f968aaee6ac3bb12dc6b81c5" title="Timer::Stop" alt="" coords="167,1689,257,1716"/>
+<area shape="rect" id="node45" href="$classTimer.html#a90488c0efd4e80b865b0d3d3b92a525b" title="Timer::Breakdown" alt="" coords="148,2044,276,2071"/>
+<area shape="rect" id="node46" href="$classopenqu_1_1TinyMatrix.html#a538311e6b9e6ca0c692fa37d66b7f1c1" title="openqu::TinyMatrix\l::operator()" alt="" coords="145,2146,279,2187"/>
+<area shape="rect" id="node47" href="$classopenqu_1_1TinyMatrix.html#ad55302909f01657df51e3a8ca79b2364" title="openqu::TinyMatrix\l::operator[]" alt="" coords="145,2211,279,2253"/>
+<area shape="rect" id="node48" href="$classopenqu_1_1TinyMatrix.html#a65842b6da75d8bc70de11e99f2579994" title="openqu::TinyMatrix\l::getSubMatrix" alt="" coords="145,2277,279,2318"/>
+<area shape="rect" id="node49" href="$tinymatrix__test_8cpp.html#a41a395d8e6a3b1a49307d011fb549dcc" title="testsize" alt="" coords="178,2343,246,2369"/>
+<area shape="rect" id="node50" href="$tinymatrix__test_8cpp.html#ad2cad766cb1ab4f746969731a699825d" title="testassign" alt="" coords="171,2393,253,2420"/>
+<area shape="rect" id="node6" href="$classPermutation.html#a55c02d7bfbc53bbc7f244915a3de2020" title="Permutation::Permutation" alt="" coords="375,31,545,57"/>
+<area shape="rect" id="node11" href="$group__NoisyQureg.html#ga03c6f2bd90c251f33763a1249da4d63f" title="NoisyQureg::apply1QubitGate" alt="" coords="362,208,558,235"/>
+<area shape="rect" id="node16" href="$group__NoisyQureg.html#ga0e8ae891441c06ada5a31d12d103841b" title="NoisyQureg::applyControlled1\lQubitGate" alt="" coords="362,411,558,453"/>
+</map>

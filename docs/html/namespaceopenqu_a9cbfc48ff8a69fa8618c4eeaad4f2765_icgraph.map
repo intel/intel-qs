@@ -1,0 +1,19 @@
+<map id="openqu::ilog2" name="openqu::ilog2">
+<area shape="rect" id="node2" href="$group__qureg.html#gafe0ffe91271466805943c6b6112f02fc" title="QbitRegister::HP_Distrpair" alt="" coords="163,5,341,32"/>
+<area shape="rect" id="node3" href="$group__qureg.html#gaedf1dd13993178f2a14983605b20e480" title="QbitRegister::apply1Qubit\lGate_helper" alt="" coords="166,57,338,98"/>
+<area shape="rect" id="node4" href="$classQbitRegister.html#a843fbe4c491202dfcaf87b6ca574df4b" title="QbitRegister::applyControlled1\lQubitGate_helper" alt="" coords="152,122,352,163"/>
+<area shape="rect" id="node5" href="$classQbitRegister.html#a70e1d4b9c959323a1b29a9462d066d17" title="QbitRegister::applyDiag" alt="" coords="171,188,333,215"/>
+<area shape="rect" id="node6" href="$classQbitRegister.html#a1df7d4a899a7423b9558363ef12beb62" title="QbitRegister::applySwap\l_helper" alt="" coords="169,239,335,281"/>
+<area shape="rect" id="node7" href="$classQbitRegister.html#a16ec69521846cf148f6afc1dca409334" title="QbitRegister::fusionon" alt="" coords="176,305,328,332"/>
+<area shape="rect" id="node8" href="$classQbitRegister.html#ab8bdcc049e7c69a628fc5c5ed7909727" title="QbitRegister::resize" alt="" coords="183,356,321,383"/>
+<area shape="rect" id="node10" href="$classQbitRegister.html#ae289a23f862d4bd442acc71e6c672443" title="QbitRegister::Init" alt="" coords="191,407,313,433"/>
+<area shape="rect" id="node12" href="$group__qureg.html#ga99a26e1ccde22e3811ed1c704c01186a" title="Return &#39;true&#39; if qubit is separable and in a computational state. " alt="" coords="161,457,343,484"/>
+<area shape="rect" id="node13" href="$group__qureg.html#gafd87d8d1374240178227d752b2291df8" title="Collapse the wavefunction as if qubit was measured in the computational basis. " alt="" coords="161,508,343,535"/>
+<area shape="rect" id="node14" href="$group__qureg.html#gaacef6a6a4d5f3662d9e9fc69f70f0bdb" title="Return the probability of outcome &#39;&#45;1&#39; when Pauli Z is measured on the qubit. " alt="" coords="161,559,343,585"/>
+<area shape="rect" id="node16" href="$group__qureg.html#gaa3937a2f66ce48f4520955ca649b86e9" title="?? explanation needed ?? " alt="" coords="165,610,339,651"/>
+<area shape="rect" id="node17" href="$qft__test_8cpp.html#aa9dd8f6a5643e6d0a79644144d923222" title="qft" alt="" coords="233,676,271,703"/>
+<area shape="rect" id="node18" href="$bitops__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="227,727,277,753"/>
+<area shape="rect" id="node9" href="$classQbitRegisterMetric.html#a87198687df303e307201562f2ae0d8d3" title="QbitRegisterMetric\l::QbitRegisterMetric" alt="" coords="400,345,539,386"/>
+<area shape="rect" id="node11" href="$noisy__circuit__test_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="444,411,495,437"/>
+<area shape="rect" id="node15" href="$interface__api__qasm_8cpp.html#a5f137d628c742fb97d3d564d332cb867" title="MeasZ_handler" alt="" coords="414,559,525,585"/>
+</map>

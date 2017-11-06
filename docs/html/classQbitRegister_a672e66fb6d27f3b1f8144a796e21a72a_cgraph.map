@@ -1,0 +1,8 @@
+<map id="QbitRegister::apply2QubitGate" name="QbitRegister::apply2QubitGate">
+<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="253,5,428,47"/>
+<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="253,71,428,112"/>
+<area shape="rect" id="node4" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="723,137,781,163"/>
+<area shape="rect" id="node5" href="$namespaceopenqu.html#ac0c261c4bb004642e72971b86e07cb2f" title="checks whether an integer is a power of 2 " alt="" coords="271,187,411,214"/>
+<area shape="rect" id="node6" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="476,187,607,214"/>
+<area shape="rect" id="node7" href="$namespaceopenqu_1_1detail.html#ac7e5b2bd32e0a8eca45f61d87dc56aef" title="openqu::detail::highestBitImpl" alt="" coords="655,187,849,214"/>
+</map>

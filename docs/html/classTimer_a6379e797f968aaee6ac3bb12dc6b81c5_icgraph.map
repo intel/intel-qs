@@ -1,0 +1,6 @@
+<map id="Timer::Stop" name="Timer::Stop">
+<area shape="rect" id="node2" href="$group__qureg.html#gaedf1dd13993178f2a14983605b20e480" title="QbitRegister::apply1Qubit\lGate_helper" alt="" coords="158,5,330,47"/>
+<area shape="rect" id="node3" href="$classQbitRegister.html#a843fbe4c491202dfcaf87b6ca574df4b" title="QbitRegister::applyControlled1\lQubitGate_helper" alt="" coords="144,71,344,112"/>
+<area shape="rect" id="node4" href="$group__qureg.html#gacf5bd16dc1dc1e3daed6b6388be052c4" title="??? " alt="" coords="171,137,317,163"/>
+<area shape="rect" id="node5" href="$group__qureg.html#gaa0dfc836ab99c45e874b330263b25af5" title="??? " alt="" coords="158,187,330,214"/>
+</map>
