@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   std::size_t tmpSize = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "usage: %s <Nqubits> \n", argv[0]);
+     fprintf(stderr, "\nusage: %s <Nqubits> \n\n", argv[0]);
      exit(1);
   }
   else
@@ -40,9 +40,9 @@ int main(int argc, char **argv)
   }
 
   // number of gates
-  unsigned Ngates=100;
+  unsigned Ngates=20;
   // number of repetition of the (stochastic) noisy circuit
-  unsigned Ncirc=Ngates*100;
+  unsigned Ncirc=200;
 
   // single-qubit operation that will be implemented (in a conditioned way)
   TM2x2<ComplexDP> G;
