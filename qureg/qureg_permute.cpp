@@ -42,8 +42,13 @@ void QbitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vec)
 
   // Dummy multi-node permutation code
   std::vector<Type> glb_state(globalSize(), 0);
+#ifdef BIGMPI
+  MPIX_Allgather_x(&(state[0]), localSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), localSize(),
+                MPI_DOUBLE_COMPLEX, comm);
+#else
   MPI_Allgather(&(state[0]), localSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), localSize(),
                 MPI_DOUBLE_COMPLEX, comm);
+#endif //BIGMPI
   for (std::size_t i = 0; i < glb_state.size(); i++) {
     std::size_t glbind =
         permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));

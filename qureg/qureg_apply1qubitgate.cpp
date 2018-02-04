@@ -106,7 +106,7 @@ double QbitRegister<Type>::HP_Distrpair(unsigned pos, TM2x2<Type> const&m)
   Type *tmpstate = tmpspace();
 
   std::size_t lcl_size_half = localSize() / 2L;
-  assert(lcl_size_half <= std::numeric_limits<int>::max());
+  assert(lcl_size_half <= std::numeric_limits<size_t>::max());
 
   if (lcl_chunk > lcl_size_half) 
     lcl_chunk = lcl_size_half;

@@ -366,9 +366,17 @@ void QbitRegister<Type>::Print(std::string x, std::vector<std::size_t> qbits)
 #ifdef OPENQU_HAVE_MPI
     for (std::size_t i = 1; i < nprocs; i++) {
       std::size_t len;
+#ifdef BIGMPI
+      MPIX_Recv_x(&len, 1, MPI_LONG, i, 1000 + i, comm, MPI_STATUS_IGNORE);
+#else
       MPI_Recv(&len, 1, MPI_LONG, i, 1000 + i, comm, MPI_STATUS_IGNORE);
+#endif //BIGMPI
       s.resize(len);
+#ifdef BIGMPI
+      MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, i, i, comm, MPI_STATUS_IGNORE);
+#else
       MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, i, comm, MPI_STATUS_IGNORE);
+#endif //BIGMPI
       printf("%s", s.c_str());
     }
 #endif
@@ -377,8 +385,13 @@ void QbitRegister<Type>::Print(std::string x, std::vector<std::size_t> qbits)
 #ifdef OPENQU_HAVE_MPI
     std::string s = printvec(state, localSize(), nqbits, pcum, permutation);
     std::size_t len = s.length() + 1;
+#ifdef BIGMPI
+    MPIX_Send_x(&len, 1, MPI_LONG, 0, 1000 + rank, comm);
+    MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, rank, comm);
+#else
     MPI_Send(&len, 1, MPI_LONG, 0, 1000 + rank, comm);
     MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, rank, comm);
+#endif //BIGMPI
 #endif
   }
 
