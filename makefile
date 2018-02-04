@@ -15,26 +15,26 @@
 ##------------------------------------------------------------------------------
 
 all:
-	cd util; make
-	cd util/tests; make
-	cd qureg; make
-	cd tests; make
-	cd interface; make
+	cd util; $(MAKE)
+	cd util/tests; $(MAKE)
+	cd qureg; $(MAKE)
+	cd tests; $(MAKE)
+	cd interface; $(MAKE)
 
 clean:
-	cd util; make clean
-	cd util/tests; make clean
-	cd qureg; make clean
-	cd tests; make clean
-	cd interface; make clean
+	cd util; $(MAKE) clean
+	cd util/tests; $(MAKE) clean
+	cd qureg; $(MAKE) clean
+	cd tests; $(MAKE) clean
+	cd interface; $(MAKE) clean
 	rm -fr ./build/
 
 depend:
-	cd util; make depend
-	cd util/tests; make depend
-	cd qureg; make depend
-	cd tests; make depend
-	cd interface; make depend
+	cd util; $(MAKE) depend
+	cd util/tests; $(MAKE) depend
+	cd qureg; $(MAKE) depend
+	cd tests; $(MAKE) depend
+	cd interface; $(MAKE) depend
 
 sdk-release: all sdk-copy-sources sdk-copy-libs sdk-copy-samples sdk-gen-docs 
 	@echo Done.
