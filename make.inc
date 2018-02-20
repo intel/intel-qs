@@ -57,13 +57,9 @@ endif
 
 
 ########### added by Gian for PCL mini-cluster #################################
-ifeq ($(HOST),pcl-hsw1.sc.intel.com)
+ifeq ($(HOST),pcl-tiergarten.sc.intel.com)
  PATH := ${PATH}:/swtools/intel/bin
- INC += -I/home/gian/matsuura_bay-qhipster -I/swtools/intel/mkl/include/
- MKLROOT = /swtools/intel/mkl/
-else ifeq ($(HOST),ssr-nfs1.sc.intel.com)
- PATH := ${PATH}:/swtools/intel/bin
- INC += -I/nfs_home/giangiac/matsuura_bay-qhipster -I/swtools/intel/mkl/include/
+ INC += -I/nfs_home/giangiac/Intel-QS -I/swtools/intel/mkl/include/
  MKLROOT = /swtools/intel/mkl/
 endif
 ################################################################################

@@ -204,10 +204,8 @@ void NoisyQureg<Type>::AddNoiseTwoQubitGate(unsigned const q1, unsigned const q2
 
 /// @grief Noise gate corresponding to single-qubit rotation with appropriate (stochastic) angle.
 ///
-/// To obtain a single rotation around an arbitrary axis we use the relations:
-///      | a b c |               | h-f |
-///  R = | d e f |    -->    u = | c-g |    ---> abs(u) = 2 sin( 'angle' )
-///      | g h i |               | d-b |    ---> u/abs(u) = rotation axis  
+/// Each noise gate is the product of three rotations around X,Y,Z axis (by a small angle each).
+/// We compute their product before applying it to the quantum register.
 template <class Type>
 void NoisyQureg<Type>::NoiseGate(unsigned const qubit )
 {
@@ -232,49 +230,30 @@ void NoisyQureg<Type>::NoiseGate(unsigned const qubit )
   v_Y = gaussian_RNG(generator) * s_Y /2.;
   v_Z = gaussian_RNG(generator) * s_Z /2.;
 
-  // Compose the 3-dimensional rotation: R_X(v_X).R_Y(v_Y).R_Z(v_Z)
-  //       |  cos Y cos Z                          -cos Y sin Z                           sin Y        |
-  //   R = |  sin X sin Y cos Z + cos X sin Z      -sin X sin Y sin Z + cos X cos Z      -sin X cos Y  |
-  //       | -cos X sin Y cos Z + sin X sin Z       cos X sin Y sin Z + sin X cos Z       cos X cos Y  |
-  //
-  //       | cos X sin Y sin Z + sin X cos Z + sin X cos Y |
-  //   u = |    sin Y + cos X sin Y cos Z - sin X sin Z    |
-  //       | sin X sin Y cos Z + cos X sin Z + cos Y sin Z |
-  std::vector<BaseType> u = { std::cos(v_X) * std::sin(v_Y) * std::sin(v_Z) +
-                              std::sin(v_X) * std::cos(v_Z) +
-                              std::sin(v_X) * std::cos(v_Y),
-                                 std::sin(v_Y) +
-                                 std::cos(v_X) * std::sin(v_Y) * std::cos(v_Z) -
-                                 std::sin(v_X) * std::sin(v_Z),
-                                    std::sin(v_X) * std::sin(v_Y) * std::cos(v_Z) +
-                                    std::cos(v_X) * std::sin(v_Z) +
-                                    std::cos(v_Y) * std::sin(v_Z)                   };  
-  BaseType norm_u = std::sqrt( std::norm(u[0]) + std::norm(u[1]) + std::norm(u[2]) );
-  std::vector<BaseType> axis = { u[0]/norm_u , u[1]/norm_u , u[2]/norm_u };
-  // Compute the angle of rotation
-  BaseType trace_R =  std::cos(v_Y) * std::cos(v_Z)
-                    - std::sin(v_X) * std::sin(v_Y) * std::sin(v_Z)
-                    + std::cos(v_X) * std::cos(v_Z)
-                    + std::cos(v_X) * std::cos(v_Y) ;
-  BaseType angle = std::acos( (trace_R-1.)/2. );
-  if (false) std::cout << " angle of rotation = " << angle << "\n";
-  // Alternative expression for the angle, from Wikipedia.
-  if (false) std::cout << " angle of rotation (alternative formula) = " << std::asin( norm_u/2. ) << "\n";
+  // Direct construction of the 2x2 matrix corresponding to the noise gate
+  //     U_noise = exp(-i v_X X) * exp(-i v_Y Y) * exp(-i v_Z Z)
+  // Helpful quantities:
+  //     (A) = cos v_Z -i sin v_Z
+  //     (B) = cos v_X * cos v_Y -i sin v_X * sin v_Y
+  //     (C) = cos v_X * sin v_Y -i sin v_X * cos v_Y
+  // Then :
+  //               | A*B   -A'*C' |
+  //     U_noise = |              |
+  //               | A*C    A'*B' |
 
+  Type A , B , C ;
+  A = { std::cos(v_Z) , -std::sin(v_Z) };
+  B = { std::cos(v_X)*std::cos(v_Y) , -std::sin(v_X)*std::sin(v_Y) };
+  C = { std::cos(v_X)*std::sin(v_Y) , -std::sin(v_X)*std::cos(v_Y) };
 
-  // Costruct the 1/2-spin matrix corresponding to the axis above
-  //    sigma_axis
-  // and use it to implement the single-qubit rotation :
-  //    rot = exp( i * angle * sigma_axis )
-  openqu::TinyMatrix<Type, 2, 2, 32> rot;
-  BaseType s(std::sin(angle/2.)) , c(std::cos(angle/2.)) ;
-  rot(0, 0) = Type(  c         ,  s*axis[2] );
-  rot(0, 1) = Type(  s*axis[1] ,  s*axis[0] );
-  rot(0, 1) = Type( -s*axis[1] ,  s*axis[0] );
-  rot(1, 1) = Type(  c         , -s*axis[2] );
+  openqu::TinyMatrix<Type, 2, 2, 32> U_noise;
+  U_noise(0, 0) = A*B;
+  U_noise(0, 1) = -std::conj(A)*std::conj(C);
+  U_noise(1, 0) = A*C;
+  U_noise(1, 1) =  std::conj(A)*std::conj(B);
 
   // Apply the noise gate
-  QbitRegister<Type>::apply1QubitGate(qubit,rot);
+  QbitRegister<Type>::apply1QubitGate(qubit,U_noise);
 }
 
 
