@@ -18,6 +18,10 @@ include ../make.inc
 
 LDFLAGS =   -L${MKLROOT}/lib/intel64 -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_ilp64 -lpthread
 
+ifdef bigmpi
+ LDFLAGS := ${BIGMPI_LIB} ${LDFLAGS}
+endif
+
 SRC  = $(wildcard *.cpp)
 OBJS = $(addsuffix .o, $(basename $(SRC)))
 EXEC = qasm_interface.exe
@@ -27,7 +31,7 @@ EXEC = qasm_interface.exe
 
 all: $(EXEC)
 $(EXEC): ${OBJS} makefile ../qureg/qHiPSTER.a
-	$(CC) ${CFLAGS} ${LDFLAGS} ${OBJS} ../qureg/qHiPSTER.a -o $(EXEC) 
+	$(CC) ${CFLAGS} ${OBJS} ../qureg/qHiPSTER.a ${LDFLAGS} -o $(EXEC)
 
 clean:
 	rm -f *.o *.s *.d *~ $(EXEC)
