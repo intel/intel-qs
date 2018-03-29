@@ -1,0 +1,25 @@
+sudo: false
+language: c
+os:
+  - linux
+  - osx
+compiler:
+  - gcc
+  - clang
+matrix:
+  allow_failures:
+    - env: MPI_IMPL=openmpi
+env:
+  - MPI_IMPL=mpich
+  - MPI_IMPL=openmpi
+before_install:
+  - export TRAVIS_ROOT=$HOME/travis
+  - mkdir -p $TRAVIS_ROOT
+  - sh ./travis/install-autotools.sh $TRAVIS_ROOT
+  - export PATH=$TRAVIS_ROOT/bin:$PATH
+install:
+  - sh ./travis/install-mpi.sh $TRAVIS_ROOT $MPI_IMPL
+script:
+  - sh ./travis/build-run.sh $TRAVIS_ROOT $MPI_IMPL
+after_failure:
+  - find . -name config.log -exec grep -L "configure: exit 0" {} ";" | xargs cat
