@@ -21,7 +21,7 @@ ifdef memcheck
  LDFLAGS := ${LDFLAGS} /home/msmelyan/valgrind-3.11.0/installed/lib/valgrind/libmpiwrap-amd64-linux.so
 endif
 
-ifdef bigmpi
+ifeq ($(bigmpi),1)
  LDFLAGS := ${BIGMPI_LIB} ${LDFLAGS}
 endif
 

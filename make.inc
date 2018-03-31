@@ -14,7 +14,7 @@
 ## limitations under the License.
 ##------------------------------------------------------------------------------
 
-bigmpi = 1
+bigmpi = 0
 
 HOST = $(shell hostname)
 
@@ -38,7 +38,7 @@ CFLAGS += ${OPTFLAGS}
 
 INC = -I./ -I../
 
-ifdef bigmpi
+ifeq ($(bigmpi),1)
  DEFS := ${DEFS} -DBIGMPI
  INC := ${INC} ${BIGMPI_INC}
 endif
