@@ -1,18 +1,18 @@
 <map id="interface/interface_api_qasm.cpp" name="interface/interface_api_qasm.cpp">
-<area shape="rect" id="node6" href="$qureg_8hpp.html" title="qureg/qureg.hpp" alt="" coords="1425,95,1539,121"/>
-<area shape="rect" id="node46" href="$interface__api__qubitid_8h.html" title="interface_api_qubitid.h" alt="" coords="2373,95,2525,121"/>
-<area shape="rect" id="node47" href="$interface__api__version_8h.html" title="interface_api_version.h" alt="" coords="2549,95,2705,121"/>
-<area shape="rect" id="node48" href="$interface__api__memory_8h.html" title="interface_api_memory.h" alt="" coords="2729,95,2891,121"/>
-<area shape="rect" id="node7" href="$permute_8hpp.html" title="permute.hpp" alt="" coords="919,169,1013,196"/>
-<area shape="rect" id="node8" href="$utils_8hpp.html" title="util/utils.hpp" alt="" coords="623,244,715,271"/>
-<area shape="rect" id="node9" href="$mpi_8hpp.html" title="util/mpi.hpp" alt="" coords="869,319,959,345"/>
-<area shape="rect" id="node25" href="$conversion_8hpp.html" title="util/conversion.hpp" alt="" coords="925,244,1055,271"/>
-<area shape="rect" id="node28" href="$timer_8hpp.html" title="util/timer.hpp" alt="" coords="695,169,792,196"/>
-<area shape="rect" id="node30" href="$alignedallocator_8hpp.html" title="util/alignedallocator.hpp" alt="" coords="1461,169,1620,196"/>
-<area shape="rect" id="node31" href="$bitops_8hpp.html" title="util/bitops.hpp" alt="" coords="1913,244,2016,271"/>
-<area shape="rect" id="node37" href="$tinymatrix_8hpp.html" title="util/tinymatrix.hpp" alt="" coords="2071,169,2197,196"/>
-<area shape="rect" id="node43" href="$QbitRegisterMetric_8hpp.html" title="QbitRegisterMetric.hpp" alt="" coords="1037,169,1193,196"/>
-<area shape="rect" id="node44" href="$NoisyQureg_8hpp.html" title="NoisyQureg.hpp" alt="" coords="1269,169,1385,196"/>
-<area shape="rect" id="node10" href="$openmp__affinity__noomp_8hpp.html" title="openmp_affinity_noomp.hpp" alt="" coords="972,393,1157,420"/>
-<area shape="rect" id="node11" href="$openmp__affinity__v1_8hpp.html" title="openmp_affinity_v1.hpp" alt="" coords="985,468,1145,495"/>
+<area shape="rect" id="node6" href="$qureg_8hpp.html" title="Declare the QubitRegister class. " alt="" coords="1209,96,1335,123"/>
+<area shape="rect" id="node46" href="$interface__api__qubitid_8h.html" title="interface_api_qubitid.h" alt="" coords="2488,96,2640,123"/>
+<area shape="rect" id="node47" href="$interface__api__version_8h.html" title="interface_api_version.h" alt="" coords="2665,96,2820,123"/>
+<area shape="rect" id="node48" href="$interface__api__memory_8h.html" title="interface_api_memory.h" alt="" coords="2845,96,3005,123"/>
+<area shape="rect" id="node7" href="$permute_8hpp.html" title="permute.hpp" alt="" coords="1225,171,1319,197"/>
+<area shape="rect" id="node8" href="$utils_8hpp.html" title="../util/utils.hpp" alt="" coords="1269,245,1373,272"/>
+<area shape="rect" id="node29" href="$timer_8hpp.html" title="../util/timer.hpp" alt="" coords="989,171,1099,197"/>
+<area shape="rect" id="node31" href="$alignedallocator_8hpp.html" title="../util/alignedallocator.hpp" alt="" coords="476,171,647,197"/>
+<area shape="rect" id="node9" href="$mpi_8hpp.html" title="mpi.hpp" alt="" coords="1022,320,1089,347"/>
+<area shape="rect" id="node32" href="$bitops_8hpp.html" title="bitops.hpp" alt="" coords="325,245,408,272"/>
+<area shape="rect" id="node26" href="$conversion_8hpp.html" title="../util/conversion.hpp" alt="" coords="822,245,964,272"/>
+<area shape="rect" id="node38" href="$tinymatrix_8hpp.html" title="../util/tinymatrix.hpp" alt="" coords="113,171,249,197"/>
+<area shape="rect" id="node44" href="$QubitRegisterMetric_8hpp.html" title="QubitRegisterMetric.hpp" alt="" coords="1535,171,1697,197"/>
+<area shape="rect" id="node45" href="$NoisyQureg_8hpp.html" title="NoisyQureg.hpp" alt="" coords="1343,171,1459,197"/>
+<area shape="rect" id="node11" href="$openmp__affinity__noomp_8hpp.html" title="openmp_affinity_noomp.hpp" alt="" coords="1163,395,1348,421"/>
+<area shape="rect" id="node12" href="$openmp__affinity__v1_8hpp.html" title="openmp_affinity_v1.hpp" alt="" coords="1169,469,1329,496"/>
 </map>

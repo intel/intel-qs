@@ -1,5 +1,5 @@
 <map id="NoisyQureg&lt; Type &gt;" name="NoisyQureg&lt; Type &gt;">
-<area shape="rect" id="node2" href="$classQbitRegister.html" title="QbitRegister\&lt; Type \&gt;" alt="" coords="29,95,177,121"/>
-<area shape="rect" id="node3" href="$classPermutation.html" title="Permutation" alt="" coords="5,5,97,32"/>
-<area shape="rect" id="node4" href="$classTimer.html" title="Timer" alt="" coords="128,5,183,32"/>
+<area shape="rect" id="node2" href="$classQubitRegister.html" title="QubitRegister\&lt; Type \&gt;" alt="" coords="25,96,180,123"/>
+<area shape="rect" id="node3" href="$classPermutation.html" title="Permutation" alt="" coords="5,5,96,32"/>
+<area shape="rect" id="node4" href="$classTimer.html" title="Timer" alt="" coords="127,5,181,32"/>
 </map>

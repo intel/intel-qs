@@ -17,7 +17,7 @@
 
 // Include the header file including the declaration of the QbitRegister class
 // and of its methods.
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 
 
 // Start of the main program (C++ language).
@@ -42,77 +42,63 @@ int main(int argc, char **argv)
 
   //// FIRST EXAMPLE ////
   {
-      if (myid == 0)
-      {
-          printf("\n --- FIRST EXAMPLE --- \n");
-          std::cout << "The 4-qubit register is initialized in state |0000>. \n"
-                    << "A sequence of gates is then performed: a Pauli X gate on qubit 0; \n"
-                    << "followed by a Hadamard gate on each other qubit (namely qubits 1, 2, \n"
-                    << "and 3); then a CNOT gate (control qubit is 2, target qubit is 1). \n"
-                    << "Finally qubit 1 is measured in the computational basis.\n";
-      }
+      if (myid == 0) printf("\n --- FIRST EXAMPLE --- \n");
 
       // Create the state of a quantum register, having N qubits.
       // The state is initialized as a computational basis state (using the keyword "base")
       // corresponding to the index 0. The index corresponds to a N-bit integer in decimal
       // representation. With N qubits there are 2^N indices, from 0 to 2^{N-1}.
-      QbitRegister<ComplexDP> psi1(N, "base", 0);
+      QubitRegister<ComplexDP> psi1(N, "base", 0);
 
-      // Let us apply a Pauli X gate on qubit 0, effectively flipping it from |0> to |1>.
-      psi1.applyPauliX(0);
+      // Let us apply a X Pauli gate on qubit 0, effectively flipping it from |0> to |1>.
+      psi1.ApplyPauliX(0);
 
       // Let us apply an Hadamard gate on all other qubits.
       for (unsigned q=1; q<N; ++q)
       {
-          psi1.applyHadamard(q);
+          psi1.ApplyHadamard(q);
       }
 
       // Two qubit gates are applied in a similar way. For example, a C-NOT between qubit 2
       // (control qubit) and qubit 1 (target qubit):
       unsigned control_q = 2;
       unsigned target_q = 1;
-      psi1.applyCPauliX( control_q , target_q );
+      psi1.ApplyCPauliX( control_q , target_q );
 
       // To extract information from the quantum register, one can obtain the probability of
       // measuring a certain qubit, here qubit 1, in the Z basis and obtaining the outcome "-1".
       // This corresponds to the probability of qubit 1 being in the |1> state.
-      unsigned measured_qubit = 1;
+      unsigned measured_q = 1;
       double prob = 0;
-      prob = psi1.getProbability( measured_qubit );
+      prob = psi1.GetProbability( measured_q );
 
       // Print such probability to screen, only if MPI rank=0.
       // This is done to avoid each rank to write the same information to screen.
       if (myid == 0)
-          printf("The probability that qubit %d is in state |1> is %g\n", measured_qubit, prob);
+      {
+          printf("probability that qubit %d is in state |1> is %g\n", measured_q, prob);
+      }
   }
 
 
   //// SECOND EXAMPLE ////
   {
-      if (myid == 0)
-      {
-          printf("\n --- SECOND EXAMPLE --- \n");
-          std::cout << "The 4-qubit register is initialized in a random state. \n"
-                    << "A sequence of gates is then performed: a Pauli X gate on qubit 0; \n"
-                    << "followed by a Hadamard gate on each other qubit (namely qubits 1, 2, \n"
-                    << "and 3); then a user-defined single-qubit gate on qubit 3; then the \n"
-                    << "same user-defined gate is applied to qubit 2 controlled by qubit 1. \n"
-                    << "Finally the Pauli string X_0 . Z_2 . Y_3 is jointly measured.\n";
-      }
+      if (myid == 0) printf("\n --- SECOND EXAMPLE --- \n");
+
       // Create the state of a quantum register, having N qubits.
       // The state is initialized as a random state (using the keyword "rand"):
       // This requires a random number generator (RNG), that we initialize just before the second
       // register. Notice that '777' plays the role of the seed to initialize the RNG.and the seed
       std::default_random_engine generator;
-      QbitRegister<ComplexDP> psi2(N, "rand", 777);
+      QubitRegister<ComplexDP> psi2(N, "rand", 777);
 
       // Let us apply a X Pauli gate on qubit 0, effectively flipping it from |0> to |1>.
-      psi2.applyPauliX(0);
+      psi2.ApplyPauliX(0);
 
       // Let us apply an Hadamard gate on all other qubits.
       for (unsigned q=1; q<N; ++q)
       {
-          psi2.applyHadamard(q);
+          psi2.ApplyHadamard(q);
       }
 
       // One can define an arbitrary single qubit gate and apply it to the chosen qubit.
@@ -123,14 +109,14 @@ int main(int argc, char **argv)
       G(1, 0) = {0.658235557641767, 0.070882241549507}; 
       G(1, 1) = {0.649564427121402, 0.373855203932477};
 
-      unsigned chosen_qubit = 3;
-      psi2.apply1QubitGate(chosen_qubit, G);
+      unsigned chosen_q = 3;
+      psi2.Apply1QubitGate(chosen_q, G);
 
       // It is also possible to apply the arbitrary gate specified by G controlled on the state
-      // of another qubit. G is applied only when control_qubit is in |0>.
-      unsigned control_qubit = 1;
-      chosen_qubit = 2;
-      psi2.applyControlled1QubitGate( control_qubit, chosen_qubit, G);
+      // of another qubit. G is applied only when control_q is in |0>.
+      unsigned control_q = 1;
+      chosen_q = 2;
+      psi2.ApplyControlled1QubitGate( control_q, chosen_q, G);
 
       // To extract information from the quantum register, one can obtain the expectation value
       // of Pauli strings. For example, consider the Paulis tring given by:
@@ -142,11 +128,11 @@ int main(int argc, char **argv)
 
       // The expectation value <psi2|X_0.id_1.Z_2.Y_3|psi2> is obtained via:
       double average = 0.;
-      psi2.expectationValue(qubits_to_be_measured, observables, average);
+      psi2.ExpectationValue(qubits_to_be_measured, observables, average);
       // Print the expectation value to screen.
       if (myid == 0)
       {
-          printf("Expectation value <psi2| X_0 . id_1 . Z_2 . Y_3 |psi2> = %g\n\n", average);
+          printf("expectation value <psi2|X_0.id_1.Z_2.Y_3|psi2> = %g\n", average);
       }
   }
 }

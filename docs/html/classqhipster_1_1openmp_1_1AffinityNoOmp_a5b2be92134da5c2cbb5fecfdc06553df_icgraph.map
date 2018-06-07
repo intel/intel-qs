@@ -1,3 +1,9 @@
 <map id="qhipster::openmp::AffinityNoOmp::get_num_threads" name="qhipster::openmp::AffinityNoOmp::get_num_threads">
-<area shape="rect" id="node2" href="$classQbitRegister.html#adeac386b0cea997c92462f8f159741ee" title="QbitRegister::Init" alt="" coords="228,13,349,39"/>
+<area shape="rect" id="node2" href="$highperfkernels_8hpp.html#a4527aaf7dc622042ce4469feccdb68f4" title="Loop_DN" alt="" coords="271,75,348,101"/>
+<area shape="rect" id="node6" href="$highperfkernels_8hpp.html#ad0e26547bdacb159b730092f8286969f" title="Loop_TN" alt="" coords="272,129,347,156"/>
+<area shape="rect" id="node8" href="$group__qureg.html#gafb081cb901c708a6ef0fbd4612972cf8" title="QubitRegister::Initialize" alt="" coords="230,180,389,207"/>
+<area shape="rect" id="node3" href="$group__qureg.html#ga3320ee5d0ed318b864ce556cb75a57aa" title="QubitRegister::Apply1Qubit\lGate_helper" alt="" coords="452,5,633,46"/>
+<area shape="rect" id="node4" href="$group__qureg.html#ga28a28ce49fba6be1c80734a48a9cea1d" title="Arbitrary two&#45;qubit gate. " alt="" coords="450,71,635,97"/>
+<area shape="rect" id="node5" href="$group__qureg.html#ga39af2386b27fc72401ec0b6896f8aa93" title="Helper for the application of controlled one&#45;qubit gates. " alt="" coords="438,122,647,163"/>
+<area shape="rect" id="node7" href="$group__qureg.html#ga9a5caac7c1bca8a3432e5c22bfcea801" title="QubitRegister::ApplyDiag" alt="" coords="457,188,628,215"/>
 </map>

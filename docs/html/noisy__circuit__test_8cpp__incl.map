@@ -1,15 +1,15 @@
 <map id="tests/noisy_circuit_test.cpp" name="tests/noisy_circuit_test.cpp">
-<area shape="rect" id="node2" href="$qureg_8hpp.html" title="qureg/qureg.hpp" alt="" coords="1269,95,1383,121"/>
-<area shape="rect" id="node3" href="$permute_8hpp.html" title="permute.hpp" alt="" coords="1236,169,1331,196"/>
-<area shape="rect" id="node4" href="$utils_8hpp.html" title="util/utils.hpp" alt="" coords="1223,244,1315,271"/>
-<area shape="rect" id="node5" href="$mpi_8hpp.html" title="util/mpi.hpp" alt="" coords="1029,319,1119,345"/>
-<area shape="rect" id="node22" href="$conversion_8hpp.html" title="util/conversion.hpp" alt="" coords="947,244,1078,271"/>
-<area shape="rect" id="node25" href="$timer_8hpp.html" title="util/timer.hpp" alt="" coords="1012,169,1109,196"/>
-<area shape="rect" id="node27" href="$alignedallocator_8hpp.html" title="util/alignedallocator.hpp" alt="" coords="189,169,348,196"/>
-<area shape="rect" id="node28" href="$bitops_8hpp.html" title="util/bitops.hpp" alt="" coords="5,244,108,271"/>
-<area shape="rect" id="node34" href="$tinymatrix_8hpp.html" title="util/tinymatrix.hpp" alt="" coords="630,169,755,196"/>
-<area shape="rect" id="node41" href="$QbitRegisterMetric_8hpp.html" title="QbitRegisterMetric.hpp" alt="" coords="1508,169,1664,196"/>
-<area shape="rect" id="node42" href="$NoisyQureg_8hpp.html" title="NoisyQureg.hpp" alt="" coords="1688,169,1804,196"/>
-<area shape="rect" id="node6" href="$openmp__affinity__noomp_8hpp.html" title="openmp_affinity_noomp.hpp" alt="" coords="892,393,1077,420"/>
-<area shape="rect" id="node7" href="$openmp__affinity__v1_8hpp.html" title="openmp_affinity_v1.hpp" alt="" coords="905,468,1065,495"/>
+<area shape="rect" id="node2" href="$qureg_8hpp.html" title="Declare the QubitRegister class. " alt="" coords="1147,96,1273,123"/>
+<area shape="rect" id="node3" href="$permute_8hpp.html" title="permute.hpp" alt="" coords="1121,171,1215,197"/>
+<area shape="rect" id="node4" href="$utils_8hpp.html" title="../util/utils.hpp" alt="" coords="979,245,1083,272"/>
+<area shape="rect" id="node26" href="$timer_8hpp.html" title="../util/timer.hpp" alt="" coords="672,171,781,197"/>
+<area shape="rect" id="node28" href="$alignedallocator_8hpp.html" title="../util/alignedallocator.hpp" alt="" coords="161,171,332,197"/>
+<area shape="rect" id="node5" href="$mpi_8hpp.html" title="mpi.hpp" alt="" coords="686,320,753,347"/>
+<area shape="rect" id="node29" href="$bitops_8hpp.html" title="bitops.hpp" alt="" coords="5,245,88,272"/>
+<area shape="rect" id="node23" href="$conversion_8hpp.html" title="../util/conversion.hpp" alt="" coords="811,245,953,272"/>
+<area shape="rect" id="node35" href="$tinymatrix_8hpp.html" title="../util/tinymatrix.hpp" alt="" coords="907,171,1044,197"/>
+<area shape="rect" id="node42" href="$QubitRegisterMetric_8hpp.html" title="QubitRegisterMetric.hpp" alt="" coords="1341,171,1504,197"/>
+<area shape="rect" id="node43" href="$NoisyQureg_8hpp.html" title="NoisyQureg.hpp" alt="" coords="1529,171,1644,197"/>
+<area shape="rect" id="node7" href="$openmp__affinity__noomp_8hpp.html" title="openmp_affinity_noomp.hpp" alt="" coords="550,395,735,421"/>
+<area shape="rect" id="node8" href="$openmp__affinity__v1_8hpp.html" title="openmp_affinity_v1.hpp" alt="" coords="563,469,723,496"/>
 </map>

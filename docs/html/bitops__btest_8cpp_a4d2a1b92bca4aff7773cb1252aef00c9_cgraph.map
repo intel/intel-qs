@@ -1,5 +1,4 @@
 <map id="BOOST_AUTO_TEST_CASE" name="BOOST_AUTO_TEST_CASE">
-<area shape="rect" id="node2" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="251,31,381,57"/>
-<area shape="rect" id="node3" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="497,5,556,32"/>
-<area shape="rect" id="node4" href="$namespaceopenqu_1_1detail.html#ac7e5b2bd32e0a8eca45f61d87dc56aef" title="openqu::detail::highestBitImpl" alt="" coords="429,56,624,83"/>
+<area shape="rect" id="node2" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="251,5,381,32"/>
+<area shape="rect" id="node3" href="$namespaceopenqu_1_1detail.html#ac7e5b2bd32e0a8eca45f61d87dc56aef" title="openqu::detail::highestBitImpl" alt="" coords="429,5,624,32"/>
 </map>

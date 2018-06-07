@@ -16,49 +16,62 @@
 
 #include "qureg.hpp"
 
+/// \addtogroup qureg
+/// @{
+
+/// @file qureg_fusion.cpp
+/// @brief Define the @c QubitRegister methods related to an optimization called 'fusion'.
+
+/////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
-void QbitRegister<Type>::fusionon(unsigned log2llc)
+void QubitRegister<Type>::TurnOnFusion(unsigned log2llc)
 {
-  unsigned nprocs = openqu::mpi::Environment::size();
-  std::size_t myrank = openqu::mpi::Environment::rank();
-  unsigned log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
-  unsigned M = nqbits - log2_nprocs;
+  unsigned myrank=0, nprocs=1, log2_nprocs=0;
+#ifdef INTELQS_HAS_MPI
+  myrank = openqu::mpi::Environment::rank();
+  nprocs = openqu::mpi::Environment::size();
+  log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
+#endif
+  unsigned M = num_qubits - log2_nprocs;
 
   if (log2llc >= M) {
-    if (!myrank) printf("Fusion is not enabled: nqbits (%lu) is too small\n", nqbits);
+    if (!myrank) printf("Fusion is not enabled: num_qubits (%lu) is too small\n", num_qubits);
     fusion = false;
   } else {
-    if (!myrank) printf("Fusion is enabled: log2llc = %u nqbits = %lu\n", log2llc, nqbits);
+    if (!myrank) printf("Fusion is enabled: log2llc = %u num_qubits = %lu\n", log2llc, num_qubits);
     this->log2llc = log2llc;
     fusion = true;
   }
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
-void QbitRegister<Type>::fusionoff()
+void QubitRegister<Type>::TurnOffFusion()
 {
-  if (fwindow.size()) {
-    applyFusedGates();
+  if (fwindow.size())
+  {
+      ApplyFusedGates();
   }
   fusion = false;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
-bool QbitRegister<Type>::is_fusion_enabled()
+bool QubitRegister<Type>::IsFusionEnabled()
 {
   return fusion;
 }
 
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
-void QbitRegister<Type>::applyFusedGates()
+void QubitRegister<Type>::ApplyFusedGates()
 {
-  std::size_t myrank = openqu::mpi::Environment::rank();
-
   #if 0
-  if (myrank == 0 && fwindow.size() > 1) {
+  std::size_t myrank = openqu::mpi::Environment::rank();
+  if ( myrank==0 && fwindow.size() > 1) {
     printf("fused: ");
     for (auto &f : fwindow) {
       std::string &type = std::get<0>(f);
@@ -82,9 +95,9 @@ void QbitRegister<Type>::applyFusedGates()
       std::size_t qubit1 = std::get<2>(f);
       std::size_t qubit2 = std::get<3>(f);
       if (type == "sqg") {
-        apply1QubitGate_helper(qubit1, m, l, l + blocksize);
+        Apply1QubitGate_helper(qubit1, m, l, l + blocksize);
       } else if (type == "cqg") {
-        applyControlled1QubitGate_helper(qubit1, qubit2, m, l, l + blocksize);
+        ApplyControlled1QubitGate_helper(qubit1, qubit2, m, l, l + blocksize);
       } else {
         assert(0); // not yet implemented
       }
@@ -94,6 +107,7 @@ void QbitRegister<Type>::applyFusedGates()
   fwindow.resize(0);
 }
 
-template class QbitRegister<ComplexSP>;
-template class QbitRegister<ComplexDP>;
+template class QubitRegister<ComplexSP>;
+template class QubitRegister<ComplexDP>;
 
+/// @}

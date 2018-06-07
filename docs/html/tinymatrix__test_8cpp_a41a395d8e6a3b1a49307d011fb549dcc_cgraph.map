@@ -1,7 +1,6 @@
 <map id="testsize" name="testsize">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="159,5,217,32"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1TinyMatrix.html#ae0ff9c81189f7c08a45531f9cb3070ce" title="the number of matrix rows " alt="" coords="121,57,255,98"/>
-<area shape="rect" id="node4" href="$classopenqu_1_1TinyMatrix.html#a9d2e1e09c47c992a480894e668fe42a5" title="the number of matrix columns " alt="" coords="121,122,255,163"/>
-<area shape="rect" id="node5" href="$classopenqu_1_1TinyMatrix.html#a800dac96d318a917001ccfe0a542cfb4" title="the size of the matrix, i.e. the number of matrix elements. This is the same as number of rows times ..." alt="" coords="121,187,255,229"/>
-<area shape="rect" id="node6" href="$classopenqu_1_1TinyMatrix.html#a785ba22e922d4b55a1d3e2fa6d9b61ba" title="obtain a pointer to the first element of the matrix " alt="" coords="121,253,255,294"/>
+<area shape="rect" id="node2" href="$classopenqu_1_1TinyMatrix.html#ae0ff9c81189f7c08a45531f9cb3070ce" title="the number of matrix rows " alt="" coords="123,5,256,46"/>
+<area shape="rect" id="node3" href="$classopenqu_1_1TinyMatrix.html#a9d2e1e09c47c992a480894e668fe42a5" title="the number of matrix columns " alt="" coords="123,70,256,111"/>
+<area shape="rect" id="node4" href="$classopenqu_1_1TinyMatrix.html#a800dac96d318a917001ccfe0a542cfb4" title="the size of the matrix, i.e. the number of matrix elements. This is the same as number of rows times ..." alt="" coords="123,135,256,177"/>
+<area shape="rect" id="node5" href="$classopenqu_1_1TinyMatrix.html#a785ba22e922d4b55a1d3e2fa6d9b61ba" title="obtain a pointer to the first element of the matrix " alt="" coords="123,201,256,242"/>
 </map>

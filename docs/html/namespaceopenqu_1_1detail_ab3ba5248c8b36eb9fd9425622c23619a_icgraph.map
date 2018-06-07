@@ -1,4 +1,4 @@
 <map id="openqu::detail::BX" name="openqu::detail::BX">
-<area shape="rect" id="node2" href="$namespaceopenqu.html#aa35825c37c49aa745135d0d5b276d4fa" title="Determines the population count (number of set bits) of a 32bit integer. " alt="" coords="183,5,293,32"/>
-<area shape="rect" id="node3" href="$namespaceopenqu.html#a57b8e01716e86bfcf77e395fb8eae92d" title="Determines the population count (number of set bits) of a 64bit integer using alps::popcnt. " alt="" coords="341,5,452,32"/>
+<area shape="rect" id="node2" href="$namespaceopenqu.html#aa35825c37c49aa745135d0d5b276d4fa" title="Determines the population count (number of set bits) of a 32bit integer. " alt="" coords="185,5,295,32"/>
+<area shape="rect" id="node3" href="$namespaceopenqu.html#a57b8e01716e86bfcf77e395fb8eae92d" title="Determines the population count (number of set bits) of a 64bit integer using alps::popcnt. " alt="" coords="345,5,455,32"/>
 </map>

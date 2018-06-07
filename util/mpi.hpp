@@ -24,9 +24,7 @@
  *  convenience functions that are implemented even if the MPI library is not provided
  */
 
-#ifdef OPENQU_HAVE_MPI
 #include "mpi.h"
-#endif
 
 #ifdef _OPENMP
 #include "openmp_affinity_corei7.hpp"
@@ -97,12 +95,12 @@ class Environment
   static int get_nrankspernode();
   static int get_nnodes();
   static int get_nodeid();
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   static MPI_Comm comm();
 #endif
   static void remaprank(int newme);
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   static MPI_Comm communicator;
 #endif
 

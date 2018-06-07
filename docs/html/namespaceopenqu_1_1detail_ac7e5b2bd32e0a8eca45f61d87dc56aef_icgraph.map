@@ -1,11 +1,11 @@
 <map id="openqu::detail::highestBitImpl" name="openqu::detail::highestBitImpl">
 <area shape="rect" id="node2" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="248,121,379,148"/>
-<area shape="rect" id="node3" href="$classQbitRegister.html#a672e66fb6d27f3b1f8144a796e21a72a" title="QbitRegister::apply2QubitGate" alt="" coords="672,5,872,32"/>
-<area shape="rect" id="node4" href="$classQbitRegister.html#a1df7d4a899a7423b9558363ef12beb62" title="QbitRegister::applySwap\l_helper" alt="" coords="689,57,855,98"/>
+<area shape="rect" id="node3" href="$group__qureg.html#ga079d54a5add64ecc22d48e31a0edbc4e" title="Arbitrary two&#45;qubit gate. " alt="" coords="673,5,882,32"/>
+<area shape="rect" id="node4" href="$group__qureg.html#ga961a69578c85f6c4b33e7c2bc6ff1f11" title="QubitRegister::ApplySwap\l_helper" alt="" coords="689,57,865,98"/>
 <area shape="rect" id="node5" href="$namespaceopenqu.html#ac0c261c4bb004642e72971b86e07cb2f" title="checks whether an integer is a power of 2 " alt="" coords="455,121,595,148"/>
-<area shape="rect" id="node9" href="$bitops__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="747,240,797,267"/>
 <area shape="rect" id="node10" href="$bitops__btest_8cpp.html#a4d2a1b92bca4aff7773cb1252aef00c9" title="BOOST_AUTO_TEST_CASE" alt="" coords="427,223,624,249"/>
-<area shape="rect" id="node6" href="$classopenqu_1_1AlignedAllocator.html#aa0916f50a231a0d30c2bdc467a540a2c" title="openqu::AlignedAllocator\l::allocate" alt="" coords="689,174,855,215"/>
-<area shape="rect" id="node8" href="$bitops__btest_8cpp.html#a8dbe0bcff50283c0cf60f61f947c730e" title="BOOST_AUTO_TEST_CASE" alt="" coords="673,123,871,149"/>
-<area shape="rect" id="node7" href="$alignedallocator__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="920,181,971,208"/>
+<area shape="rect" id="node9" href="$bitops__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="752,240,803,267"/>
+<area shape="rect" id="node6" href="$classopenqu_1_1AlignedAllocator.html#aa0916f50a231a0d30c2bdc467a540a2c" title="openqu::AlignedAllocator\l::allocate" alt="" coords="694,174,861,215"/>
+<area shape="rect" id="node8" href="$bitops__btest_8cpp.html#a8dbe0bcff50283c0cf60f61f947c730e" title="BOOST_AUTO_TEST_CASE" alt="" coords="679,123,876,149"/>
+<area shape="rect" id="node7" href="$alignedallocator__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="931,181,981,208"/>
 </map>

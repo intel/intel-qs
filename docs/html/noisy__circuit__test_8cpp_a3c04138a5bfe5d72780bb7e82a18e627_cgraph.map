@@ -1,27 +1,20 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a31640da0e9d35404a0172c83684617da" title="openqu::mpi::Environment\l::is_usefull_rank" alt="" coords="115,245,289,287"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="596,489,771,531"/>
-<area shape="rect" id="node13" href="$classQbitRegister.html#ae289a23f862d4bd442acc71e6c672443" title="QbitRegister::Init" alt="" coords="141,649,263,675"/>
-<area shape="rect" id="node16" href="$group__qureg.html#ga14455385632216213a23f82ef8f61c4e" title="??? " alt="" coords="373,522,523,549"/>
-<area shape="rect" id="node17" href="$classQbitRegister.html#a7d76a5abd3cf6bce62238d7244160423" title="QbitRegister::applyControlled1\lQubitGate" alt="" coords="348,877,548,919"/>
-<area shape="rect" id="node18" href="$group__qureg.html#gafc50c9735e592dafbe8e5e49e196e2a0" title="QbitRegister::apply1QubitGate" alt="" coords="348,943,548,970"/>
-<area shape="rect" id="node19" href="$group__qureg.html#gab8202459af1477623fa59b0b61ccc9fb" title="??? " alt="" coords="128,711,276,738"/>
-<area shape="rect" id="node22" href="$group__NoisyQureg.html#gafb6d8bf729cb0e7c6bfb02252dcd4f8b" title="Reset to zero the time elapsed for each and every qubit in the register. " alt="" coords="122,981,282,1023"/>
-<area shape="rect" id="node23" href="$group__NoisyQureg.html#ga0e8ae891441c06ada5a31d12d103841b" title="NoisyQureg::applyControlled1\lQubitGate" alt="" coords="104,813,300,855"/>
-<area shape="rect" id="node24" href="$group__NoisyQureg.html#ga03c6f2bd90c251f33763a1249da4d63f" title="NoisyQureg::apply1QubitGate" alt="" coords="104,930,300,957"/>
-<area shape="rect" id="node25" href="$group__NoisyQureg.html#ga2bb7cbe497b4dffd087dd0baa2d96a1e" title="Apply the noise gates on each and every qubit. Then reset to time counter. " alt="" coords="118,1047,286,1088"/>
-<area shape="rect" id="node26" href="$group__qureg.html#gadb56f219a18080645cf6ddfe93959640" title="Compute the overlap &lt;psi|this state&gt; " alt="" coords="125,1112,279,1153"/>
-<area shape="rect" id="node4" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="596,351,771,392"/>
-<area shape="rect" id="node5" href="$classopenqu_1_1mpi_1_1Environment.html#ac805495792381e266a692b5ef5813793" title="openqu::mpi::Environment\l::get_nrankspernode" alt="" coords="361,456,535,497"/>
-<area shape="rect" id="node6" href="$classopenqu_1_1mpi_1_1Environment.html#afc37936778ba8de4a10945edb92bf121" title="openqu::mpi::Environment\l::get_nnodes" alt="" coords="361,5,535,47"/>
-<area shape="rect" id="node7" href="$classopenqu_1_1mpi_1_1Environment.html#a3406847c742f21d93f14c31699d44ebd" title="openqu::mpi::Environment\l::get_nodeid" alt="" coords="361,71,535,112"/>
-<area shape="rect" id="node8" href="$classopenqu_1_1mpi_1_1Environment.html#af88901faa781700fddf33f38e17283d3" title="openqu::mpi::Environment\l::remaprank" alt="" coords="361,136,535,177"/>
-<area shape="rect" id="node11" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="615,241,752,267"/>
-<area shape="rect" id="node12" href="$namespaceopenqu_1_1mpi.html#ad9c19358966bbac39b7765ed0fc20660" title="Print from all MPI processes. " alt="" coords="385,253,511,279"/>
-<area shape="rect" id="node9" href="$classopenqu_1_1mpi_1_1Exception.html#ac4971a7f9e7377a5f29539e4179a4af5" title="openqu::mpi::Exception\l::Exception" alt="" coords="604,149,763,191"/>
-<area shape="rect" id="node10" href="$classopenqu_1_1mpi_1_1Exception.html#a83e67327c35a5c7d2c7ce8bedac8164e" title="openqu::mpi::Exception\l::~Exception" alt="" coords="604,84,763,125"/>
-<area shape="rect" id="node14" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="399,775,497,802"/>
-<area shape="rect" id="node15" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="654,775,713,802"/>
-<area shape="rect" id="node20" href="$classTimer.html#a90488c0efd4e80b865b0d3d3b92a525b" title="Timer::Breakdown" alt="" coords="384,674,512,701"/>
-<area shape="rect" id="node21" href="$namespaceopenqu.html#ad5b80c42dd813c0565e9f4f31fb13727" title="convert to a string " alt="" coords="625,674,742,701"/>
+<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="638,117,813,158"/>
+<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="638,237,813,278"/>
+<area shape="rect" id="node4" href="$classopenqu_1_1mpi_1_1Environment.html#a31640da0e9d35404a0172c83684617da" title="openqu::mpi::Environment\l::is_usefull_rank" alt="" coords="130,121,305,162"/>
+<area shape="rect" id="node5" href="$classqhipster_1_1openmp_1_1AffinityNoOmp.html#a6aac79ad5ff892af0acce93398154c2d" title="qhipster::openmp::Affinity\lNoOmp::set_thread_affinity" alt="" coords="126,186,309,227"/>
+<area shape="rect" id="node6" href="$group__qureg.html#gaaaae7a9f733da609ae1b8e05b167c7c1" title="QubitRegister::Initialize" alt="" coords="405,303,563,329"/>
+<area shape="rect" id="node9" href="$group__qureg.html#gacce419ad010d4257b38d30ec0243d1ef" title="Enable the collection of statistics (time used in computation and bandwidth). " alt="" coords="381,124,587,151"/>
+<area shape="rect" id="node10" href="$group__qureg.html#ga03a7748edc78a315d91b98748526fe82" title="Arbitrary two&#45;qubit gate. " alt="" coords="379,459,589,501"/>
+<area shape="rect" id="node11" href="$group__qureg.html#ga88c9b7abd01e34bd1aea4f56c3ad71ba" title="QubitRegister::Apply1QubitGate" alt="" coords="379,664,589,691"/>
+<area shape="rect" id="node12" href="$group__qureg.html#ga2f9f31493c6bf4bb5ba93615feb98b0c" title="Print the statistics (time used in computation and bandwidth) to screen. " alt="" coords="124,471,311,497"/>
+<area shape="rect" id="node13" href="$group__NoisyQureg.html#gad40d566bcd022d987adee8cef87632a0" title="NoisyQureg::Initialize" alt="" coords="144,353,291,380"/>
+<area shape="rect" id="node14" href="$group__NoisyQureg.html#gae2fdfc78e6c467469d13f2415bdd65f2" title="Reset to zero the time elapsed for each and every qubit in the register. " alt="" coords="126,573,309,614"/>
+<area shape="rect" id="node15" href="$group__NoisyQureg.html#gabb98077fb81fc9664384f65255556c81" title="NoisyQureg::ApplyControlled1\lQubitGate" alt="" coords="118,405,317,446"/>
+<area shape="rect" id="node16" href="$group__NoisyQureg.html#ga0e004b00ed45dd8a284982d8b2349786" title="NoisyQureg::Apply1QubitGate" alt="" coords="118,689,317,716"/>
+<area shape="rect" id="node17" href="$group__NoisyQureg.html#ga0ae62f10ccf00664bc052ae802ab99a9" title="Apply the noise gates on each and every qubit. Then reset to time counter. " alt="" coords="117,741,318,782"/>
+<area shape="rect" id="node18" href="$group__qureg.html#gabb6be107aa90fabfb75edef0a50c0113" title="Compute the overlap &lt;psi|this state&gt; " alt="" coords="113,807,321,833"/>
+<area shape="rect" id="node19" href="$group__NoisyQureg.html#ga83709285b0cce25476cff8359813f89f" title="Return the current number of (experimental) 1&#45; and 2&#45;qubit gates. " alt="" coords="105,858,330,899"/>
+<area shape="rect" id="node7" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="676,303,775,329"/>
+<area shape="rect" id="node8" href="$classopenqu_1_1mpi_1_1Environment.html#ac805495792381e266a692b5ef5813793" title="openqu::mpi::Environment\l::get_nrankspernode" alt="" coords="638,354,813,395"/>
 </map>

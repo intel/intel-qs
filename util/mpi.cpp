@@ -24,13 +24,12 @@
 #else
 #include "mpi.hpp"
 //#include "openmp.hpp"
-#include "util/bitops.hpp"
-#include "util/conversion.hpp"
+#include "bitops.hpp"
+#include "conversion.hpp"
 #endif
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
 #include "mpi.h"
-
 #include <stdexcept>
 #include <vector>
 #endif
@@ -40,7 +39,7 @@
 #include <thread>
 
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
 openqu::mpi::Environment::Environment(int& argc, char**& argv) : inited_(false)
 {
   int flag;
@@ -133,7 +132,7 @@ openqu::mpi::Environment::Environment(int& argc, char**& argv) : inited_(false)
 //  std::string aff = openqu::openmp::init(0);
 //  int threads_per_rank = openqu::openmp::omp_get_set_num_threads();
 
-  glb_affinity.set_thread_affinity(2);
+  glb_affinity.set_thread_affinity(1);
   int threads_per_rank = glb_affinity.get_num_threads();
   std::string aff_str = glb_affinity.get_affinity_string();
 
@@ -158,7 +157,7 @@ openqu::mpi::Environment::Environment(int&, char**&) {}
 
 openqu::mpi::Environment::~Environment()
 {
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   if (inited_) { 
 #if 0
     if (is_usefull_rank()) {
@@ -179,7 +178,7 @@ openqu::mpi::Environment::~Environment()
 
 int openqu::mpi::Environment::rank()
 {
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   int rank;
   OPENQU_MPI_CHECK_RESULT((MPI_Comm_rank(comm(), &rank)))
   return rank;
@@ -190,7 +189,7 @@ int openqu::mpi::Environment::rank()
 
 int openqu::mpi::Environment::size()
 {
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   int size;
   OPENQU_MPI_CHECK_RESULT((MPI_Comm_size(comm(), &size)))
   return size;
@@ -201,6 +200,7 @@ int openqu::mpi::Environment::size()
 
 int openqu::mpi::Environment::get_nrankspernode()
 {
+#ifdef INTELQS_HAS_MPI
   MPI_Comm nodeComm;
   int nrankspernode;
   int myrank = rank();
@@ -210,6 +210,9 @@ int openqu::mpi::Environment::get_nrankspernode()
   MPI_Comm_size(nodeComm, &nrankspernode);
 
   return nrankspernode;
+#else
+  return 1;
+#endif
 }
 
 int openqu::mpi::Environment::get_nnodes()
@@ -226,7 +229,7 @@ int openqu::mpi::Environment::get_nodeid()
 
 void openqu::mpi::Environment::remaprank(int newme)
 {
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   int r=rank();
   MPI_Comm oldcomm = communicator, newcomm;
   MPI_Comm_split(oldcomm, 0, newme, &newcomm);
@@ -236,7 +239,7 @@ void openqu::mpi::Environment::remaprank(int newme)
 }
 
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
 MPI_Comm openqu::mpi::Environment::comm()
 {
   return communicator;
@@ -244,7 +247,7 @@ MPI_Comm openqu::mpi::Environment::comm()
 #endif
 
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
 
 openqu::mpi::Exception::Exception(int result) : result_(result)
 {
@@ -261,7 +264,7 @@ openqu::mpi::Exception::~Exception() throw() {}
 
 void openqu::mpi::barrier()
 {
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   MPI_Comm comm = openqu::mpi::Environment::comm(); 
   MPI_Barrier(comm);
 #endif
@@ -269,14 +272,14 @@ void openqu::mpi::barrier()
 
 void openqu::mpi::print(std::string s, bool all)
 {
-  MPI_Comm comm = openqu::mpi::Environment::comm(); 
   int rank = Environment::rank();
   int size = Environment::size();
 
   if (all) {
     barrier();
     if (rank == 0) {printf("[%3d] %s\n", rank, s.c_str()); fflush(stdout);}
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
+    MPI_Comm comm = openqu::mpi::Environment::comm(); 
     std::vector<char> buffer;
     if (rank == 0) {
       for (int i = 1; i < size; i++) {
@@ -293,7 +296,7 @@ void openqu::mpi::print(std::string s, bool all)
     } else
       OPENQU_MPI_CHECK_RESULT((MPI_Send(const_cast<char*>(s.c_str()), s.size() + 1, MPI_CHAR, 0,
                                         rank, comm)));
-#endif  // OPENQU_HAVE_MPI
+#endif  // INTELQS_HAS_MPI
   } else {
     barrier();
     if (rank == 0) std::cout << s << std::endl;
@@ -303,15 +306,14 @@ void openqu::mpi::print(std::string s, bool all)
 
 void openqu::mpi::print(std::string s, MPI_Comm comm)
 {
-  int rank;
-  int size;
+  int rank ;
+  int size ;
   MPI_Comm_rank(comm, &rank);
   MPI_Comm_size(comm, &size);
 
-
   if (1) {
     if (rank == 0) printf("[%3d] %s\n", rank, s.c_str());
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
     std::vector<char> buffer;
     if (rank == 0) {
       for (int i = 1; i < size; i++) {
@@ -327,11 +329,13 @@ void openqu::mpi::print(std::string s, MPI_Comm comm)
     } else
       OPENQU_MPI_CHECK_RESULT((MPI_Send(const_cast<char*>(s.c_str()), s.size() + 1, MPI_CHAR, 0,
                                         rank, comm)));
-#endif  // OPENQU_HAVE_MPI
+#endif  // INTELQS_HAS_MPI
   } 
 }
 
 
+#ifdef INTELQS_HAS_MPI
 MPI_Comm openqu::mpi::Environment::communicator = MPI_COMM_WORLD;
+#endif
 unsigned openqu::mpi::Environment::nnodes = 1;
 unsigned openqu::mpi::Environment::mynodeid = 1;

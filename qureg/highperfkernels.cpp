@@ -210,42 +210,46 @@ void Loop_SN(std::size_t start, std::size_t end, Type *state0, Type *state1,
              bool specialize, Timer *timer)
 {
   Type m00 = m[0][0], 
-              m01 = m[0][1], 
-              m10 = m[1][0], 
-              m11 = m[1][1];
+             m01 = m[0][1], 
+             m10 = m[1][0], 
+             m11 = m[1][1];
 
   std::string label;
   double frac_of_state_accessed;
   double ttot = 0., tnov = 0., ttmp1, ttmp2;
   ttmp1 = sec();
 
-
-  if(specialize == false) {
-    frac_of_state_accessed = 1.;
-    label = "general";
+  if(specialize == false)
+  {
+      frac_of_state_accessed = 1.;
+      label = "general";
 #pragma omp parallel for
-    for (std::size_t i = start; i < end; i++) {
-      std::size_t i0 = i + indsht0;
-      std::size_t i1 = i + indsht1;
-      Type in0 = state0[i0], in1 = state1[i1];
-      state0[i0] = m00 * in0 + m01 * in1;
-      state1[i1] = m10 * in0 + m11 * in1;
-    }
-  } else {
+      for (std::size_t i = start; i < end; i++)
+      {
+          std::size_t i0 = i + indsht0;
+          std::size_t i1 = i + indsht1;
+          Type in0 = state0[i0], in1 = state1[i1];
+          state0[i0] = m00 * in0 + m01 * in1;
+          state1[i1] = m10 * in0 + m11 * in1;
+      }
+  }
+  else
+  {
     Specialization(_Loop_SN_);
   }
 
-  if (timer) {
-    ttot = sec() - ttmp1;
-    double datab = ((state0 == state1) ? 2.0 : 4.0) * 
-                   frac_of_state_accessed * sizeof(state0[0]) * D(end - start);
-    // printf("datab=%lf len=%lu time=%lf bw=%lf\n", datab, end-start, ttot, datab / ttot / 1e9);
-    double flops = D(1L << 19) * 38.0;
-    double gflops = flops / ttot / 1e9;
-    // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
-    //        label.c_str(), ttot, datab / ttot / 1e9);
+  if (timer)
+  {
+      ttot = sec() - ttmp1;
+      double datab = ((state0 == state1) ? 2.0 : 4.0) * 
+                     frac_of_state_accessed * sizeof(state0[0]) * D(end - start);
+      // printf("datab=%lf len=%lu time=%lf bw=%lf\n", datab, end-start, ttot, datab / ttot / 1e9);
+      double flops = D(1L << 19) * 38.0;
+      double gflops = flops / ttot / 1e9;
+      // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
+      //        label.c_str(), ttot, datab / ttot / 1e9);
 
-    timer->record_sn(ttot, datab / ttot);
+      timer->record_sn(ttot, datab / ttot);
   }
 }
 template 
@@ -302,7 +306,6 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              TM2x2<Type> const&m, 
              bool specialize, Timer *timer)
 {
-
   TODO(Allow for case where state is not aligned: need SIMD ISA for un-aligned access);
   assert((UL(state0) % 256) == 0);
   assert((UL(state1) % 256) == 0);
@@ -312,9 +315,9 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
 #endif
 
   Type m00 = m[0][0],
-              m01 = m[0][1],
-              m10 = m[1][0],
-              m11 = m[1][1];
+             m01 = m[0][1],
+             m10 = m[1][0],
+             m11 = m[1][1];
 
   std::string label;
   double frac_of_state_accessed;
@@ -324,51 +327,58 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
   std::size_t nthreads = glb_affinity.get_num_threads();
   TODO(Add nthreads check to clamp to smaller number of too little work)
   TODO(Generalize for AVX3 cases so we check for pos <=1 etc)
-  TODO(Generalize for AVX3 cases so we check for pos <=1 etc)
 
-  if(specialize == false) {
-    frac_of_state_accessed = 1.;
-    label = "general";
+  if(specialize == false)
+  {
+      frac_of_state_accessed = 1.;
+      label = "general";
 
-    if((gend - gstart) / (1L << pos+1L) >= nthreads)
-    {
+      if((gend - gstart) / (1L << pos+1L) >= nthreads)
+      {
 #pragma omp parallel for 
-      for(std::size_t group = gstart; group < gend; group += (1L << pos + 1L))
-        for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
-        {
-            std::size_t i0 = ind0 + indsht0;
-            std::size_t i1 = ind0 + indsht1;
-            Type in0 = state0[i0], in1 = state1[i1];
-            state0[i0] = m00 * in0 + m01 * in1;
-            state1[i1] = m10 * in0 + m11 * in1;
-        }
-    }
-    else
-    {
-      for(std::size_t group = gstart; group < gend; group += (1L << pos + 1))
+          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1L))
+          {
+              for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
+              {
+                  std::size_t i0 = ind0 + indsht0;
+                  std::size_t i1 = ind0 + indsht1;
+                  Type in0 = state0[i0], in1 = state1[i1];
+                  state0[i0] = m00 * in0 + m01 * in1;
+                  state1[i1] = m10 * in0 + m11 * in1;
+              }
+            }
+      }
+      else
+      {
+          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1))
+          {
 #pragma omp parallel for
-        for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
-        {
-            std::size_t i0 = ind0 + indsht0;
-            std::size_t i1 = ind0 + indsht1;
-            Type in0 = state0[i0], in1 = state1[i1];
-            state0[i0] = m00 * in0 + m01 * in1;
-            state1[i1] = m10 * in0 + m11 * in1;
-        }
-    }
-  } else {
-    Specialization(_Loop_DN_);
+              for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
+              {
+                  std::size_t i0 = ind0 + indsht0;
+                  std::size_t i1 = ind0 + indsht1;
+                  Type in0 = state0[i0], in1 = state1[i1];
+                  state0[i0] = m00 * in0 + m01 * in1;
+                  state1[i1] = m10 * in0 + m11 * in1;
+              }
+          }
+      }
+  }
+  else
+  {
+      Specialization(_Loop_DN_);
   }
 
-  if(timer) {
-    ttot = sec() - ttmp1;     
-    double datab = 2.0 * frac_of_state_accessed * sizeof(state0[0]) * D(gend - gstart);
-    double flops = D(1L << 19) * 38.0;
-    double gflops = flops / ttot / 1e9;
-    // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
-    //         label.c_str(), ttot, datab / ttot / 1e9);
+  if(timer)
+  {
+      ttot = sec() - ttmp1;     
+      double datab = 2.0 * frac_of_state_accessed * sizeof(state0[0]) * D(gend - gstart);
+      double flops = D(1L << 19) * 38.0;
+      double gflops = flops / ttot / 1e9;
+      // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
+      //         label.c_str(), ttot, datab / ttot / 1e9);
 
-    timer->record_dn(ttot, datab / ttot);
+      timer->record_dn(ttot, datab / ttot);
   }
 
 
@@ -398,46 +408,63 @@ void Loop_TN(Type *state, std::size_t c11, std::size_t c12,
 {
   double ttmp1 = sec(), ttot = 0.;
   Type m00 = m[0][0],
-              m01 = m[0][1],
-              m10 = m[1][0],
-              m11 = m[1][1];
+             m01 = m[0][1],
+             m10 = m[1][0],
+             m11 = m[1][1];
 
   // std::cout << m00 << " " << m01 << " " << m10 << " " << m11 << std::endl;
   size_t nthreads = glb_affinity.get_num_threads();
 
-  if ((c12 - c11) / c13 >= nthreads) {
+  if ((c12 - c11) / c13 >= nthreads)
+  {
 #pragma omp parallel for
-    for (std::size_t l1 = c11; l1 < c12; l1 += c13)
-      for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23)
-        for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++) {
-          std::size_t ind1 = ind0 + ind_shift;
-          Type in0 = state[ind0], in1 = state[ind1];
-          state[ind0] = m00 * in0 + m01 * in1;
-          state[ind1] = m10 * in0 + m11 * in1;
-        }
-  } else {
-    for (std::size_t l1 = c11; l1 < c12; l1 += c13) {
-      if ((l1 + c22 - l1 - c21) / c23 >= nthreads) {
-#pragma omp parallel for
-        for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23)
-          for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++) {
-            std::size_t ind1 = ind0 + ind_shift;
-            Type in0 = state[ind0], in1 = state[ind1];
-            state[ind0] = m00 * in0 + m01 * in1;
-            state[ind1] = m10 * in0 + m11 * in1;
+      for (std::size_t l1 = c11; l1 < c12; l1 += c13)
+      {
+          for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23)
+          {      
+              for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++)
+              {
+                  std::size_t ind1 = ind0 + ind_shift;
+                  Type in0 = state[ind0], in1 = state[ind1];
+                  state[ind0] = m00 * in0 + m01 * in1;
+                  state[ind1] = m10 * in0 + m11 * in1;
+              }
           }
-      } else {
-        for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23) {
-#pragma omp parallel for
-          for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++) {
-            std::size_t ind1 = ind0 + ind_shift;
-            Type in0 = state[ind0], in1 = state[ind1];
-            state[ind0] = m00 * in0 + m01 * in1;
-            state[ind1] = m10 * in0 + m11 * in1;
-          }
-        }
       }
-    }
+  }
+  else
+  {
+      for (std::size_t l1 = c11; l1 < c12; l1 += c13)
+      {
+          if ((l1 + c22 - l1 - c21) / c23 >= nthreads)
+          {
+#pragma omp parallel for
+              for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23)
+              {
+                  for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++)
+                  {
+                      std::size_t ind1 = ind0 + ind_shift;
+                      Type in0 = state[ind0], in1 = state[ind1];
+                      state[ind0] = m00 * in0 + m01 * in1;
+                      state[ind1] = m10 * in0 + m11 * in1;
+                  }
+              }
+          }
+          else
+          {
+              for (std::size_t l2 = l1 + c21; l2 < l1 + c22; l2 += c23)
+              {
+#pragma omp parallel for
+                  for (std::size_t ind0 = l2 + c31; ind0 < l2 + c32; ind0++)
+                  {
+                      std::size_t ind1 = ind0 + ind_shift;
+                      Type in0 = state[ind0], in1 = state[ind1];
+                      state[ind0] = m00 * in0 + m01 * in1;
+                      state[ind1] = m10 * in0 + m11 * in1;
+                  }
+              }
+          }
+      }
   }
 
   assert(((c12 - c11) % c13) == 0);

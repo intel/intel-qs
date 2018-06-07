@@ -1,7 +1,6 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="138,5,197,32"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="279,41,453,82"/>
-<area shape="rect" id="node4" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="279,158,453,199"/>
-<area shape="rect" id="node5" href="$namespaceopenqu_1_1mpi.html#ad9c19358966bbac39b7765ed0fc20660" title="Print from all MPI processes. " alt="" coords="104,107,231,133"/>
-<area shape="rect" id="node6" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="297,107,435,133"/>
+<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="281,5,455,46"/>
+<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="281,122,455,163"/>
+<area shape="rect" id="node4" href="$namespaceopenqu_1_1mpi.html#ad9c19358966bbac39b7765ed0fc20660" title="Print from all MPI processes. " alt="" coords="105,71,231,97"/>
+<area shape="rect" id="node5" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="299,71,437,97"/>
 </map>

@@ -27,7 +27,7 @@ using namespace std;
 
 // Global variables related to Psi-function .malloc/.free routines.
 using Type = ComplexDP;
-QbitRegister<Type> *psi1 = nullptr;
+QubitRegister<Type> *psi1 = nullptr;
 bool fPsiAllocated = false;
 
 

@@ -20,4 +20,4 @@
 
 #define QHIPSTER_VERSION_STRING "SDK-RC-1.1.2"
 
-std::string get_qhipster_version(void);
+std::string GetQhipsterVersion(void);

@@ -13,41 +13,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //------------------------------------------------------------------------------
+
 #pragma once
 
-#include "util/utils.hpp"
+#include "../util/utils.hpp"
 #include <numeric>
 #include <map>
 #include <vector>
-#include "util/conversion.hpp"
+#include "../util/conversion.hpp"
 
-inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t nqbits)
+inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t num_qubits)
 {
   std::size_t v_ = 0;
-  for (std::size_t i = 0; i < nqbits; i++) v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
+  for (std::size_t i = 0; i < num_qubits; i++) v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
   return v_;
 }
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// declaration and definition of class Permutation
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @var map: map
+/// @var imap: inverse map
 class Permutation
 {
  public:
   std::vector<std::size_t> map, imap;
-  std::size_t nqbits;
+  std::size_t num_qubits;
 
+/////////////////////////////////////////////////////////////////////////////////////////
   unsigned operator[](std::size_t i)
   {
-    assert(i <= nqbits);
+    assert(i <= num_qubits);
     return (unsigned) map[i];
   }
 
   unsigned operator[](unsigned i)
   {
-    assert(i <= nqbits);
+    assert(i <= num_qubits);
     return map[i];
+  }
+
+  int operator[](int i)
+  {
+    assert(i <= num_qubits);
+    return (int)map[i];
   }
 
   std::size_t size() {return map.size();}
 
+/////////////////////////////////////////////////////////////////////////////////////////
   std::string GetMapStr()
   {
     std::string s;
@@ -62,39 +78,43 @@ class Permutation
     return s;
   }
 
-  Permutation(std::size_t nqbits)
+/////////////////////////////////////////////////////////////////////////////////////////
+  Permutation(std::size_t num_qubits)
   {
-    this->nqbits = nqbits;
-    std::vector<std::size_t> m(nqbits);
+    this->num_qubits = num_qubits;
+    std::vector<std::size_t> m(num_qubits);
     iota(m.begin(), m.end(), 0);
     // for(auto i:m) printf("%d ", i); printf("\n");
     // exit(0);
-    SetNewPerm(m);
+    SetNewPermutation(m);
   }
 
   Permutation(std::vector<std::size_t> m)
   {
-    nqbits = m.size();
-    SetNewPerm(m);
+    num_qubits = m.size();
+    SetNewPermutation(m);
   }
 
-  std::size_t Find(std::size_t pos)
+/////////////////////////////////////////////////////////////////////////////////////////
+  std::size_t Find(std::size_t position)
   {
     bool found = false;
     std::size_t i;
     for (i = 0; i < map.size(); i++)
-      if (map[i] == pos) {
-        found = true;
-        break;
-      }
-
+    {
+        if (map[i] == position)
+         {
+            found = true;
+            break;
+        }
+    }
     assert(found);
     return i;
   }
 
-  void SetNewPerm(std::vector<std::size_t> m)
+/////////////////////////////////////////////////////////////////////////////////////////
+  void SetNewPermutation(std::vector<std::size_t> m)
   {
-
     map = m;
     // check consistency of map
     std::vector<bool> exist(map.size(), 0);
@@ -106,48 +126,54 @@ class Permutation
     for (std::size_t i = 0; i < map.size(); i++) imap[map[i]] = i;
   }
 
-  std::string dec2bin(std::size_t in, std::size_t nbits)
+/////////////////////////////////////////////////////////////////////////////////////////
+  std::string dec2bin(std::size_t in, std::size_t num_bits)
   {
     std::string s;
-    s.resize(nbits);
-    for (std::size_t i = 0; i < nbits; i++) {
-      s[i] = (in & 0x1) == 0 ? '0' : '1';
-      in = in >> 1;
+    s.resize(num_bits);
+    for (std::size_t i = 0; i < num_bits; i++)
+    {
+        s[i] = (in & 0x1) == 0 ? '0' : '1';
+        in = in >> 1;
     }
     return s;
   }
+
   std::size_t bin2dec(std::string in)
   {
     std::size_t v = 0;
-    for (std::size_t i = 0; i < in.size(); i++) {
-      v += UL(1 << i) * UL(in[i] - '0');
-    }
+    for (std::size_t i = 0; i < in.size(); i++)
+        v += UL(1 << i) * UL(in[i] - '0');
     return v;
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
   inline std::size_t lin2perm_(std::size_t v)
   {
     std::size_t v_ = 0;
-    for (std::size_t i = 0; i < nqbits; i++) v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
+    for (std::size_t i = 0; i < num_qubits; i++)
+        v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
     return v_;
   }
+
   inline std::size_t perm2lin_(std::size_t v)
   {
     std::size_t v_ = 0;
-    for (std::size_t i = 0; i < nqbits; i++)
-      v_ = v_ | (((v & (((std::size_t)1) << imap[i])) >> imap[i]) << i);
+    for (std::size_t i = 0; i < num_qubits; i++)
+        v_ = v_ | (((v & (((std::size_t)1) << imap[i])) >> imap[i]) << i);
     return v_;
   }
 
   std::string lin2perm(std::size_t v)
   {
-    std::string s = dec2bin(v, nqbits), sp(s);
+    std::string s = dec2bin(v, num_qubits), sp(s);
     for (std::size_t i = 0; i < s.size(); i++) sp[i] = s[map[i]];
-    if (0) {
-      std::size_t v_ = 0;
-      for (std::size_t i = 0; i < nqbits; i++)
-        v_ = v_ | (((v & (((std::size_t)1) << map[i])) >> map[i]) << i);
-      printf("sp=%s new:%s\n", sp.c_str(), dec2bin(v_, nqbits).c_str());
+    if (0)
+    {
+        std::size_t v_ = 0;
+        for (std::size_t i = 0; i < num_qubits; i++)
+            v_ = v_ | (((v & (((std::size_t)1) << map[i])) >> map[i]) << i);
+        printf("sp=%s new:%s\n", sp.c_str(), dec2bin(v_, num_qubits).c_str());
     }
     return sp;
   }
@@ -155,20 +181,23 @@ class Permutation
   std::string lin2perm(std::string s)
   {
     std::string sp(s);
-    for (std::size_t i = 0; i < s.size(); i++) sp[i] = s[map[i]];
+    for (std::size_t i = 0; i < s.size(); i++)
+        sp[i] = s[map[i]];
     return sp;
   }
 
   std::string perm2lin(std::size_t v)
   {
-    std::string s = dec2bin(v, nqbits), sp(s);
-    for (std::size_t i = 0; i < s.size(); i++) sp[i] = s[imap[i]];
+    std::string s = dec2bin(v, num_qubits), sp(s);
+    for (std::size_t i = 0; i < s.size(); i++)
+        sp[i] = s[imap[i]];
     return sp;
   }
   std::string perm2lin(std::string s)
   {
     std::string sp(s);
-    for (std::size_t i = 0; i < s.size(); i++) sp[i] = s[imap[i]];
+    for (std::size_t i = 0; i < s.size(); i++)
+        sp[i] = s[imap[i]];
     return sp;
   }
 
@@ -181,13 +210,13 @@ class Permutation
     printf("imap: ");
     for(auto & i : imap) printf("%d", i);
     printf("\n");
-    for(std::size_t i = 0; i < (1 << nqbits); i++)
+    for(std::size_t i = 0; i < (1 << num_qubits); i++)
     {
-       printf("%s(%lld)\n", dec2bin(i, nqbits).c_str(), i);
+       printf("%s(%lld)\n", dec2bin(i, num_qubits).c_str(), i);
     }
 
     printf("\n");
-    for(std::size_t i = 0; i < (1 << nqbits); i++)
+    for(std::size_t i = 0; i < (1 << num_qubits); i++)
     {
        printf("%s(%lld)\n", lin2perm(i).c_str(), bin2dec(lin2perm(i)));
     }
@@ -195,7 +224,8 @@ class Permutation
     printf("\n");
 #endif
 
-    for (std::size_t i = 0; i < (UL(1) << nqbits); i++) {
+    for (std::size_t i = 0; i < (UL(1) << num_qubits); i++)
+    {
 #if 0
        printf("%s ==> %s\n", lin2perm(i).c_str(), 
                perm2lin(lin2perm(i)).c_str());
@@ -206,6 +236,15 @@ class Permutation
   }
 };
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// FIXME FIXME FIXME: the code below has probably be written by Misha to test the permutation class.
+//                    I did not strip MPI (if it is used at all) from it.
+
 #if defined(MAIN)
 class State
 {
@@ -213,22 +252,25 @@ class State
   std::string name;
   Permutation p;
   std::vector<ComplexType> state;
+
   State(Permutation p_, std::string name_) : p(p_), name(name_)
   {
-    state.resize(1 << p.nqbits);
+    state.resize(1 << p.num_qubits);
 #pragma omp parallel for
     for (std::size_t i = 0; i < state.size(); i++) state[i] = {D(i % 3), D(i % 7)};
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
   void permute(Permutation pnew)
   {
     Permutation pold = p;
 
-    assert(pnew.nqbits == pold.nqbits);
+    assert(pnew.num_qubits == pold.num_qubits);
     std::vector<ComplexType> state_new(state.size(), 0);
 
     // printf("map: %s imap: %s\n", pnew.GetMapStr().c_str(), pold.GetImapStr().c_str());
-    std::vector<std::size_t> map(pnew.nqbits, 0);
-    for (std::size_t i = 0; i < pnew.nqbits; i++) {
+    std::vector<std::size_t> map(pnew.num_qubits, 0);
+    for (std::size_t i = 0; i < pnew.num_qubits; i++) {
       map[i] = pold.map[pnew.imap[i]];
       // printf("%d ", map[i]);
     }
@@ -239,14 +281,14 @@ class State
 #pragma omp parallel for
     for (std::size_t i = 0; i < state.size(); i++) {
 #if 0
-      std::size_t to1 = perm(i, &(map[0]), p.nqbits);
+      std::size_t to1 = perm(i, &(map[0]), p.num_qubits);
       std::size_t to2 = pnew.perm2lin_(pold.lin2perm_(i));
       std::size_t to = pold.bin2dec(pnew.perm2lin(pold.lin2perm(i)));
       assert(to == to1);
       assert(to == to2);
       state_new[to] = state[i];
 #else
-      std::size_t to_ = perm(i, &(map[0]), p.nqbits);  // pnew.perm2lin_(pold.lin2perm_(i));
+      std::size_t to_ = perm(i, &(map[0]), p.num_qubits);  // pnew.perm2lin_(pold.lin2perm_(i));
       state_new[to_] = state[i];
 #endif
     }
@@ -259,6 +301,7 @@ class State
     state = state_new;
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
   void print()
   {
     printf("name::%s %s\n", name.c_str(), p.GetMapStr().c_str());
@@ -266,6 +309,7 @@ class State
       printf("%s {%lf %lf}\n", p.lin2perm(i).c_str(), real(state[i]), imag(state[i]));
     }
   }
+/////////////////////////////////////////////////////////////////////////////////////////
   bool operator==(const State &rhs)
   {
     assert((const std::size_t)state.size() == rhs.state.size());
@@ -277,17 +321,26 @@ class State
   }
 };
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
 std::size_t main(std::size_t argc, char **argv)
 {
-  std::size_t nqbits = 3, nthreads = 1;
-  if (argc != 3) {
-    fprintf(stderr, "usage: %s <nqbits> <nthreads>\n", argv[0]);
-    exit(1);
-  } else {
-    nqbits = atoi(argv[1]);
-    nthreads = atoi(argv[2]);
+  std::size_t num_qubits = 3, num_threads = 1;
+  if (argc != 3)
+  {
+      fprintf(stderr, "usage: %s <num_qubits> <num_threads>\n", argv[0]);
+      exit(1);
   }
-  initomp(nthreads);
+  else
+  {
+      num_qubits = atoi(argv[1]);
+      num_threads = atoi(argv[2]);
+  }
+  initomp(num_threads);
 #if 1
   Permutation p({2, 0, 1});
   p.prange();
@@ -305,7 +358,7 @@ std::size_t main(std::size_t argc, char **argv)
    assert(s1 == s2);
    printf("SUCCESS!\n");
 #else
-  std::vector<std::size_t> map(nqbits, 0);
+  std::vector<std::size_t> map(num_qubits, 0);
   iota(map.begin(), map.end(), 0);
   State s1(Permutation(map), "s1"), s2(s1);
   s2.permute(Permutation(map));

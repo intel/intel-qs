@@ -1,7 +1,6 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="539,56,597,83"/>
-<area shape="rect" id="node3" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="292,107,423,133"/>
-<area shape="rect" id="node5" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="308,5,407,32"/>
-<area shape="rect" id="node6" href="$namespaceopenqu.html#ac0c261c4bb004642e72971b86e07cb2f" title="checks whether an integer is a power of 2 " alt="" coords="104,107,244,133"/>
-<area shape="rect" id="node4" href="$namespaceopenqu_1_1detail.html#ac7e5b2bd32e0a8eca45f61d87dc56aef" title="openqu::detail::highestBitImpl" alt="" coords="471,107,665,133"/>
+<area shape="rect" id="node2" href="$namespaceopenqu.html#a0c00ea7605ace62e602ebfc48d2e7b99" title="returns the highest bit set in a non&#45;zero integer " alt="" coords="293,24,424,51"/>
+<area shape="rect" id="node4" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="125,24,224,51"/>
+<area shape="rect" id="node5" href="$namespaceopenqu.html#ac0c261c4bb004642e72971b86e07cb2f" title="checks whether an integer is a power of 2 " alt="" coords="105,75,245,102"/>
+<area shape="rect" id="node3" href="$namespaceopenqu_1_1detail.html#ac7e5b2bd32e0a8eca45f61d87dc56aef" title="openqu::detail::highestBitImpl" alt="" coords="472,24,667,51"/>
 </map>

@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //------------------------------------------------------------------------------
+
 #include <vector>
+
 using namespace std;
 
 template <class Type = ComplexDP>
-class QbitRegisterMetric: public QbitRegister<Type> {
+class QubitRegisterMetric: public QubitRegister<Type> {
   int iTotalQubitGateCount=0;
   int iOneQubitGateCount=0;
   int iTwoQubitGateCount=0;
@@ -27,8 +29,8 @@ class QbitRegisterMetric: public QbitRegister<Type> {
 
 public:
   //Constructor
-  QbitRegisterMetric<Type>(int iNQbits):QbitRegister<Type>(iNQbits){
-    vParallelDepth.resize(iNQbits);
+  QubitRegisterMetric<Type>(int iNQubits):QubitRegister<Type>(iNQubits){
+    vParallelDepth.resize(iNQubits);
   }
 
   //Get stats
@@ -38,44 +40,44 @@ public:
   int GetParallelDepth();
 
   //Perform gates
-  void applyHadamard(int);
-  void applyRotationX(int, double);
-  void applyRotationY(int, double);
-  void applyRotationZ(int, double);
-  void applyCPauliX(int, int);
-  void applyControlled1QubitGate(int, int, openqu::TinyMatrix<Type, 2, 2, 32>);
+  void ApplyHadamard(int);
+  void ApplyRotationX(int, double);
+  void ApplyRotationY(int, double);
+  void ApplyRotationZ(int, double);
+  void ApplyCPauliX(int, int);
+  void ApplyControlled1QubitGate(int, int, openqu::TinyMatrix<Type, 2, 2, 32>);
 };
 
 template <class Type>
-int QbitRegisterMetric<Type>::GetOneQubitGateCount(){
+int QubitRegisterMetric<Type>::GetOneQubitGateCount(){
   return iOneQubitGateCount;
 }
 
 template <class Type>
-int QbitRegisterMetric<Type>::GetTwoQubitGateCount(){
+int QubitRegisterMetric<Type>::GetTwoQubitGateCount(){
   return iTwoQubitGateCount;
 }
 
 template <class Type>
-int QbitRegisterMetric<Type>::GetTotalQubitGateCount(){
+int QubitRegisterMetric<Type>::GetTotalQubitGateCount(){
   return iTotalQubitGateCount;
 }
 
 template <class Type>
 
-int QbitRegisterMetric<Type>::GetParallelDepth(){
+int QubitRegisterMetric<Type>::GetParallelDepth(){
   return *std::max_element(std::begin(vParallelDepth), std::end(vParallelDepth));
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::OneQubitIncrements(int q){
+void QubitRegisterMetric<Type>::OneQubitIncrements(int q){
   iTotalQubitGateCount++;
   iOneQubitGateCount++;
   vParallelDepth[q]++;
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::TwoQubitIncrements(int q1, int q2){
+void QubitRegisterMetric<Type>::TwoQubitIncrements(int q1, int q2){
   iTotalQubitGateCount++;
   iTwoQubitGateCount++;
   int iNewDepth = max(vParallelDepth[q1],vParallelDepth[q2])+1;
@@ -84,37 +86,37 @@ void QbitRegisterMetric<Type>::TwoQubitIncrements(int q1, int q2){
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyHadamard(int q){
-  QbitRegister<Type>::applyHadamard(q);
+void QubitRegisterMetric<Type>::ApplyHadamard(int q){
+  QubitRegister<Type>::ApplyHadamard(q);
   OneQubitIncrements(q); 
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyRotationX(int q, double theta){
-  QbitRegister<Type>::applyRotationX(q,theta);
+void QubitRegisterMetric<Type>::ApplyRotationX(int q, double theta){
+  QubitRegister<Type>::ApplyRotationX(q,theta);
   OneQubitIncrements(q); 
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyRotationY(int q, double theta){
-  QbitRegister<Type>::applyRotationY(q,theta);
+void QubitRegisterMetric<Type>::ApplyRotationY(int q, double theta){
+  QubitRegister<Type>::ApplyRotationY(q,theta);
   OneQubitIncrements(q); 
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyRotationZ(int q, double theta){
-  QbitRegister<Type>::applyRotationZ(q,theta);
+void QubitRegisterMetric<Type>::ApplyRotationZ(int q, double theta){
+  QubitRegister<Type>::ApplyRotationZ(q,theta);
   OneQubitIncrements(q); 
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyCPauliX(int q1, int q2){
-  QbitRegister<Type>::applyCPauliX(q1,q2);
+void QubitRegisterMetric<Type>::ApplyCPauliX(int q1, int q2){
+  QubitRegister<Type>::ApplyCPauliX(q1,q2);
   TwoQubitIncrements(q1,q2); 
 }
 
 template <class Type>
-void QbitRegisterMetric<Type>::applyControlled1QubitGate(int q1, int q2, openqu::TinyMatrix<Type, 2, 2, 32> V){
-  QbitRegister<Type>::applyControlled1QubitGate(q1,q2,V);
+void QubitRegisterMetric<Type>::ApplyControlled1QubitGate(int q1, int q2, openqu::TinyMatrix<Type, 2, 2, 32> V){
+  QubitRegister<Type>::ApplyControlled1QubitGate(q1,q2,V);
   TwoQubitIncrements(q1,q2); 
 }
