@@ -39,7 +39,7 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
 #endif
   assert(nprocs == 1);
 
-  std::size_t n = globalSize();
+  std::size_t n = GlobalSize();
   assert(openqu::isPowerOf2(n));
   assert(qubit_low < openqu::highestBit(n));
   assert(qubit_high < openqu::highestBit(n));

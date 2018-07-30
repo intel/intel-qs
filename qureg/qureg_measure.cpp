@@ -46,7 +46,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   if (qubit < M)
   {
       bool up = false, down = false;
-      for (std::size_t i = 0; i < localSize(); i += 2 * delta)
+      for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
       {
           for (std::size_t j = 0; j < delta; ++j)
           {
@@ -60,17 +60,17 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   else
   {
       int up = 0, down = 0;
-      std::size_t src_glb_start = UL(myrank) * localSize();
+      std::size_t src_glb_start = UL(myrank) * LocalSize();
       if (check_bit(src_glb_start, qubit) == 0)
       {
         down = 0;
-        for (std::size_t j = 0; j < localSize(); ++j) 
+        for (std::size_t j = 0; j < LocalSize(); ++j) 
             up = up || (std::norm(state[j]) > tolerance);
       }
       else
       {
         up = 0;
-        for (std::size_t j = 0; j < localSize(); ++j) 
+        for (std::size_t j = 0; j < LocalSize(); ++j) 
             down = down || (std::norm(state[j]) > tolerance);
       }
       // printf("[%3d] up:%d down:%d\n", myrank, up, down);
@@ -117,20 +117,20 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
 
   if (qubit < M)
   { 
-      for (std::size_t i = value ? 0 : delta; i < localSize(); i += 2 * delta)
+      for (std::size_t i = value ? 0 : delta; i < LocalSize(); i += 2 * delta)
           for (std::size_t j = 0; j < delta; ++j) state[i + j] = 0.;
   }
   else
   {
-      std::size_t src_glb_start = UL(myrank) * localSize();
+      std::size_t src_glb_start = UL(myrank) * LocalSize();
       if (check_bit(src_glb_start, qubit) == 0 && value == true)
       {
-          for (std::size_t j = 0; j < localSize(); ++j)
+          for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
       }
       else if (check_bit(src_glb_start, qubit) == 1 && value == false)
       {
-          for (std::size_t j = 0; j < localSize(); ++j)
+          for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
       }
   }
@@ -158,7 +158,7 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit
   BaseType local_P = 0.;
   if (qubit < M)
   { // if '0' and '1' for qubit state are witin the same rank
-      for (std::size_t i = delta; i < localSize(); i += 2 * delta)
+      for (std::size_t i = delta; i < LocalSize(); i += 2 * delta)
       {
           for (std::size_t j = 0; j < delta; ++j)
               local_P += std::norm(state[i + j]);
@@ -166,10 +166,10 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit
   }
   else
   {
-      std::size_t src_glb_start = UL(myrank) * localSize();
+      std::size_t src_glb_start = UL(myrank) * LocalSize();
       if (check_bit(src_glb_start, qubit) == 1)
       {
-        for (std::size_t j = 0; j < localSize(); ++j)
+        for (std::size_t j = 0; j < LocalSize(); ++j)
             local_P += std::norm(state[j]);
       }
   }
@@ -201,7 +201,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   int bit_is_zero = 0, bit_is_one = 0; 
   if (qubit < M)
   {
-      for (std::size_t i = 0; i < localSize(); i += 2 * delta)
+      for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
       {
           for (std::size_t j = 0; j < delta; ++j)
           {
@@ -220,10 +220,10 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   }
   else
   {
-      std::size_t src_glb_start = UL(myrank) * localSize();
+      std::size_t src_glb_start = UL(myrank) * LocalSize();
       if (check_bit(src_glb_start, qubit) == 0)
       {
-          for (std::size_t j = 0; j < localSize(); j++)
+          for (std::size_t j = 0; j < LocalSize(); j++)
           {
               if (std::norm(state[j]) > tolerance)
               {
@@ -232,7 +232,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
               }
            }
       } else {
-          for (std::size_t j = 0; j < localSize(); j++)
+          for (std::size_t j = 0; j < LocalSize(); j++)
           {
               if (std::norm(state[j]) > tolerance)
               {

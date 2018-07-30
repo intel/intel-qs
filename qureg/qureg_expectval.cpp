@@ -504,7 +504,7 @@ void QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
 // compute the expectation value
   std::size_t myrank = openqu::mpi::Environment::rank();
   BaseType local_value = 0;
-  std::size_t glb_start = UL(myrank) * localSize();
+  std::size_t glb_start = UL(myrank) * LocalSize();
 // integer in binary notation with 1 located at the position of the qubits
   std::size_t y=0;
   for (std::size_t i=0; i<qubits.size(); i++)
@@ -516,7 +516,7 @@ void QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
   {
       std::size_t x;
       #pragma omp for reduction(+ : local_value)
-      for(std::size_t i = 0; i < localSize(); i++)
+      for(std::size_t i = 0; i < LocalSize(); i++)
       {
          x = glb_start + i;
          if ( HammingWeight( x & y ) & 1 )	// odd number of 1 in the qubits involved

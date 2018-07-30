@@ -86,8 +86,8 @@ void QubitRegister<Type>::ApplyFusedGates()
   }
   #endif
 
-  size_t blocksize = (fwindow.size() == 1) ? localSize() : (1L << UL(log2llc));
-  for (size_t l = 0; l < localSize(); l += blocksize) {
+  size_t blocksize = (fwindow.size() == 1) ? LocalSize() : (1L << UL(log2llc));
+  for (size_t l = 0; l < LocalSize(); l += blocksize) {
     for (auto &f : fwindow) {
       // check if work has been done
       std::string &type = std::get<0>(f);

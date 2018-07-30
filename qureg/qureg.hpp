@@ -97,13 +97,13 @@ class QubitRegister
   inline Type& operator[] (std::size_t index) { return state[index]; }
   inline Type& operator[] (std::size_t index) const { return state[index]; }
 
-  std::size_t localSize() const { return localsize_; }
-  std::size_t globalSize() const { return globalsize_; }
+  std::size_t LocalSize() const { return local_size_; }
+  std::size_t GlobalSize() const { return global_size_; }
 
   void Resize(std::size_t new_num_amplitudes);
-  std::size_t size() const { return globalsize_; }
+  std::size_t size() const { return global_size_; }
   unsigned NumQubits() const { return num_qubits; }
-  Type *TmpSpace() const { return state + localSize(); }
+  Type *TmpSpace() const { return state + LocalSize(); }
   size_t TmpSize() const {return tmp_spacesize_;}
 
   // bit manipulation
@@ -251,8 +251,8 @@ class QubitRegister
   std::vector<std::tuple<std::string, TM2x2<Type>, unsigned, unsigned>> fwindow;
 
  private:
-  std::size_t localsize_;
-  std::size_t globalsize_;
+  std::size_t local_size_;
+  std::size_t global_size_;
   std::size_t tmp_spacesize_;
 };
 

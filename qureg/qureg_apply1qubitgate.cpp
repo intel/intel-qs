@@ -45,7 +45,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 
   int tag1 = 1, tag2 = 2;
   int tag3 = 3, tag4 = 4;
-  std::size_t glb_start = UL(myrank) * localSize();
+  std::size_t glb_start = UL(myrank) * LocalSize();
 
   // std::string s;
   unsigned int itask, jtask;
@@ -90,12 +90,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
       if (check_bit(glb_start, UL(position)) == 0)
       {
           openqu::mpi::Environment::remaprank(jtask);
-          ScaleState(0UL, localSize(), state, Type(0, 1.0), timer);
+          ScaleState(0UL, LocalSize(), state, Type(0, 1.0), timer);
       }
       else
       {
           openqu::mpi::Environment::remaprank(itask);
-          ScaleState(0UL, localSize(), state, Type(0, -1.0), timer);
+          ScaleState(0UL, LocalSize(), state, Type(0, -1.0), timer);
       }
       openqu::mpi::barrier();
       if (timer)
@@ -110,7 +110,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
   size_t lcl_chunk = TmpSize();
   Type *tmp_state = TmpSpace();
 
-  std::size_t lcl_size_half = localSize() / 2L;
+  std::size_t lcl_size_half = LocalSize() / 2L;
   assert(lcl_size_half <= std::numeric_limits<size_t>::max());
 
   if (lcl_chunk > lcl_size_half) 
@@ -192,7 +192,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   unsigned M = num_qubits - log2_nprocs;
   std::size_t P = qubit;
 
-  std::size_t src_glb_start = UL(myrank) * localSize();
+  std::size_t src_glb_start = UL(myrank) * LocalSize();
   // check for special case of diagonal
   bool diagonal = (m[0][1].real() == 0. && m[0][1].imag() == 0. &&
                    m[1][0].real() == 0. && m[1][0].imag() == 0.);
@@ -204,12 +204,12 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
 
   if (P < M)
   {
-      assert(eind - sind <= localSize());
+      assert(eind - sind <= LocalSize());
       Loop_DN(sind, eind, UL(P), state, state, 0UL, (1UL << P), m, specialize, timer);
   }
   else
   {
-      assert(eind - sind == localSize());
+      assert(eind - sind == LocalSize());
       if (specialize && diagonal)
       {
           if (check_bit(src_glb_start, P) == 0 )
@@ -251,7 +251,7 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
   }
 
   L:
-  Apply1QubitGate_helper(qubit, m, 0UL, localSize());
+  Apply1QubitGate_helper(qubit, m, 0UL, LocalSize());
 }
 
 

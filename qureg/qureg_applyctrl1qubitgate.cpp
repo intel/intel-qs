@@ -50,7 +50,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   //          T    T   | d2   s1  |  d2&s2  s1&d1 |  T       T
 
   int tag1 = 1, tag2 = 2;
-  std::size_t glb_start = UL(myrank) * localSize();
+  std::size_t glb_start = UL(myrank) * LocalSize();
   unsigned int itask, jtask;
 
   if (check_bit(glb_start, T) == 0)
@@ -66,7 +66,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
 
   // 1. allocate temp buffer
   Type *tmp_state = TmpSpace();
-  std::size_t lcl_size_half = localSize() / 2L;
+  std::size_t lcl_size_half = LocalSize() / 2L;
   assert(lcl_size_half <= std::numeric_limits<int>::max());
 
 
@@ -202,7 +202,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
      md(3, 3) = m[1][1];
 
      ApplyDiag(control, qubit, md);
-     assert(eind - sind == localSize());
+     assert(eind - sind == LocalSize());
      assert(fusion == false);
 
      return true;
@@ -222,7 +222,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
             // within part of the vector that has Cth bit set to 
             // one, since this is control gate
             // Otherwise, we skip computation all together
-            if((C >= log2llc) && (localSize() > (eind - sind)))
+            if((C >= log2llc) && (LocalSize() > (eind - sind)))
             {
                 if(check_bit(sind, C) == 1)
                 {
@@ -336,7 +336,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned q
       }
   }
   L:
-  ApplyControlled1QubitGate_helper(control, qubit, m, 0UL, localSize());
+  ApplyControlled1QubitGate_helper(control, qubit, m, 0UL, LocalSize());
 }
 
 

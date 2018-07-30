@@ -64,14 +64,14 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 #endif
 
   // FIXME GG: I believe this limits the use of "resize" to adding a single qubit
-  if(globalSize()) assert(globalSize() * 2UL == new_num_amplitudes);
+  if(GlobalSize()) assert(GlobalSize() * 2UL == new_num_amplitudes);
   num_qubits = openqu::ilog2(new_num_amplitudes);
 
-  localsize_  = UL(1L << UL(num_qubits - log2_nprocs));
-  globalsize_ = UL(1L << UL(num_qubits));
-  assert(localSize() >= 1L);
+  local_size_  = UL(1L << UL(num_qubits - log2_nprocs));
+  global_size_ = UL(1L << UL(num_qubits));
+  assert(LocalSize() >= 1L);
 
-  std::size_t num_amplitudes = (nprocs == 1) ? localSize() : (localSize() + TmpSize());
+  std::size_t num_amplitudes = (nprocs == 1) ? LocalSize() : (LocalSize() + TmpSize());
   std::size_t nbytes = num_amplitudes * sizeof(state[0]);
 
 #if defined(USE_MM_MALLOC)
@@ -110,20 +110,20 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   unsigned M = new_num_qubits - log2_nprocs;
 
   assert(new_num_qubits > 0);
-  localsize_  = UL(1L << UL(new_num_qubits - log2_nprocs));
-  globalsize_ = UL(1L << UL(new_num_qubits));
+  local_size_  = UL(1L << UL(new_num_qubits - log2_nprocs));
+  global_size_ = UL(1L << UL(new_num_qubits));
 
-  std::size_t lcl_size_half = localSize() / 2L;
+  std::size_t lcl_size_half = LocalSize() / 2L;
 
   #if 0
-  if (tmpspacesize_ == 0 || localsize_ < tmpspacesize_ )
+  if (tmp_spacesize_ == 0 || local_size_ < tmp_spacesize_ )
   {
       if (!myrank) printf("Setting tmp storage to half the local state size\n");
-      this->tmpspacesize_ =  lcl_size_half;
+      this->tmp_spacesize_ =  lcl_size_half;
   }
   else
   {
-      this->tmpspacesize_ =  tmpspacesize_;
+      this->tmp_spacesize_ =  tmp_spacesize_;
       assert((lcl_size_half % tmpSize()) == 0);
   }
   #else
@@ -135,7 +135,7 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   #endif
 
   this->num_qubits = new_num_qubits;
-  assert(localSize() >= 1L);
+  assert(LocalSize() >= 1L);
 
   // set-up initial permutation
   permutation = new Permutation(new_num_qubits);
@@ -163,7 +163,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
 
   Initialize(new_num_qubits, tmp_spacesize_);
 
-  std::size_t num_amplitudes = (nprocs == 1) ? localSize() : (localSize() + TmpSize());
+  std::size_t num_amplitudes = (nprocs == 1) ? LocalSize() : (LocalSize() + TmpSize());
   std::size_t nbytes = num_amplitudes * sizeof(state[0]);
 
   // print some information
@@ -173,7 +173,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
       double s;
       s = D(num_ranks_per_node) * D(nbytes);
       printf("Total storage per node  = %.2lf MB \n", s / MB);
-      s = D(num_ranks_per_node) * D(localSize()) * D(sizeof(state[0]));
+      s = D(num_ranks_per_node) * D(LocalSize()) * D(sizeof(state[0]));
       printf("      storage per state = %.2lf MB \n", s / MB);
       if (nprocs > 1)
       {
@@ -229,7 +229,7 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 
   double t0 = time_in_seconds();
 
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd
 #else
@@ -246,7 +246,7 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
       // sequential
       srand(base_index);
       // no need of fast-forward rng
-      for (std::size_t i = 0; i < localSize(); i++)
+      for (std::size_t i = 0; i < LocalSize(); i++)
       {
           state[i] = {RAND01(), RAND01()};
           local_normsq += std::abs(state[i]) * std::abs(state[i]);
@@ -269,11 +269,11 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
           std::size_t thread_id = 0;
           std::size_t num_threads = 1;
 #endif
-          std::size_t chunk = localSize() / num_threads;
+          std::size_t chunk = LocalSize() / num_threads;
           std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-          if (thread_id == num_threads - 1) end = localSize();
+          if (thread_id == num_threads - 1) end = LocalSize();
           // fast forward
-          eng[thread_id].discard( 2 * myrank * localSize() + 2 * beginning );
+          eng[thread_id].discard( 2 * myrank * LocalSize() + 2 * beginning );
 #pragma simd reduction(+ : local_normsq)
           for (std::size_t i = beginning; i < end; i++)
           {
@@ -287,7 +287,7 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
       std::cout << " ~~~~~~~~~~~~~~~~ no random number generator !! ~~~~~~~~~~~~~~ \n";
 #endif
 
-      std::size_t lcl = localSize();
+      std::size_t lcl = LocalSize();
 #pragma omp parallel for reduction(+ : local_normsq)
       for (std::size_t i = 0; i < lcl; i++)
       {
@@ -316,18 +316,18 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
 //// computational basis state //////////////////////////////////////////////////////////
   else if (style == "base")
   {
-      std::size_t whereid = base_index / localSize();
+      std::size_t whereid = base_index / LocalSize();
       if (whereid == myrank)
       {
-          std::size_t lclind = (base_index % localSize());
+          std::size_t lclind = (base_index % LocalSize());
           state[lclind] = {1.0, 0.0};
       }
   }
 //// balanced superposition of all classical bitstrings /////////////////////////////////
   else if (style == "++++")
   {
-      state[0] = {1./std::sqrt( globalSize() ),0.};
-      for (std::size_t i = 1; i < localSize(); i++)
+      state[0] = {1./std::sqrt( GlobalSize() ),0.};
+      for (std::size_t i = 1; i < LocalSize(); i++)
       {
           state[i] = state[0];
       }
@@ -373,13 +373,13 @@ void QubitRegister<ComplexDP>::RandomInitialize(std::size_t base_index)
       std::size_t num_threads = 1;
 #endif
       VSLStreamStatePtr stream;
-      std::size_t chunk = localSize() / num_threads;
+      std::size_t chunk = LocalSize() / num_threads;
       std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-      if (thread_id == num_threads - 1) end = localSize();
+      if (thread_id == num_threads - 1) end = LocalSize();
 
       int errcode = vslNewStream(&stream, VSL_BRNG_MCG31, base_index);
       assert(errcode == VSL_STATUS_OK);
-      std::size_t num_skip = 2UL * (myrank * localSize() + beginning);
+      std::size_t num_skip = 2UL * (myrank * LocalSize() + beginning);
       vslSkipAheadStream(stream, num_skip);
       errcode = vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, 2L * (end - beginning),
                              (double *)&state[beginning], 0.0, 1.0);
@@ -406,13 +406,13 @@ void QubitRegister<ComplexSP>::RandomInitialize(std::size_t base_index)
       std::size_t num_threads = 1;
 #endif
       VSLStreamStatePtr stream;
-      std::size_t chunk = localSize() / num_threads;
+      std::size_t chunk = LocalSize() / num_threads;
       std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-      if (thread_id == num_threads - 1) end = localSize();
+      if (thread_id == num_threads - 1) end = LocalSize();
 
       int errcode = vslNewStream(&stream, VSL_BRNG_MCG31, base_index);
       assert(errcode == VSL_STATUS_OK);
-      std::size_t num_skip = 2L * (myrank * localSize() + beginning);
+      std::size_t num_skip = 2L * (myrank * LocalSize() + beginning);
       vslSkipAheadStream(stream, num_skip);
       errcode = vsRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, 2L * (end - beginning),
                         (float *)&state[beginning], 0.0, 1.0);
@@ -426,7 +426,7 @@ template <class Type>
 QubitRegister<Type>::QubitRegister(const QubitRegister &in)
 {
   Allocate(in.num_qubits, in.TmpSize());
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd
 #else

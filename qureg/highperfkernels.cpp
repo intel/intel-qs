@@ -150,7 +150,7 @@
   
 
 // specialized loops with autovectorization
-TODO(Not using ICC vectorization since it sucks: need to rewrite in intrincics)
+TODO(Not using ICC vectorization: need to rewrite in intrincics)
 // #define SIMD _Pragma("simd vectorlength(2) assert")
 #define SIMD 
 #define KeyLoop_TTTT(simdpragma, from, to, indsht0, indsht1, state0, state1, t00, t01, t10, t11) \

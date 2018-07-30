@@ -69,8 +69,8 @@ static void cfft(QubitRegister<Type> &x)
   // Create descriptor for 1D FFT
   MKL_LONG status =
       (sizeof(BaseType<Type>) == 8) ? 
-      DftiCreateDescriptorDM(comm, &desc, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.globalSize()) :
-      DftiCreateDescriptorDM(comm, &desc, DFTI_SINGLE, DFTI_COMPLEX, 1, x.globalSize());
+      DftiCreateDescriptorDM(comm, &desc, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize()) :
+      DftiCreateDescriptorDM(comm, &desc, DFTI_SINGLE, DFTI_COMPLEX, 1, x.GlobalSize());
 
   // openqu::mpi::barrier(); exit(0);
   DftiGetValueDM(desc, CDFT_LOCAL_SIZE, &v);
@@ -78,14 +78,14 @@ static void cfft(QubitRegister<Type> &x)
   DftiSetValueDM(desc, CDFT_WORKSPACE, work.data());
 
   
-  DftiSetValueDM(desc, DFTI_BACKWARD_SCALE, 1.0 / std::sqrt((BaseType<Type>)x.globalSize()));
+  DftiSetValueDM(desc, DFTI_BACKWARD_SCALE, 1.0 / std::sqrt((BaseType<Type>)x.GlobalSize()));
   DftiCommitDescriptorDM(desc);
   DftiComputeBackwardDM(desc, &(x[0]));
   DftiFreeDescriptorDM(&desc);
 #else
   DFTI_DESCRIPTOR_HANDLE descriptor;
   MKL_LONG status;
-  status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.globalSize());  
+  status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize());  
   status = DftiSetValue(descriptor, DFTI_PLACEMENT, DFTI_INPLACE);  
   status = DftiSetValue(descriptor, DFTI_BACKWARD_SCALE, 1.0 / sqrt((double)x.size()));
   status = DftiCommitDescriptor(descriptor);           // Finalize the descriptor

@@ -27,8 +27,8 @@
 template <class Type>
 bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 {
-  assert(rhs.globalSize() == globalSize());
-  for (std::size_t i = 0; i < rhs.localSize(); i++)
+  assert(rhs.GlobalSize() == GlobalSize());
+  for (std::size_t i = 0; i < rhs.LocalSize(); i++)
   {
       if (state[i] != rhs.state[i])
       {
@@ -46,10 +46,10 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 template <class Type>
 QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, Type sfactor)
 {
-  assert(localSize() == x.localSize());
+  assert(LocalSize() == x.LocalSize());
   BaseType lcl_maxabsdiff = -1.0;
 
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd reduction(max : lcl_maxabsdiff)
 #else
@@ -77,10 +77,10 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, 
 template <class Type>
 QubitRegister<Type>::BaseType QubitRegister<Type>::maxl2normdiff(QubitRegister &x)
 {
-  assert(localSize() == x.localSize());
+  assert(LocalSize() == x.LocalSize());
   BaseType lcl_diff = 0.0;
   // #pragma omp parallel for simd reduction(+:lcl_diff)
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for reduction(+ : lcl_diff)
 #else
@@ -111,7 +111,7 @@ template <class Type>
 void QubitRegister<Type>::Normalize() 
 {
   BaseType global_norm = ComputeNorm();
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #pragma omp parallel for 
   for(std::size_t i = 0; i < lcl; i++)
   {
@@ -126,7 +126,7 @@ template <class Type>
 QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 {
   BaseType local_normsq = 0;
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for reduction(+ : local_normsq)
 #else
@@ -163,7 +163,7 @@ Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
   Type local_over = Type(0.,0.);
   BaseType local_over_re = 0.;
   BaseType local_over_im = 0.;
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for private(local_over) reduction(+ : local_over_re,local_over_im)
 #else
@@ -198,7 +198,7 @@ template <class Type>
 double QubitRegister<Type>::Entropy()
 {
 
-  std::size_t lcl = localSize();
+  std::size_t lcl = LocalSize();
   double local_Hp = 0;
 
   if(timer) timer->Start("ENT", 0);
@@ -247,8 +247,8 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
 {
   std::vector <double> stats;
 
-  std::size_t lcl = localSize();
-  double two2n = D(globalSize());
+  std::size_t lcl = LocalSize();
+  double two2n = D(GlobalSize());
   
   double entropy = 0, avgselfinfo=0,
          m2 = 0, m3 = 0, m4 = 0, m5 = 0, m6 = 0, 
@@ -399,7 +399,7 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
       // print permutation
       assert(permutation);
       printf("permutation: %s\n", permutation->GetMapStr().c_str());
-      std::string s = PrintVector<Type, BaseType>(state, localSize(), num_qubits,
+      std::string s = PrintVector<Type, BaseType>(state, LocalSize(), num_qubits,
                                                   cumulative_probability, permutation);
       printf("%s=[\n", x.c_str());
       printf("%s", s.c_str());
@@ -425,7 +425,7 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   else
   {
 #ifdef INTELQS_HAS_MPI
-      std::string s = PrintVector(state, localSize(), num_qubits, cumulative_probability, permutation);
+      std::string s = PrintVector(state, LocalSize(), num_qubits, cumulative_probability, permutation);
       std::size_t len = s.length() + 1;
 #ifdef BIGMPI
       MPIX_Send_x(&len, 1, MPI_LONG, 0, 1000 + myrank, comm);
@@ -467,7 +467,7 @@ void QubitRegister<Type>::dumpbin(std::string fn)
   MPI_File fh;
   MPI_File_open(comm, (char *)fn.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY,
                 MPI_INFO_NULL, &fh);
-  std::size_t size = localSize();
+  std::size_t size = LocalSize();
   assert(size < INT_MAX);
   MPI_Offset offset = size * UL(myrank * sizeof(Type));
 

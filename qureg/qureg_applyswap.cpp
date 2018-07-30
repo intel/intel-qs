@@ -128,7 +128,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
   log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
 #endif
   unsigned M = num_qubits - log2_nprocs;
-  std::size_t lcl_size_half = localSize() / 2UL;
+  std::size_t lcl_size_half = LocalSize() / 2UL;
   std::size_t lcl_size_quarter = lcl_size_half / 2U;
   // assert(lcl_size_quarter >= 1);
 
@@ -156,7 +156,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 
   if (qubit1 < M && qubit2 < M)
   {
-    for (std::size_t i = 0; i < localSize(); i += 2 * delta2)
+    for (std::size_t i = 0; i < LocalSize(); i += 2 * delta2)
       for (std::size_t j = 0; j < delta2; j += 2 * delta1)
         for (std::size_t k = 0; k < delta1; ++k)
         {
@@ -177,25 +177,25 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
     MPI_Comm comm = openqu::mpi::Environment::comm();
     MPI_Status status;
     // HP_Distrpair(qubit1, qubit2);
-    std::size_t src_glb_start = UL(myrank) * localSize();
+    std::size_t src_glb_start = UL(myrank) * LocalSize();
     if (qubit1 < M)
     {
         // printf("here1\n");
         if (check_bit(src_glb_start, qubit2) == 0)
         {
             std::size_t dst_glb_start = set_bit(src_glb_start, qubit2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", localSize(), dst_glb_start);
-            assert((dst_glb_start % localSize()) == 0);
+            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
+            assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
-            jtask = dst_glb_start / localSize();
+            jtask = dst_glb_start / LocalSize();
             assert(jtask > myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
         } else if (check_bit(src_glb_start, qubit2) == 1) {
             std::size_t dst_glb_start = clear_bit(src_glb_start, qubit2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", localSize(), dst_glb_start);
-            assert((dst_glb_start % localSize()) == 0);
+            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
+            assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
-            itask = dst_glb_start / localSize();
+            itask = dst_glb_start / LocalSize();
             assert(itask < myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
         }
@@ -207,10 +207,10 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
             check_bit(src_glb_start, qubit2) == 0)
         {
             std::size_t dst_glb_start = set_bit(clear_bit(src_glb_start, qubit1), qubit2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", localSize(), dst_glb_start);
-            assert((dst_glb_start % localSize()) == 0);
+            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
+            assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
-            jtask = dst_glb_start / localSize();
+            jtask = dst_glb_start / LocalSize();
             // openqu::mpi::Environment::remaprank(jtask);
             assert(jtask > myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
@@ -219,10 +219,10 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
                  check_bit(src_glb_start, qubit2) == 1)
         {
             std::size_t dst_glb_start = clear_bit(set_bit(src_glb_start, qubit1), qubit2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", localSize(), dst_glb_start);
-            assert((dst_glb_start % localSize()) == 0);
+            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
+            assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
-            itask = dst_glb_start / localSize();
+            itask = dst_glb_start / LocalSize();
             // openqu::mpi::Environment::remaprank(itask);
             assert(itask < myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
