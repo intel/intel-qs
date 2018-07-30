@@ -1,7 +1,0 @@
-<map id="qureg/permute.hpp" name="qureg/permute.hpp">
-<area shape="rect" id="node2" href="$utils_8hpp.html" title="../util/utils.hpp" alt="" coords="597,80,701,107"/>
-<area shape="rect" id="node21" href="$conversion_8hpp.html" title="../util/conversion.hpp" alt="" coords="1054,80,1196,107"/>
-<area shape="rect" id="node3" href="$mpi_8hpp.html" title="mpi.hpp" alt="" coords="142,155,209,181"/>
-<area shape="rect" id="node5" href="$openmp__affinity__noomp_8hpp.html" title="openmp_affinity_noomp.hpp" alt="" coords="83,229,268,256"/>
-<area shape="rect" id="node6" href="$openmp__affinity__v1_8hpp.html" title="openmp_affinity_v1.hpp" alt="" coords="155,304,315,331"/>
-</map>

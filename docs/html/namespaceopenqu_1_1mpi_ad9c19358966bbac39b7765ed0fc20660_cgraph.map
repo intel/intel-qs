@@ -1,5 +1,0 @@
-<map id="openqu::mpi::print" name="openqu::mpi::print">
-<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="182,5,357,46"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="182,70,357,111"/>
-<area shape="rect" id="node4" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="201,136,338,163"/>
-</map>

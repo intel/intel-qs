@@ -1,9 +1,0 @@
-<map id="openqu::toString" name="openqu::toString">
-<area shape="rect" id="node2" href="$classPermutation.html#a9390cee9bf62d509e6972f4c848ff323" title="Permutation::GetMapStr" alt="" coords="195,5,357,32"/>
-<area shape="rect" id="node3" href="$classPermutation.html#a3d8d64e85f5f4efcf6341d334677fd94" title="Permutation::GetImapStr" alt="" coords="193,56,359,83"/>
-<area shape="rect" id="node4" href="$group__qureg.html#ga3320ee5d0ed318b864ce556cb75a57aa" title="QubitRegister::Apply1Qubit\lGate_helper" alt="" coords="185,107,367,149"/>
-<area shape="rect" id="node5" href="$group__qureg.html#ga39af2386b27fc72401ec0b6896f8aa93" title="Helper for the application of controlled one&#45;qubit gates. " alt="" coords="171,173,381,214"/>
-<area shape="rect" id="node6" href="$conversion__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="251,239,301,265"/>
-<area shape="rect" id="node7" href="$classHeader.html#a327fb3b47f3c632859aff821bbc9be85" title="Header::sprint" alt="" coords="224,289,328,316"/>
-<area shape="rect" id="node8" href="$classTimer.html#a90488c0efd4e80b865b0d3d3b92a525b" title="Timer::Breakdown" alt="" coords="212,340,340,367"/>
-</map>

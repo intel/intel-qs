@@ -1,5 +1,0 @@
-<map id="ScaleState" name="ScaleState">
-<area shape="rect" id="node2" href="$group__qureg.html#gaa65a5a1b581ac6c53fadb084a4c236bf" title="QubitRegister::HP_Distrpair" alt="" coords="154,5,339,32"/>
-<area shape="rect" id="node3" href="$group__qureg.html#ga3320ee5d0ed318b864ce556cb75a57aa" title="QubitRegister::Apply1Qubit\lGate_helper" alt="" coords="156,57,337,98"/>
-<area shape="rect" id="node4" href="$group__qureg.html#ga39af2386b27fc72401ec0b6896f8aa93" title="Helper for the application of controlled one&#45;qubit gates. " alt="" coords="142,122,351,163"/>
-</map>

@@ -1,7 +1,0 @@
-<map id="QbitRegister::Init" name="QbitRegister::Init">
-<area shape="rect" id="node2" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="175,5,349,47"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="175,71,349,112"/>
-<area shape="rect" id="node4" href="$classqhipster_1_1openmp_1_1AffinityNoOmp.html#a5b2be92134da5c2cbb5fecfdc06553df" title="qhipster::openmp::Affinity\lNoOmp::get_num_threads" alt="" coords="175,136,349,177"/>
-<area shape="rect" id="node5" href="$utils_8cpp.html#a01fa60f216455c685dbbd2a59daad0b0" title="time_in_seconds" alt="" coords="202,202,322,229"/>
-<area shape="rect" id="node6" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="193,253,331,279"/>
-</map>

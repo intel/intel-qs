@@ -1,7 +1,0 @@
-<map id="QbitRegister::applyHadamard" name="QbitRegister::applyHadamard">
-<area shape="rect" id="node2" href="$interface__api__qasm_8cpp.html#a60b1155db533134d4f183065283e5e2b" title="H_handler" alt="" coords="303,5,384,32"/>
-<area shape="rect" id="node3" href="$group__NoisyQureg.html#ga29547c5326b5894f4763e455526d32e7" title="NoisyQureg::applyHadamard" alt="" coords="248,56,439,83"/>
-<area shape="rect" id="node4" href="$classQbitRegisterMetric.html#a31991b842a2294de637cca3b99761a43" title="QbitRegisterMetric\l::applyHadamard" alt="" coords="278,107,409,149"/>
-<area shape="rect" id="node5" href="$expect__value__test_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="318,173,369,200"/>
-<area shape="rect" id="node6" href="$qft__test_8cpp.html#aa9dd8f6a5643e6d0a79644144d923222" title="qft" alt="" coords="324,224,363,251"/>
-</map>

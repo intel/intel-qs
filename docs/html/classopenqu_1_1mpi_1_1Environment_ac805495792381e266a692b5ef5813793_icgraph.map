@@ -1,6 +1,0 @@
-<map id="openqu::mpi::Environment::get_nrankspernode" name="openqu::mpi::Environment::get_nrankspernode">
-<area shape="rect" id="node2" href="$group__qureg.html#gaaaae7a9f733da609ae1b8e05b167c7c1" title="QubitRegister::Initialize" alt="" coords="230,31,389,57"/>
-<area shape="rect" id="node5" href="$group__qureg.html#gacac4c2e85bdd1b6017160ee9d4d10852" title="QubitRegister::Allocate" alt="" coords="231,81,388,108"/>
-<area shape="rect" id="node3" href="$group__NoisyQureg.html#gad40d566bcd022d987adee8cef87632a0" title="NoisyQureg::Initialize" alt="" coords="437,5,584,32"/>
-<area shape="rect" id="node4" href="$noisy__circuit__test_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="632,31,683,57"/>
-</map>

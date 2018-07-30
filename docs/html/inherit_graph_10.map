@@ -1,5 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classqhipster_1_1openmp_1_1IOmpAffinityV1.html" title="qhipster::openmp::IOmpAffinityV1" alt="" coords="5,45,224,72"/>
-<area shape="rect" id="node2" href="$classqhipster_1_1openmp_1_1AffinityCoreI7.html" title="qhipster::openmp::Affinity\lCoreI7" alt="" coords="272,5,443,46"/>
-<area shape="rect" id="node3" href="$classqhipster_1_1openmp_1_1AffinityNoOmp.html" title="qhipster::openmp::Affinity\lNoOmp" alt="" coords="272,70,443,111"/>
-</map>

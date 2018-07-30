@@ -1,7 +1,0 @@
-<map id="QbitRegister::Permute" name="QbitRegister::Permute">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="263,5,322,32"/>
-<area shape="rect" id="node3" href="$classPermutation.html#adbeac8b52213adb2992a5c25e5c95717" title="Permutation::perm2lin" alt="" coords="218,56,367,83"/>
-<area shape="rect" id="node5" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="205,107,380,149"/>
-<area shape="rect" id="node6" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="205,173,380,214"/>
-<area shape="rect" id="node4" href="$classPermutation.html#ae5953cd49dd17f0c21cd71e134ab3fca" title="Permutation::dec2bin" alt="" coords="428,56,573,83"/>
-</map>

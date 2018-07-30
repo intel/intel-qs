@@ -1,9 +1,0 @@
-<map id="qureg/highperfkernels.hpp" name="qureg/highperfkernels.hpp">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html" title="qureg/highperfkernels.cpp" alt="" coords="5,80,176,107"/>
-<area shape="rect" id="node3" href="$qureg__apply1qubitgate_8cpp.html" title="Define the QubitRegister methods corresponding to the application of single&#45;qubit gates..." alt="" coords="200,80,413,107"/>
-<area shape="rect" id="node4" href="$qureg__apply2qubitgate_8cpp.html" title="Define the QubitRegister methods corresponding to the application of two&#45;qubit gates. " alt="" coords="437,80,651,107"/>
-<area shape="rect" id="node5" href="$qureg__applyctrl1qubitgate_8cpp.html" title="Define the QubitRegister methods for the application of controlled one&#45;qubit gates. " alt="" coords="675,80,905,107"/>
-<area shape="rect" id="node6" href="$qureg__applydiag_8cpp.html" title="Define the QubitRegister methods for the application of two&#45;qubit diagonal gates. ..." alt="" coords="930,80,1107,107"/>
-<area shape="rect" id="node7" href="$qureg__applyswap_8cpp.html" title="Define the QubitRegister methods for the application of swap&#45;related gates. " alt="" coords="1132,80,1316,107"/>
-<area shape="rect" id="node8" href="$qureg__applytoffoli_8cpp.html" title="Define the QubitRegister method for the application of the Toffoli gate. " alt="" coords="1341,80,1525,107"/>
-</map>
