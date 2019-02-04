@@ -45,7 +45,7 @@ ifeq ($(bigmpi),1)
  INC := ${INC} ${BIGMPI_INC}
 endif
 
-########### Modified for the ccefw-desktop.jf.intel.com environment ############
+########### Modified for the ccefw-desktop environment ############
 ifeq ($(HOST),ccefw-desktop)
  CC = g++
  CC = /opt/intel/impi/2017.2.174/bin64/mpicxx
