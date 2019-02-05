@@ -82,7 +82,7 @@ void GenerateGateSet(std::vector <std::pair<std::string,TM2x2<Type>>> &sqg,
 int main(int argc, char **argv)
 {
   unsigned myrank;
-#ifdef NOREPA_HAS_MPI
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
   if (env.is_usefull_rank() == false) return 0;
   myrank = env.rank();

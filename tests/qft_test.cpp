@@ -18,7 +18,7 @@
 
 #if (defined(__ICC) || defined(__INTEL_COMPILER))
 #include <mkl.h>
-#if defined(NOREPA_HAS_MPI)
+#if defined(INTELQS_HAS_MPI)
 #include <mkl_cdft.h>
 #endif
 #endif
@@ -61,7 +61,7 @@ static void cfft(QubitRegister<Type> &x)
   
   int nprocs = openqu::mpi::Environment::size();
 #if (defined(__ICC) || defined(__INTEL_COMPILER))
-#ifdef NOREPA_HAS_MPI
+#ifdef INTELQS_HAS_MPI
   MPI_Comm comm = openqu::mpi::Environment::comm();
   DFTI_DESCRIPTOR_DM_HANDLE desc;
   MKL_LONG v;
@@ -120,7 +120,7 @@ static void cfft(QubitRegister<Type> &x)
 
 int main(int argc, char **argv)
 {
-#ifdef NOREPA_HAS_MPI
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
   if (env.is_usefull_rank() == false) return 0;
   unsigned myrank = env.rank();

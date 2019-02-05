@@ -23,7 +23,7 @@
 
 int main(int argc, char **argv)
 {
-#ifdef NOREPA_HAS_MPI
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
   if (env.is_usefull_rank() == false) return 0;
   unsigned myrank = env.rank();

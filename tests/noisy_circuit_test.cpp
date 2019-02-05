@@ -28,7 +28,7 @@
 int main(int argc, char **argv)
 {
   unsigned myrank=0, nprocs=1;
-#ifdef NOREPA_HAS_MPI
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
   myrank = env.rank();
   nprocs = openqu::mpi::Environment::size();
