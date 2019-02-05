@@ -24,8 +24,7 @@
  *  memory allocation
  */
 
-#include "util/bitops.hpp"
-
+#include "bitops.hpp"
 
 #ifdef _WIN32
 #include <malloc.h>

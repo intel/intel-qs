@@ -1,8 +1,0 @@
-<map id="openqu::isPowerOf2" name="openqu::isPowerOf2">
-<area shape="rect" id="node2" href="$classQbitRegister.html#a672e66fb6d27f3b1f8144a796e21a72a" title="QbitRegister::apply2QubitGate" alt="" coords="193,5,393,32"/>
-<area shape="rect" id="node3" href="$classQbitRegister.html#a1df7d4a899a7423b9558363ef12beb62" title="QbitRegister::applySwap\l_helper" alt="" coords="210,57,377,98"/>
-<area shape="rect" id="node4" href="$classopenqu_1_1AlignedAllocator.html#aa0916f50a231a0d30c2bdc467a540a2c" title="openqu::AlignedAllocator\l::allocate" alt="" coords="210,122,377,163"/>
-<area shape="rect" id="node6" href="$bitops__btest_8cpp.html#a8dbe0bcff50283c0cf60f61f947c730e" title="BOOST_AUTO_TEST_CASE" alt="" coords="195,188,392,215"/>
-<area shape="rect" id="node7" href="$bitops__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="268,239,319,265"/>
-<area shape="rect" id="node5" href="$alignedallocator__test_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="441,129,492,156"/>
-</map>

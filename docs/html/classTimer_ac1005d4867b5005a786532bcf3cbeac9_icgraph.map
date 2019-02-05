@@ -1,8 +1,0 @@
-<map id="Timer::record_sn" name="Timer::record_sn">
-<area shape="rect" id="node2" href="$highperfkernels_8hpp.html#a5f38e4fe8c6dbd8373e443203cc0fa6b" title="ScaleState" alt="" coords="216,64,303,91"/>
-<area shape="rect" id="node6" href="$group__qureg.html#gacf5bd16dc1dc1e3daed6b6388be052c4" title="??? " alt="" coords="186,115,333,141"/>
-<area shape="rect" id="node7" href="$group__qureg.html#gaa0dfc836ab99c45e874b330263b25af5" title="??? " alt="" coords="173,165,345,192"/>
-<area shape="rect" id="node3" href="$group__qureg.html#gafe0ffe91271466805943c6b6112f02fc" title="QbitRegister::HP_Distrpair" alt="" coords="404,5,583,32"/>
-<area shape="rect" id="node4" href="$group__qureg.html#gaedf1dd13993178f2a14983605b20e480" title="QbitRegister::apply1Qubit\lGate_helper" alt="" coords="407,57,579,98"/>
-<area shape="rect" id="node5" href="$classQbitRegister.html#a843fbe4c491202dfcaf87b6ca574df4b" title="QbitRegister::applyControlled1\lQubitGate_helper" alt="" coords="393,122,593,163"/>
-</map>

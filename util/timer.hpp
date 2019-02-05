@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright 2017 Intel Corporation 
+// Copyright (C) 2017 Intel Corporation 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 
 #pragma once
 
-#include "util/utils.hpp"
-#include "util/conversion.hpp"
-#include "util/mpi.hpp"
+#include "utils.hpp"
+#include "conversion.hpp"
+#include "mpi.hpp"
 
-#ifdef OPENQU_HAVE_MPI
-#include "mpi.h"
+#ifdef INTELQS_HAS_MPI
+#include <mpi.h>
 #endif
 
-#include <sys/time.h>
 #include <map>
 #include <string>
+#include <sys/time.h>
 #include <vector>
-#include "util/mpi.hpp"
 
 /**
  * Was a struct, but this is slightly nicer (due to having a constructor).
@@ -252,7 +251,7 @@ class Timer
             if(rank == 0)
               printf("stored stats in %s\n", fn.c_str());
 #else
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
 
 
     #if 0
@@ -292,7 +291,9 @@ class Timer
     #endif
     MPI_Barrier(openqu::mpi::Environment::comm());
 #else
-    assert(0);
+    printf(" *** The statistics (i.e. time used in computation and bandwidth) are available only when MPI is used inside Intel QS.\n");
+    printf(" *** This is not the case for this simulation. If needed, define flag 'INTELQS_HAS_MPI' in 'make.inc' before compilation of Intel QS.\n");
+//    assert(0);
 #endif
 #endif
   }

@@ -1,5 +1,0 @@
-<map id="QbitRegister::applyCPauliX" name="QbitRegister::applyCPauliX">
-<area shape="rect" id="node2" href="$interface__api__qasm_8cpp.html#ab9765f0823dfff5478614b49acb3d766" title="CNOT_handler" alt="" coords="271,5,380,32"/>
-<area shape="rect" id="node3" href="$group__NoisyQureg.html#gab153ce4fb024d797032d21481dd3d47a" title="NoisyQureg::applyCPauliX" alt="" coords="236,56,415,83"/>
-<area shape="rect" id="node4" href="$classQbitRegisterMetric.html#a04fb55b0ed2c162a58675ac54b781d49" title="QbitRegisterMetric\l::applyCPauliX" alt="" coords="260,107,391,149"/>
-</map>

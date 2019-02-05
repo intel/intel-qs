@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright 2017 Intel Corporation 
+// Copyright (C) 2017 Intel Corporation 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 
 using Type = ComplexDP;
 using namespace std;
 
+/////////////////////////////////////////////////////////////////////////////////////////
 template<typename Type>
-void genGateSet(vector <pair<string,TM2x2<Type>>> &sqg,
-                vector <pair<string,TM2x2<Type>>> &cqg)
+void GenerateGateSet(std::vector <std::pair<std::string,TM2x2<Type>>> &sqg,
+                     std::vector <std::pair<std::string,TM2x2<Type>>> &cqg)
 {
   TM2x2<Type> eye, X, sqrtX, Y, sqrtY, Z, sqrtZ, H, T;
 
@@ -74,55 +75,66 @@ void genGateSet(vector <pair<string,TM2x2<Type>>> &sqg,
 }
 
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char **argv)
 {
+  unsigned myrank;
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
   if (env.is_usefull_rank() == false) return 0;
-  int myid = env.rank();
-
+  myrank = env.rank();
+#endif
   
-  int nqbits = 3, nthreads = 1;
-  std::size_t tmpSize = 0;
+  unsigned num_qubits = 3, num_threads = 1;
+  std::size_t tmp_size = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "usage: %s <nqbits>\n", argv[0]);
+     fprintf(stderr, "usage: %s <num_qubits>\n", argv[0]);
      exit(1);
   }
   else
   {
-     nqbits = atoi(argv[1]);
+     num_qubits = atoi(argv[1]);
   }
 
 
-  std::vector <pair<string,TM2x2<Type>>> sqg, cqg;
-  genGateSet<Type>(sqg, cqg);
+  std::vector <std::pair<std::string,TM2x2<Type>>> sqg, cqg;
+  GenerateGateSet<Type>(sqg, cqg);
 
-  QbitRegister<ComplexDP> psi1(nqbits, "rand", 0, 2097152);
-  QbitRegister<ComplexDP> psi2(nqbits, "rand", 0, 2097152);
+  QubitRegister<ComplexDP> psi1(num_qubits, "rand", 0, 2097152);
+  QubitRegister<ComplexDP> psi2(num_qubits, "rand", 0, 2097152);
 
-  psi2.specializeon();
-  psi2.EnbStat();
+  psi2.TurnOnSpecialize();
+  psi2.EnableStatistics();
 
-
-  for(auto g: sqg) {
-    for(int pos = 16; pos < nqbits; pos++) {
-       psi2.apply1QubitGate(pos, g.second);
+  for(auto g: sqg)
+  {
+    for(int pos = 16; pos < num_qubits; pos++)
+    {
+       psi2.Apply1QubitGate(pos, g.second);
     }
   }
 
-  for (auto &g : cqg) {
+  for (auto &g : cqg)
+  {
     TM2x2<Type> &m = g.second;
-    for (unsigned q1 = 0; q1 < nqbits; q1++)
-      for (unsigned q2 = 0; q2 < nqbits; q2++) {
-        if (q1 != q2) {
-          psi1.applyControlled1QubitGate(q1, q2, m);
-          psi2.applyControlled1QubitGate(q1, q2, m);
+    for (unsigned q1 = 0; q1 < num_qubits; q1++)
+    {
+      for (unsigned q2 = 0; q2 < num_qubits; q2++)
+      {
+        if (q1 != q2)
+        {
+          psi1.ApplyControlled1QubitGate(q1, q2, m);
+          psi2.ApplyControlled1QubitGate(q1, q2, m);
           assert(psi1 == psi2);
         }
       }
+    }
   }
 
-  psi2.GetStat();
-
+  psi2.GetStatistics();
   
 }

@@ -31,7 +31,13 @@ int main(int argc, char **argv)
   unsigned myrank=0;
 #endif
 
-  unsigned num_qubits = 3;
+  int nthreads = 88;
+  glb_affinity.set_thread_affinity(nthreads);
+
+/// --- PARAMETERS ------------------------------------------- ///
+  int num_qubits = 8;
+  int num_gates = 1;
+/// ---------------------------------------------------------- ///
   std::size_t tmp_size = 0;
   if(argc != 2)
   {
@@ -50,55 +56,16 @@ int main(int argc, char **argv)
   G(1, 0) = {0.658235557641767, 0.070882241549507}; 
   G(1, 1) = {0.649564427121402, 0.373855203932477};
 
-
-  // generate random pairs for control qubits
-  std::vector<std::pair<unsigned, unsigned>> qpair;
-  std::default_random_engine generator;
-  std::uniform_int_distribution<int> qubit1(0, num_qubits - 1);
-  std::uniform_int_distribution<int> qubit2(0, num_qubits - 1);
-  unsigned i = 0;
-  while (i < 20)
-  {
-      unsigned q1 = qubit1(generator);
-      unsigned q2 = qubit2(generator);
-      if (q1 != q2)
-      {
-          qpair.push_back(std::make_pair(q1, q2));
-          i++;
-      }
-  }
-
-
   QubitRegister<ComplexDP> psi1(num_qubits, "rand", -1);
-  QubitRegister<ComplexDP> psi2(num_qubits, "rand", -1);
-  QubitRegister<ComplexDP> psi3(num_qubits, "rand", -1);
+
+  // with specialization
+  psi1.TurnOnSpecialize();
+  for(int pos = 0; pos < num_qubits; pos++)
   {
-    // no specialization
-    psi1.EnableStatistics();
-    for (auto &p : qpair) {
-       psi1.ApplyControlled1QubitGate(p.first, p.second, G);
-    }
-    
-    for(int pos = 0; pos < num_qubits; pos++) {
-       psi1.Apply1QubitGate(pos, G);
-    }
-    psi1.GetStatistics();
+      if (myrank == 0) printf(" ---------------------------------- \n");
+      psi1.EnableStatistics();
+      psi1.Apply1QubitGate(pos, G);
+      psi1.GetStatistics();
+      psi1.ResetStatistics();
   }
-
-  {
-    // with specialization
-    psi2.TurnOnSpecialize();
-    psi2.EnableStatistics();
-    for (auto &p : qpair) {
-       psi2.ApplyControlled1QubitGate(p.first, p.second, G);
-    }
-
-    for(int pos = 0; pos < num_qubits; pos++) {
-       psi2.Apply1QubitGate(pos, G);
-    }
-    psi2.GetStatistics();
-  }
-
-  double e = psi2.maxabsdiff(psi1);
-  if (myrank == 0) printf("e = %lf\n", e);
 }

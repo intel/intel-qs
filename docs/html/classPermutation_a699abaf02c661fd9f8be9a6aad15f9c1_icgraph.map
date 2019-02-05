@@ -1,6 +1,0 @@
-<map id="Permutation::lin2perm" name="Permutation::lin2perm">
-<area shape="rect" id="node2" href="$classPermutation.html#aa2f2a076a21a0f79081394146f8df1b1" title="Permutation::prange" alt="" coords="203,29,341,56"/>
-<area shape="rect" id="node3" href="$group__qureg.html#ga134aac44a6c781c0948f426189bfe677" title="Compute the overlap&#45;squared with another state. " alt="" coords="238,80,306,107"/>
-<area shape="rect" id="node4" href="$group__qureg.html#ga629eb3a21a13e7f9be5acba78e2da4be" title="Print on screen some information about the state. " alt="" coords="389,80,520,107"/>
-<area shape="rect" id="node5" href="$expect__value__test_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="568,80,619,107"/>
-</map>

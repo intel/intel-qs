@@ -1,7 +1,0 @@
-<map id="QbitRegister::entropy" name="QbitRegister::entropy">
-<area shape="rect" id="node2" href="$classTimer.html#a7b6515b02c968e32b333241fd808d778" title="Timer::Start" alt="" coords="215,107,305,133"/>
-<area shape="rect" id="node5" href="$classTimer.html#ac1005d4867b5005a786532bcf3cbeac9" title="Timer::record_sn" alt="" coords="200,5,320,32"/>
-<area shape="rect" id="node6" href="$classTimer.html#a6379e797f968aaee6ac3bb12dc6b81c5" title="Timer::Stop" alt="" coords="215,56,305,83"/>
-<area shape="rect" id="node3" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="407,56,466,83"/>
-<area shape="rect" id="node4" href="$namespaceopenqu_1_1mpi.html#a0aa2ab2e30d08fb3f9260d96c67bda30" title="An MPI barrier. " alt="" coords="368,107,505,133"/>
-</map>

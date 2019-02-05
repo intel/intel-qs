@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright 2017 Intel Corporation 
+// Copyright (C) 2017 Intel Corporation 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  * on single, two or multiple qubitsi.
  */
 
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 
 using namespace std;
 
@@ -28,17 +28,19 @@ using namespace std;
 #include <complex>
 
 
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
-// ------------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
-
+  unsigned myrank=0, nprocs=1;
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
-  unsigned myrank = openqu::mpi::Environment::rank();
-  unsigned nprocs = openqu::mpi::Environment::size();
+  myrank = openqu::mpi::Environment::rank();
+  nprocs = openqu::mpi::Environment::size();
 //  MPI_rank(MPI_COMM_WORLD, &myrank);
+#endif
 
   double sum = 0.;
 
@@ -46,46 +48,46 @@ int main(int argc, char **argv)
             << "   Single qubit   \n"
             << "------------------\n";
 
-  QbitRegister<ComplexDP> psi(1,"base",1);
-  psi.EnbStat();  
-  psi.applyHadamard(0);
+  QubitRegister<ComplexDP> psi(1,"base",1);
+  psi.EnableStatistics();  
+  psi.ApplyHadamard(0);
 
   psi.Print(" initial state |psi>=|-> : ");
 
-  psi.expectationValueX(0,sum);
+  psi.ExpectationValueX(0,sum);
   std::cout << "<psi|X|psi> = " << sum << "\n";
 
   psi.Print(" current state should still be |psi>=|-> : ");
 
 // using the general method
   std::vector<unsigned> qubits(1,0);
-  std::vector<unsigned> observs(1,1);
+  std::vector<unsigned> observables(1,1);
   sum=0;
-  psi.expectationValue(qubits,observs,sum);
+  psi.ExpectationValue(qubits,observables,sum);
   std::cout << " general method  __  <psi|X|psi> = " << sum << "\n";
 
   psi.Print(" current state should still be |psi>=|-> : ");
 
-  psi.applyPauliZ(0);
+  psi.ApplyPauliZ(0);
   psi.Print(" current state should be Z|psi>=|+> : ");
 
   sum=0;
-  psi.expectationValueX(0,sum);
+  psi.ExpectationValueX(0,sum);
   std::cout << " <psi|X|psi> = " << sum << "\n";
   sum=0;
-  psi.expectationValue(qubits,observs,sum);
+  psi.ExpectationValue(qubits,observables,sum);
   std::cout << " general method  __  <psi|X|psi> = " << sum << "\n";
 
   std::cout << "\n ------ repeat the experiment 100 times ---- \n";
 
   for (int i=0; i<100; i++)
-      psi.expectationValueX(0,sum);
+      psi.ExpectationValueX(0,sum);
   sum=0;
-  psi.expectationValueX(0,sum);
+  psi.ExpectationValueX(0,sum);
   std::cout << "after 100 expectation evaluations <psi|X|psi> = " << sum << "\n";
 
   std::cout << std::endl;
-  psi.GetStat(); 
+  psi.GetStatistics(); 
 
   if (myrank==0) std::cout << " goodbye \n" << std::endl;
 
@@ -93,36 +95,36 @@ int main(int argc, char **argv)
             << "     4 qubits     \n"
             << "------------------\n";
 
-  QbitRegister<ComplexDP> phi(4,"base",0);
-  phi.applyPauliX(1);
-  phi.applyHadamard(2);
-  phi.applyPauliX(3);
-  phi.applyHadamard(3);
+  QubitRegister<ComplexDP> phi(4,"base",0);
+  phi.ApplyPauliX(1);
+  phi.ApplyHadamard(2);
+  phi.ApplyPauliX(3);
+  phi.ApplyHadamard(3);
 
   phi.Print(" initial state |phi> = |0> |1> |+> |-> = |01+-> :\n");
 
   qubits.assign({0,2});
-  observs.assign({3,1});
+  observables.assign({3,1});
   sum=0;
-  phi.expectationValue(qubits,observs,sum);
+  phi.ExpectationValue(qubits,observables,sum);
   std::cout << " <phi|Z_0 X_2|phi> = " << sum << "\n";
 
   qubits.assign({0,2});
-  observs.assign({3,2});
+  observables.assign({3,2});
   sum=0;
-  phi.expectationValue(qubits,observs,sum);
+  phi.ExpectationValue(qubits,observables,sum);
   std::cout << " <phi|Z_0 Y_2|phi> = " << sum << "\n";
 
   qubits.assign({1,2});
-  observs.assign({3,1});
+  observables.assign({3,1});
   sum=0;
-  phi.expectationValue(qubits,observs,sum);
+  phi.ExpectationValue(qubits,observables,sum);
   std::cout << " <phi|Z_1 X_2|phi> = " << sum << "\n";
 
   qubits.assign({0,3});
-  observs.assign({3,1});
+  observables.assign({3,1});
   sum=0;
-  phi.expectationValue(qubits,observs,sum);
+  phi.ExpectationValue(qubits,observables,sum);
   std::cout << " <phi|Z_0 X_3|phi> = " << sum << "\n";
 
   return 0;
