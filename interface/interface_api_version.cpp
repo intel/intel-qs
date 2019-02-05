@@ -32,7 +32,7 @@ unsigned long quiversion(string args) {
 
 unsigned long quversion(string args) {
 
-    cout << get_qhipster_version() << endl;
+    cout << GetQhipsterVersion() << endl;
 
     return 0;
 }

@@ -1,5 +1,0 @@
-<map id="QbitRegister::expectationValue" name="QbitRegister::expectationValue">
-<area shape="rect" id="node2" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="282,5,341,32"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="224,57,399,98"/>
-<area shape="rect" id="node4" href="$group__qureg.html#gad3f05291c152d09919807c21aecf8959" title="Utility function that computes the Hamming weight of a bitstring given as integer. " alt="" coords="250,123,373,149"/>
-</map>

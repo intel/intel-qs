@@ -16,7 +16,6 @@
 
 #include "qureg_version.hpp"
 
-std::string get_qhipster_version( ) {
+std::string GetQhipsterVersion( ) {
     return QHIPSTER_VERSION_STRING;
 }
-

@@ -1,8 +1,0 @@
-<map id="MeasZ_handler" name="MeasZ_handler">
-<area shape="rect" id="node2" href="$group__qureg.html#gaacef6a6a4d5f3662d9e9fc69f70f0bdb" title="Return the probability of outcome &#39;&#45;1&#39; when Pauli Z is measured on the qubit. " alt="" coords="164,78,347,105"/>
-<area shape="rect" id="node7" href="$interface__api__qubitid_8cpp.html#add15b04fb32aa83e6ad11b4eee817bca" title="query_qubit_id" alt="" coords="202,129,309,155"/>
-<area shape="rect" id="node3" href="$classopenqu_1_1mpi_1_1Environment.html#a1c0c48f8af817320768ef3a1c9b98854" title="openqu::mpi::Environment\l::rank" alt="" coords="395,5,569,47"/>
-<area shape="rect" id="node4" href="$classopenqu_1_1mpi_1_1Environment.html#acfe5d7c4784f10856304f07cb93dac08" title="openqu::mpi::Environment\l::size" alt="" coords="395,71,569,112"/>
-<area shape="rect" id="node5" href="$namespaceopenqu.html#a9cbfc48ff8a69fa8618c4eeaad4f2765" title="returns the logarithm base 2 of a non&#45;zero integer " alt="" coords="433,137,531,163"/>
-<area shape="rect" id="node6" href="$highperfkernels_8cpp.html#a3c5c1de356c65cc2bfca5046ecd71e6d" title="assert" alt="" coords="617,137,676,163"/>
-</map>

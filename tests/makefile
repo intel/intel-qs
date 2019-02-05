@@ -29,8 +29,9 @@ EXECS := benchgates.exe\
 	 testgates.exe\
 	 qft_test.exe\
 	 expect_value_test.exe\
-	 noisy_circuit_test.exe\
-	 getting_started_example.exe
+	 getting_started_example.exe\
+	 single_qubit_gates_test.exe\
+	 noisy_circuit_test.exe
 
 all: ${EXECS}
 
@@ -44,7 +45,8 @@ expect_value_test.exe: expect_value_test.o makefile ../qureg/qHiPSTER.a
 	$(CC) -o expect_value_test.exe ${CFLAGS} expect_value_test.o ../qureg/qHiPSTER.a ${LDFLAGS}
 getting_started_example.exe: getting_started_example.o makefile ../qureg/qHiPSTER.a
 	$(CC) -o getting_started_example.exe ${CFLAGS} getting_started_example.o ../qureg/qHiPSTER.a ${LDFLAGS}
-
+single_qubit_gates_test.exe: single_qubit_gates_test.o makefile ../qureg/qHiPSTER.a
+	$(CC) -o single_qubit_gates_test.exe ${CFLAGS} single_qubit_gates_test.o ../qureg/qHiPSTER.a ${LDFLAGS}
 noisy_circuit_test.exe: noisy_circuit_test.o makefile ../qureg/qHiPSTER.a
 	$(CC) -o noisy_circuit_test.exe ${CFLAGS} noisy_circuit_test.o ../qureg/qHiPSTER.a ${LDFLAGS}
 

@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright 2017 Intel Corporation 
+// Copyright (C) 2017 Intel Corporation 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,35 +14,52 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 
-// The scope is applying a sequence of Ngates=40 gates to the quantum register.
+// The scope is applying a sequence of num_gates=40 gates to the quantum register.
 // The form of each gate is the same:
 //   controlled 1-qubit operation defined by the 2x2 matrix G
 // but each pair (control,target) for the involved qubit is randomly generated.
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
 int main(int argc, char **argv)
 {
+  unsigned myrank=0, nprocs=1;
+#ifdef INTELQS_HAS_MPI
   openqu::mpi::Environment env(argc, argv);
+  myrank = env.rank();
+  nprocs = openqu::mpi::Environment::size();
   if (env.is_usefull_rank() == false) return 0;
-  int myrank = env.rank();
+#endif
+  int num_threads = 88;
+  glb_affinity.set_thread_affinity(num_threads);
 
-  unsigned Nqubits = 3;
-  std::size_t tmpSize = 0;
+/// --- PARAMETERS ------------------------------------------- ///
+  // number of qubits
+  unsigned num_qubits = 8;
+  // number of (two-qubit) gates
+  unsigned num_gates=20;
+  // number of repetition of the (stochastic) noisy circuit
+  unsigned num_noisy_circuits=num_gates*10;
+  // T_1 and T_2 times for slow decoherence
+  double T_1_slow=1000. , T_2_slow=500. ;
+  double T_1_fast=40.   , T_2_fast=20.  ;
+  // T_1 and T_2 times for slow decoherence
+/// ---------------------------------------------------------- ///
+
+  std::size_t tmp_size = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "\nusage: %s <Nqubits> \n\n", argv[0]);
-     exit(1);
+      fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
+      exit(1);
   }
   else
   {
-     Nqubits = atoi(argv[1]);
+      num_qubits = atoi(argv[1]);
   }
-
-  // number of gates
-  unsigned Ngates=20;
-  // number of repetition of the (stochastic) noisy circuit
-  unsigned Ncirc=200;
 
   // single-qubit operation that will be implemented (in a conditioned way)
   TM2x2<ComplexDP> G;
@@ -61,70 +78,83 @@ int main(int argc, char **argv)
   // for a total of 20 2-qubit gates
   std::vector<std::pair<unsigned, unsigned>> qpair;
   std::default_random_engine generator;
-  std::uniform_int_distribution<int> qubit1(0, Nqubits - 1);
-  std::uniform_int_distribution<int> qubit2(0, Nqubits - 1);
+  unsigned RNG_seed = 12345;
+  std::uniform_int_distribution<int> qubit1(0, num_qubits - 1);
+  std::uniform_int_distribution<int> qubit2(0, num_qubits - 1);
   unsigned i = 0;
-  while (i < Ngates) {
-     unsigned q1 = qubit1(generator);
-     unsigned q2 = qubit2(generator);
-     if (q1 != q2)
-     {
-        qpair.push_back(std::make_pair(q1, q2));
-        i++;
-     }
+  while (i < num_gates)
+  {
+      unsigned q1 = qubit1(generator);
+      unsigned q2 = qubit2(generator);
+      if (q1 != q2)
+      {
+         qpair.push_back(std::make_pair(q1, q2));
+         i++;
+      }
   }
 
 
-  QbitRegister<ComplexDP> psi0(Nqubits);
-  NoisyQureg<ComplexDP> psi1(Nqubits, 100., 50.);
-  NoisyQureg<ComplexDP> psi2(Nqubits, 40., 20.);
-  psi0.Init("base", 0);
+  // ideal state
+  QubitRegister<ComplexDP> psi0(num_qubits);
+  // slow decoherence
+  NoisyQureg<ComplexDP> psi1(num_qubits, RNG_seed, T_1_slow, T_2_slow);
+  // fast decoherence
+  NoisyQureg<ComplexDP> psi2(num_qubits, RNG_seed, T_1_fast, T_2_fast);
+  psi0.Initialize("base", 0);
 
 
   // ---------------- no noise
   {
-    psi0.EnbStat();
-    for (auto &p : qpair)
-        psi0.applyControlled1QubitGate(p.first, p.second, G);
+      psi0.EnableStatistics();
+      for (auto &p : qpair)
+          psi0.ApplyControlled1QubitGate(p.first, p.second, G);
     
-    for(int pos = 0; pos < Nqubits; pos++)
-        psi0.apply1QubitGate(pos, G);
-    psi0.GetStat();
+      for(int pos = 0; pos < num_qubits; pos++)
+          psi0.Apply1QubitGate(pos, G);
+      psi0.GetStatistics();
   }
 
-  // ---------------- slow decoherence
+ 
+// ---------------- slow decoherence
+  std::cout << " slow decoherence \n";
   double over_sq_1 = 0.;
-  for (unsigned j=0; j<Ncirc; j++)
+  for (unsigned j=0; j<num_noisy_circuits; j++)
   {
-    psi1.Init("base", 0);
-    psi1.reset_time_for_all_qubits();
-    for (auto &p : qpair)
-        psi1.applyControlled1QubitGate(p.first, p.second, G);
+      psi1.Initialize("base", 0);
+      psi1.ResetTimeForAllQubits();
+      for (auto &p : qpair)
+          psi1.ApplyControlled1QubitGate(p.first, p.second, G);
     
-    for(int pos = 0; pos < Nqubits; pos++)
-        psi1.apply1QubitGate(pos, G);
+      for(int pos = 0; pos < num_qubits; pos++)
+          psi1.Apply1QubitGate(pos, G);
 
-    psi1.apply_noise_gates_on_all_qubits();
-    over_sq_1 = over_sq_1 + std::norm( psi0.compute_overlap(psi1) ) ;
+      psi1.ApplyNoiseGatesOnAllQubits();
+      over_sq_1 = over_sq_1 + std::norm( psi0.ComputeOverlap(psi1) ) ;
+      if (j%100==0)
+          std::cout << " j=" << j << " , logical gate count for"
+                    << " psi1 =" << psi1.GetTotalExperimentalGateCount()
+                    << " (they should be " << num_gates+num_qubits << ") \n";
   }
-  over_sq_1 = over_sq_1/(double)Ncirc;
+  over_sq_1 = over_sq_1/(double)num_noisy_circuits;
+
 
   // ---------------- fast decoherence
+  std::cout << " fast decoherence \n";
   double over_sq_2 = 0.;
-  for (unsigned j=0; j<Ncirc; j++)
+  for (unsigned j=0; j<num_noisy_circuits; j++)
   {
-    psi2.Init("base", 0);
-    psi2.reset_time_for_all_qubits();
-    for (auto &p : qpair)
-        psi2.applyControlled1QubitGate(p.first, p.second, G);
+      psi2.Initialize("base", 0);
+      psi2.ResetTimeForAllQubits();
+      for (auto &p : qpair)
+          psi2.ApplyControlled1QubitGate(p.first, p.second, G);
     
-    for (int pos = 0; pos < Nqubits; pos++)
-        psi2.apply1QubitGate(pos, G);
+      for (int pos = 0; pos < num_qubits; pos++)
+          psi2.Apply1QubitGate(pos, G);
 
-    psi2.apply_noise_gates_on_all_qubits();
-    over_sq_2 = over_sq_2 + std::norm( psi0.compute_overlap(psi2) ) ;
+      psi2.ApplyNoiseGatesOnAllQubits();
+      over_sq_2 = over_sq_2 + std::norm( psi0.ComputeOverlap(psi2) ) ;
   }
-  over_sq_2 = over_sq_2/(double)Ncirc;
+  over_sq_2 = over_sq_2/(double)num_noisy_circuits;
 
   // ---------------- 
   // computation of the overlap between the ideal state and those exposed to noise

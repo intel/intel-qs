@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //------------------------------------------------------------------------------
+
 #pragma once
+
 #include "openmp_affinity_v1.hpp"
 #include <omp.h>
 

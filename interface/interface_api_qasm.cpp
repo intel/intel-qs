@@ -18,7 +18,7 @@
 #include <functional>
 #include <stdexcept>
 
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 #include "interface_api_qubitid.h"
 #include "interface_api_version.h"
 #include "interface_api_memory.h"
@@ -28,7 +28,7 @@ using namespace std;
 
 
 using Type = ComplexDP;
-extern QbitRegister<Type> *psi1;
+extern QubitRegister<Type> *psi1;
 
 
 // Constant defining the rotational angle of a T-dagger gate. Basically, -(pi/4).
@@ -42,28 +42,28 @@ unsigned long unk(string args) {
 
 unsigned long S_handler(string args) {
     cout << "S"<< " [" << args << "]" <<endl;
-    psi1->applyPauliSqrtZ(query_qubit_id(args));
+    psi1->ApplyPauliSqrtZ(query_qubit_id(args));
     return 0;
 }
 
 
 unsigned long X_handler(string args) {
     cout << "X"<< " [" << args << "]" <<endl;
-    psi1->applyPauliX(query_qubit_id(args));
+    psi1->ApplyPauliX(query_qubit_id(args));
     return 0;
 }
 
 
 unsigned long T_handler(string args) {
     cout << "T"<< " [" << args << "]" <<endl;
-    psi1->applyT(query_qubit_id(args));
+    psi1->ApplyT(query_qubit_id(args));
     return 0;
 }
 
 
 unsigned long Tdag_handler(string args) {
     cout << "Tdag"<< " [" << args << "]" <<endl;
-    psi1->applyRotationZ(query_qubit_id(args),TDAG_THETA);
+    psi1->ApplyRotationZ(query_qubit_id(args),TDAG_THETA);
     return 0;
 }
 
@@ -77,14 +77,14 @@ unsigned long CNOT_handler(string args) {
     qubit2 = query_qubit_id(args.substr(token_end+1,args.length()));
 
     cout << "CNOT"<< " [" << args << "]" <<endl;
-    psi1->applyCPauliX(qubit1,qubit2);
+    psi1->ApplyCPauliX(qubit1,qubit2);
     return 0;
 }
 
 
 unsigned long H_handler(string args) {
     cout << "H"<< " [" << args << "]" <<endl;
-    psi1->applyHadamard(query_qubit_id(args));
+    psi1->ApplyHadamard(query_qubit_id(args));
     return 0;
 }
 
@@ -94,7 +94,7 @@ unsigned long MeasZ_handler(string args) {
     Type measurement = 0.0;
     
     cout << "MeasZ"<< " [" << args << "]" <<endl;
-    measurement = psi1->getProbability(query_qubit_id(args));
+    measurement = psi1->GetProbability(query_qubit_id(args));
     cout << measurement << endl;
     return 0;
 }

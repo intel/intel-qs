@@ -1,9 +1,0 @@
-<map id="openqu::mpi::Environment::get_nrankspernode" name="openqu::mpi::Environment::get_nrankspernode">
-<area shape="rect" id="node2" href="$classQbitRegister.html#ae289a23f862d4bd442acc71e6c672443" title="QbitRegister::Init" alt="" coords="255,5,376,32"/>
-<area shape="rect" id="node4" href="$classQbitRegister.html#a6d42667d3879433b439b03978b346f61" title="QbitRegister::Allocate" alt="" coords="240,56,391,83"/>
-<area shape="rect" id="node5" href="$classopenqu_1_1mpi_1_1Environment.html#a31640da0e9d35404a0172c83684617da" title="openqu::mpi::Environment\l::is_usefull_rank" alt="" coords="228,107,403,149"/>
-<area shape="rect" id="node3" href="$noisy__circuit__test_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="513,5,563,32"/>
-<area shape="rect" id="node6" href="$qhipster__interface__main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="513,85,563,112"/>
-<area shape="rect" id="node8" href="$classopenqu_1_1mpi_1_1Environment.html#a35ea6e38b63e28801a28a22ab1ebd786" title="openqu::mpi::Environment\l::~Environment" alt="" coords="451,137,625,178"/>
-<area shape="rect" id="node7" href="$classPermutation.html#aa2f2a076a21a0f79081394146f8df1b1" title="Permutation::prange" alt="" coords="673,85,812,112"/>
-</map>

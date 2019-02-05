@@ -57,7 +57,7 @@ sdk-copy-sources:
 	@cp ./make.inc ./build/
 	@cp ./qureg/highperfkernels.hpp ./build/include/qureg/
 	@cp ./qureg/permute.hpp ./build/include/qureg/
-	@cp ./qureg/QbitRegisterMetric.hpp ./build/include/qureg/
+	@cp ./qureg/QubitRegisterMetric.hpp ./build/include/qureg/
 	@cp ./qureg/qureg.hpp ./build/include/qureg
 	@cp ./util/alignedallocator.hpp ./build/include/util/
 	@cp ./util/bitops.hpp ./build/include/util/

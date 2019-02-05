@@ -16,48 +16,58 @@
 
 #include "qureg.hpp"
 
-template <class Type>
-void QbitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vec)
-{
+/// \addtogroup qureg
+/// @{
 
-  assert(nqbits == permutation_new_vec.size());
+/// @file qureg_permute.cpp
+/// @brief Define the @c QubitRegister methods to permute the index of the qubits.
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template <class Type>
+void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vector)
+{
+  assert(num_qubits == permutation_new_vector.size());
 
   Permutation &permutation_old = *permutation;
-  Permutation permutation_new(permutation_new_vec);
+  Permutation permutation_new(permutation_new_vector);
 
-#ifndef OPENQU_HAVE_MPI
-  std::vector<Type> state_new(localSize(), 0);
+#ifndef INTELQS_HAS_MPI
+  std::vector<Type> state_new(LocalSize(), 0);
 
-  for (std::size_t i = 0; i < localSize(); i++) {
-    std::size_t to =
-        permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
-    state_new[to] = state[i];
+  for (std::size_t i = 0; i < LocalSize(); i++)
+  {
+      std::size_t to =
+          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+      state_new[to] = state[i];
   }
   // state = state_new;
-  for (std::size_t i = 0; i < localSize(); i++) state[i] = state_new[i];
+  for (std::size_t i = 0; i < LocalSize(); i++)
+      state[i] = state_new[i];
 #else
   unsigned myrank = openqu::mpi::Environment::rank();
   unsigned nprocs = openqu::mpi::Environment::size();
   MPI_Comm comm = openqu::mpi::Environment::comm();
 
   // Dummy multi-node permutation code
-  std::vector<Type> glb_state(globalSize(), 0);
+  std::vector<Type> glb_state(GlobalSize(), 0);
 #ifdef BIGMPI
-  MPIX_Allgather_x(&(state[0]), localSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), localSize(),
+  MPIX_Allgather_x(&(state[0]), LocalSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), LocalSize(),
                 MPI_DOUBLE_COMPLEX, comm);
 #else
-  MPI_Allgather(&(state[0]), localSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), localSize(),
+  MPI_Allgather(&(state[0]), LocalSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), LocalSize(),
                 MPI_DOUBLE_COMPLEX, comm);
 #endif //BIGMPI
-  for (std::size_t i = 0; i < glb_state.size(); i++) {
-    std::size_t glbind =
-        permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
-    std::size_t rank = glbind / localSize();
-    if (rank == myrank) {
-      std::size_t lclind = glbind - rank * localSize();
-      assert(lclind < localSize());
-      state[lclind] = glb_state[i];
-    }
+  for (std::size_t i = 0; i < glb_state.size(); i++)
+  {
+      std::size_t glbind =
+          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+      std::size_t rank = glbind / LocalSize();
+      if (rank == myrank)
+      {
+          std::size_t lclind = glbind - rank * LocalSize();
+          assert(lclind < LocalSize());
+          state[lclind] = glb_state[i];
+      }
   }
 #endif
   permutation_old = permutation_new;
@@ -66,29 +76,32 @@ void QbitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vec)
   // do it multinode
   // calculate displacements for other nodes
   std::vector <std::size_t> counts(nprocs, 0), displs(nprocs, 0);
-  for(std::size_t i = 0; i < localSize(); i++)
+  for(std::size_t i = 0; i < LocalSize(); i++)
   {
-    std::size_t glbind = permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
-    std::size_t rank = glbind / localSize(); 
+      std::size_t glbind =
+          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+    std::size_t rank = glbind / LocalSize(); 
     assert(rank < nprocs);
     counts[rank]++;
   }
   // compute displacements for each rank
   for(std::size_t i = 1; i < nprocs; i++)
-    displs[i] = displs[i-1] + counts[i-1]; 
+      displs[i] = displs[i-1] + counts[i-1]; 
  
   // fill in outgoing buffer as key value std::pairs
-  std::vector<std::pair<std::size_t, Type>> tmp(localSize());
-  for(std::size_t i = 0; i < localSize(); i++)
+  std::vector<std::pair<std::size_t, Type>> tmp(LocalSize());
+  for(std::size_t i = 0; i < LocalSize(); i++)
   {
-    std::size_t glbind = permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
-    std::size_t rank = glbind / localSize();
-    std::size_t lclind = glbind - rank * nprocs;
-    tmp[displs[rank]
+      std::size_t glbind =
+          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+      std::size_t rank = glbind / LocalSize();
+      std::size_t lclind = glbind - rank * nprocs;
+      tmp[displs[rank]
   }
 #endif
 }
 
-template class QbitRegister<ComplexSP>;
-template class QbitRegister<ComplexDP>;
+template class QubitRegister<ComplexSP>;
+template class QubitRegister<ComplexDP>;
 
+/// @}

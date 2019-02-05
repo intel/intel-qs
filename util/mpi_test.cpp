@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   assert(openqu::mpi::Environment::size() > 0);
   assert(openqu::mpi::Environment::rank() < openqu::mpi::Environment::size());
 
-#ifdef OPENQU_HAVE_MPI
+#ifdef INTELQS_HAS_MPI
   OPENQU_MPI_CHECK_RESULT((MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN)))
   // test if exceptions work
   try {

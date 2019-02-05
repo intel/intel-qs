@@ -25,7 +25,7 @@ CC = mpiicpc
 
 OPTS = -g -O3
 VECS = -qopt-report-phase=vec -qopt-report=2
-DEFS = -DUSE_MM_MALLOC -DSTANDALONE -DOPENQU_HAVE_MPI -DMKL_ILP64
+DEFS = -DUSE_MM_MALLOC -DSTANDALONE -DINTELQS_HAS_MPI -DMKL_ILP64
 
 BIGMPI_LIB = /opt/bigmpi/lib/libbigmpi.a
 BIGMPI_INC = -I/opt/bigmpi/include
@@ -36,6 +36,7 @@ CFLAGS = ${OPTS} ${DEFS} \
 
 CFLAGS += ${OPTFLAGS}
 
+#ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 INC = -I./ -I../
 
 ifeq ($(bigmpi),1)
@@ -43,7 +44,7 @@ ifeq ($(bigmpi),1)
  INC := ${INC} ${BIGMPI_INC}
 endif
 
-########### Modified for the ccefw-desktop.jf.intel.com environment ############
+########### Modified for the ccefw-desktop environment ############
 ifeq ($(HOST),ccefw-desktop)
  CC = g++
  CC = /opt/intel/impi/2017.2.174/bin64/mpicxx

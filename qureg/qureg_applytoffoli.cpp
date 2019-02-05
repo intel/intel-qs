@@ -17,20 +17,26 @@
 #include "qureg.hpp"
 #include "highperfkernels.hpp"
 
-/* 
- * Implements a Toffoli gate courtesy of Sonika Johri.
- *
- * Parameters:
- * 	psi - the wave function to apply the Toffoli gate to.
- * 	  qubit1 - target qubit being NOT'ed
- * 	  qubit2 - control qubit 1
- * 	  qubit3 - control qubit 2
- */
-template<typename Type>
-void QbitRegister<Type>::applyToffoli(unsigned const qubit1, 
-		                        unsigned const qubit2, 
-					  unsigned const qubit3) {
+/// \addtogroup qureg
+/// @{
 
+/// @file qureg_applytoffoli.cpp
+/// @brief Define the @c QubitRegister method for the application of the Toffoli gate.
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Apply the Toffoli gate.
+/// @param qubit1 index of the target qubit
+/// @param qubit2 index of the 1st control qubit
+/// @param qubit3 index of the 2nd control qubit
+///
+/// Implemented by decomposing the Toffoli gate in 5 two-qubit gates.
+/// Courtesy of Sonika Johri.
+/// If both control qubits are in state |1\>, then the target qubit is flipped.
+template<typename Type>
+void QubitRegister<Type>::ApplyToffoli(unsigned const control_1, 
+                                       unsigned const control_2, 
+                                       unsigned const qubit)
+{
   openqu::TinyMatrix<Type, 2, 2, 32> V;
   V(0,0)={1.0/2.0,-1.0/2.0};
   V(0,1)={1.0/2.0,1.0/2.0};
@@ -43,15 +49,16 @@ void QbitRegister<Type>::applyToffoli(unsigned const qubit1,
   V_dag(1,0)={1.0/2.0,-1.0/2.0};
   V_dag(1,1)={1.0/2.0,1.0/2.0};
 
-  applyControlled1QubitGate(qubit2, qubit1, V);
-  applyCPauliX(qubit3,qubit2);
-  applyControlled1QubitGate(qubit2, qubit1, V_dag);
-  applyCPauliX(qubit3,qubit2);
-  applyControlled1QubitGate(qubit3, qubit1, V);
+  ApplyControlled1QubitGate( control_1, qubit, V );
+  ApplyCPauliX( control_2, control_1 );
+  ApplyControlled1QubitGate( control_1, qubit, V_dag );
+  ApplyCPauliX( control_2, control_1 );
+  ApplyControlled1QubitGate( control_2, qubit, V );
 
   return;
 }
 
-template class QbitRegister<ComplexSP>;
-template class QbitRegister<ComplexDP>;
+template class QubitRegister<ComplexSP>;
+template class QubitRegister<ComplexDP>;
 
+/// @}
