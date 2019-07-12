@@ -114,7 +114,9 @@ int main(int argc, char **argv)
   {
     for(int pos = 16; pos < num_qubits; pos++)
     {
+       psi1.Apply1QubitGate(pos, g.second);
        psi2.Apply1QubitGate(pos, g.second);
+       assert(psi1 == psi2);
     }
   }
 
