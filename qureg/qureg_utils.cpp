@@ -32,8 +32,8 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
   {
       if (state[i] != rhs.state[i])
       {
-          printf("[%lf %lf] [%lf %lf]\n", state[i].real(), state[i].real(),
-                                          rhs.state[i].imag(), rhs.state[i].imag());
+          printf("(%lf,%lf) != (%lf,%lf)\n", state[i].real(), state[i].imag(),
+                                             rhs.state[i].real(), rhs.state[i].imag());
           return false;
       }
   }

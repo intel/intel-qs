@@ -178,7 +178,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
   unsigned M = num_qubits - log2_nprocs;
   bool HasDoneWork = false;
 
-  std::size_t src_glb_start = 0;
+  std::size_t src_glb_start = UL(myrank) * LocalSize();
   // check for special case of diagonal
   bool diagonal = (m[0][1].real() == 0. && m[0][1].imag() == 0. &&
                    m[1][0].real() == 0. && m[1][0].imag() == 0.);
