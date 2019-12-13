@@ -12,31 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IQS_CONVERSION
+#define IQS_CONVERSION
 
-/** \addtogroup util
- *  @{
- */
+// FIXME: namespace for BitOps changed from openqu to qhipster
 
-/** @file conversion.hpp
- *
- *  This header defines tyope conversion functions
- */
+/// \addtogroup util
+/// @{
+
+/// @file conversion.hpp
+///
+/// This header defines type conversion functions.
 
 #include <cassert>
 #include <sstream>
 #include <string>
 
-namespace openqu {
+namespace qhipster {
 
-/** @brief convert to a string
- *
- * This function converts any value to a string, by writing it into a string stream.
- *
- * \param[in] val the value to be converted to a string
- *
- * \pre Writing into a std::istream using operator<< needs to be implemented for the type
- */
+/// @brief convert to a string
+///
+/// This function converts any value to a string, by writing it into a string stream.
+/// \param[in] val the value to be converted to a string
+/// \pre Writing into a std::istream using operator<< needs to be implemented for the type
 
 template <class T>
 std::string toString(T const& val)
@@ -45,6 +43,9 @@ std::string toString(T const& val)
   os << val;
   return os.str();
 }
-}
 
-/** @}*/
+}	// namespace qhipster
+
+/// @}*/
+
+#endif	// header guard IQS_CONVERSION

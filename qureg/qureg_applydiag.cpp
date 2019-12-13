@@ -29,8 +29,8 @@ void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit1, unsigned qubit2,  TM4x4
 {
   unsigned myrank=0, nprocs=1;
 #ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
 #endif
 
   Type d00 = m[0][0],
@@ -59,6 +59,16 @@ void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit1, unsigned qubit2,  TM4x4
 template <class Type>
 void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<Type> const &m)
 {
+  // Update counter of the statistics.
+  if (gate_counter != nullptr)
+  {
+      // Verify that permutation is identity.
+      assert(qubit1_ == (*permutation)[qubit1_]);
+      assert(qubit2_ == (*permutation)[qubit2_]);
+      // Otherwise find better location that is compatible with the permutation.
+      gate_counter->TwoQubitIncrement(qubit1_, qubit2_);
+  }
+
  // flush fusion buffers
   if (fusion == true)
   {
@@ -74,9 +84,9 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(nprocs);
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
 #endif
   unsigned M = num_qubits - log2_nprocs;
 
@@ -88,10 +98,9 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
        d22 = m[2][2],
        d33 = m[3][3];
   std::size_t src_glb_start = UL(myrank) * LocalSize();
+#if 0
   bool controlled = (d00 == 1. && d11 == 1.);
 
-  
-  #if 0
   // currently disabled. controlled part is done inline inside controlled gate
   if (controlled == true)
   {

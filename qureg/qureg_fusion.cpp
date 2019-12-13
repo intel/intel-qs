@@ -28,9 +28,9 @@ void QubitRegister<Type>::TurnOnFusion(unsigned log2llc)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
 #endif
   unsigned M = num_qubits - log2_nprocs;
 
@@ -70,7 +70,7 @@ template <class Type>
 void QubitRegister<Type>::ApplyFusedGates()
 {
   #if 0
-  std::size_t myrank = openqu::mpi::Environment::rank();
+  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
   if ( myrank==0 && fwindow.size() > 1) {
     printf("fused: ");
     for (auto &f : fwindow) {

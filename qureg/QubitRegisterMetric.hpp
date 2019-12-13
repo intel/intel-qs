@@ -14,6 +14,10 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+
+#ifndef QUBIT_REGISTER_METRIC_H
+#define QUBIT_REGISTER_METRIC_H
+
 #include <vector>
 
 using namespace std;
@@ -45,7 +49,7 @@ public:
   void ApplyRotationY(int, double);
   void ApplyRotationZ(int, double);
   void ApplyCPauliX(int, int);
-  void ApplyControlled1QubitGate(int, int, openqu::TinyMatrix<Type, 2, 2, 32>);
+  void ApplyControlled1QubitGate(int, int, qhipster::TinyMatrix<Type, 2, 2, 32>);
 };
 
 template <class Type>
@@ -116,7 +120,9 @@ void QubitRegisterMetric<Type>::ApplyCPauliX(int q1, int q2){
 }
 
 template <class Type>
-void QubitRegisterMetric<Type>::ApplyControlled1QubitGate(int q1, int q2, openqu::TinyMatrix<Type, 2, 2, 32> V){
+void QubitRegisterMetric<Type>::ApplyControlled1QubitGate(int q1, int q2, qhipster::TinyMatrix<Type, 2, 2, 32> V){
   QubitRegister<Type>::ApplyControlled1QubitGate(q1,q2,V);
   TwoQubitIncrements(q1,q2); 
 }
+
+#endif	// header guard QUBIT_REGISTER_METRIC_H

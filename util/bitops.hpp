@@ -12,32 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IQS_BITOPS_HPP
+#define IQS_BITOPS_HPP
 
-/** \addtogroup util
- *  @{
- */
+// FIXME: namespace for BitOps changed from openqu to qhipster
 
-/** @file bitops.hpp
- *
- *  This header defines useful bit manipilation functions, especially
- * determining the
- *  highest bit set to 1 and checking whether a number is a power of 2
- */
+/// \addtogroup util
+/// @{
+
+/// @file bitops.hpp
+///
+/// This header defines useful bit manipilation functions, especially determining the
+/// highest bit set to 1 and checking whether a number is a power of 2.
 
 #include <cassert>
 #include <cstdint>
 
-namespace openqu {
+namespace qhipster {
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
 namespace detail {
+
 template <class Integral>
 constexpr unsigned highestBitImpl(Integral i, unsigned pos)
 {
   return i == 1 ? pos : highestBitImpl(i >> 1, pos + 1);
 }
-}
+
+}	// namespace detail
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Integral>
 unsigned floor_power_of_two(Integral x)
@@ -48,16 +53,13 @@ unsigned floor_power_of_two(Integral x)
   return power;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
-/** @brief returns the highest bit set in a non-zero integer
- *
- *
- * This function returns the highest bit set in a non-zero integer.
- *
- * \param[in] i the non-zero integer of which the highest bit is returned
- *
- * \pre The integer @c i is non-zero
- */
+/// @brief returns the highest bit set in a non-zero integer
+///
+/// This function returns the highest bit set in a non-zero integer.
+/// \param[in] i the non-zero integer of which the highest bit is returned
+/// \pre The integer @c i is non-zero
 
 template <class Integral>
 constexpr unsigned highestBit(Integral i)
@@ -68,15 +70,13 @@ constexpr unsigned highestBit(Integral i)
   return detail::highestBitImpl(i, 0u);
 }
 
-/** @brief returns the logarithm base 2 of  a non-zero integer
- *
- *
- * This function returns the the logarithm base 2 of  a non-zero integer
- *
- * \param[in] i the non-zero integer of which the logarithm base 2 is returned
- *
- * \pre The integer @c i is a power of 2
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Returns the logarithm base 2 of a non-zero integer.
+///
+/// This function returns the the logarithm base 2 of a non-zero integer
+/// \param[in] i the non-zero integer of which the logarithm base 2 is returned
+/// \pre The integer @c i is a power of 2
 
 template <class Integral>
 unsigned int ilog2(Integral n)
@@ -88,11 +88,11 @@ unsigned int ilog2(Integral n)
   return 0;  // dummy return
 }
 
-/** @brief checks whether an integer is a power of 2
- *
- * \param[in] i an integer to be checked
- *
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief checks whether an integer is a power of 2
+///
+/// \param[in] i an integer to be checked
 
 template <class Integral>
 inline constexpr bool isPowerOf2(Integral i)
@@ -101,38 +101,44 @@ inline constexpr bool isPowerOf2(Integral i)
                                        : static_cast<unsigned long>(i) == (1UL << highestBit(i));
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
 namespace detail {
+
 inline int BX(long x)
 {
   return ((x) - (((x) >> 1) & 0x77777777) - (((x) >> 2) & 0x33333333) -
           (((x) >> 3) & 0x11111111));
 }
-}
 
-/** @brief Determines the population count (number of set bits) of a 32bit
- * integer
- *
- *
- * \param[in] x Integer of which to determine the population count
- *
- */
+}	// namespace detail
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Determines the population count (number of set bits) of a 32bit integer
+///
+/// \param[in] x Integer of which to determine the population count
 inline long popcnt(uint32_t x)
 {
   return (((detail::BX(x) + (detail::BX(x) >> 4)) & 0x0F0F0F0F) % 255);
 }
 
-/** @brief Determines the population count (number of set bits) of a 64bit
- * integer using alps::popcnt
- *
- * \param[in] x Integer of which to determine the population count
- *
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Determines the population count (number of set bits) of a 64bit integer
+/// using alps::popcnt
+///
+/// \param[in] x Integer of which to determine the population count
 inline long popcnt(uint64_t x)
 {
   uint64_t mask32 = (1UL << 32) - 1;
   return popcnt((uint32_t)(x & mask32)) + popcnt((uint32_t)((x >> 32) & mask32));
 }
-}
 
-/** @}*/
+/////////////////////////////////////////////////////////////////////////////////////////
+
+}	// namespace qhipster
+
+/// @}*/
+
+#endif	// header guard IQS_BITOPS_HPP

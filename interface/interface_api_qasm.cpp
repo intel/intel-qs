@@ -106,6 +106,20 @@ unsigned long PrepZ_handler(string args) {
 }
 
 
+//==============================================================================
+// Scaffold compiler specific token handlers.
+//==============================================================================
+unsigned long Scaffold_QubitOp_handler(string args) {
+	cout << "Qubit (scaffold syntax): " << args << endl;
+	return 0;
+}
+
+
+unsigned long Scaffold_CbitOp_handler(string args) {
+	cout << "Cbit (scaffold syntax): " << args << endl;
+	return 0;
+}
+
 // Hash table containing the QASM operation string and the function to call to
 // handle the operation with the qHiPSTER simulation.
 //
@@ -122,6 +136,8 @@ unordered_map<string, function<long(string)>> qufun_table = {\
                                                 {"Tdag", Tdag_handler},
                                                 {"S", S_handler},
                                                 {"MeasZ", MeasZ_handler},
+                                                {"qubit", Scaffold_QubitOp_handler},
+												{"cbit", Scaffold_CbitOp_handler},
                                                 {"*", unk},
 };
 

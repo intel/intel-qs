@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IQS_ALIGNED_ALLOCATOR
+#define IQS_ALIGNED_ALLOCATOR
 
-/** \addtogroup sim
- *  @{
- */
+// FIXME: namespace for AlignedAllocator changed from openqu to qhipster
 
-/** @file alignedallocator.hpp
- *
- *  This header defines the class @c AlignedAllocator to provide aligned
- *  memory allocation
- */
+/// \addtogroup sim
+/// @{
+
+/// @file alignedallocator.hpp
+/// This header defines the class @c AlignedAllocator to provide aligned memory allocation
 
 #include "bitops.hpp"
 
@@ -31,6 +30,7 @@
 #else
 #include <cstdlib>
 #endif
+
 #include <cstddef>
 #include <memory>
 #include <new>
@@ -39,19 +39,19 @@
 #define noexcept
 #endif
 
-namespace openqu {
+namespace qhipster {
 
-/** @brief an allocator returning aligned memory
- *
- *  This class provides an aligned C++98 and C++11 conforming allocator.
- *
- * \pre The alignment must be a power of 2
- */
+/// \class AlignedAllocator
+/// @brief An allocator returning aligned memory
+///
+/// This class provides an aligned C++98 and C++11 conforming allocator.
+/// \pre The alignment must be a power of 2.
 
 template <typename T, unsigned int Alignment>
 class AlignedAllocator
 {
  public:
+
   typedef T* pointer;
   typedef T const* const_pointer;
   typedef T& reference;
@@ -68,6 +68,7 @@ class AlignedAllocator
 
   AlignedAllocator() noexcept {}
   AlignedAllocator(AlignedAllocator const&) noexcept {}
+
   template <typename U>
   AlignedAllocator(AlignedAllocator<U, Alignment> const&) noexcept
   {
@@ -134,10 +135,14 @@ class AlignedAllocator
     return true;
   }
 };
-}
+
+
+}	// namespace qhipster
 
 #if __cplusplus < 201103L
 #undef noexcept
 #endif
 
 /** @}*/
+
+#endif	// header guard IQS_ALIGNED_ALLOCATOR

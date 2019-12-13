@@ -16,7 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "qureg/qureg.hpp"
+#include "../qureg/qureg.hpp"
 
 using namespace std;
 

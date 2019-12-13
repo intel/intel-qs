@@ -14,6 +14,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 #include <unordered_map>
+#include <string>
 
 using namespace std;
 
@@ -51,7 +52,7 @@ using namespace std;
  **/
 
 // Hash table mapping unique qubit identifiers to each qubit operand.
-unordered_map<string,int> qubit_id_table = {};
+unordered_map<string,int> qubit_id_table;
 
 // Variable to keep track of the next qubit to assign.
 int next_qubit_id = QUBIT_ID_BASE;

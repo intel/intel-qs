@@ -33,16 +33,15 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
                                           TM4x4<Type> const&m)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  // The general case has not been implemented yet for distributed computation.
   assert(nprocs == 1);
 
   std::size_t n = GlobalSize();
-  assert(openqu::isPowerOf2(n));
-  assert(qubit_low < openqu::highestBit(n));
-  assert(qubit_high < openqu::highestBit(n));
+  assert(qhipster::isPowerOf2(n));
+  assert(qubit_low < qhipster::highestBit(n));
+  assert(qubit_high < qhipster::highestBit(n));
   assert(qubit_low != qubit_high);
 
   std::size_t dh = 1UL << qubit_high;
@@ -73,6 +72,16 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
                   state[idx[t]] = m[t][0] * uu + m[t][1] * ud + m[t][2] * du + m[t][3] * dd;
           }
       }
+  }
+
+  // Update counter of the statistics.
+  if (gate_counter != nullptr)
+  {
+      // Verify that permutation is identity.
+      assert(qubit_high == (*permutation)[qubit_high]);
+      assert(qubit_low  == (*permutation)[qubit_low ]);
+      // Otherwise find better location that is compatible with the permutation.
+      gate_counter->TwoQubitIncrement(qubit_high, qubit_low);
   }
 }
 

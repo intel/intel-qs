@@ -12,33 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IQS_TINYMATRIX
+#define IQS_TINYMATRIX
+
+// FIXME: namespace for BitOps changed from openqu to qhipster
 
 #include <cassert>
 #include <initializer_list>
 #include <iostream>
 
-/** \addtogroup util
- *  @{
- */
+/// \addtogroup util
+/// @{
 
-/** @file tinymatrix.hpp
- *
- *  This header defines the class template @c TinyMatrix, which stores a matrix
- *  whose (small) dimensions are fixed at compile time
- */
+/// @file tinymatrix.hpp
+///
+/// This header defines the class template @c TinyMatrix, which stores a matrix
+/// whose (small) dimensions are fixed at compile time
 
-/// Namespace for the OpenQu project
-namespace openqu {
+namespace qhipster {
 
-/**
- * @brief A small matrix with dimensions fixed at compile time
- *
- * The matrix is stored intenally as a two-dimensional C array, and thus in
- * row-major
- * ordering
- *
- */
+/// @brief A small matrix with dimensions fixed at compile time
+///
+/// The matrix is stored intenally as a two-dimensional C array, and thus in row-major
+/// ordering.
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
 template <class ValueType, unsigned M, unsigned N = M, unsigned align = alignof(ValueType)>
 class TinyMatrix
@@ -61,6 +59,8 @@ class TinyMatrix
   /// default-initizlize all matrix elements
   TinyMatrix() { static_assert(N * M != 0, "a zero-dimensional matrix is not allowed"); }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// initialize from a C-style array of the same dimensions
   template <class U>
   // TinyMatrix(U const (init)[M][N])
@@ -82,6 +82,7 @@ class TinyMatrix
     }
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// copy from a matrix with a potentially different type and alignment
   template <class U, unsigned alignrhs>
@@ -91,11 +92,15 @@ class TinyMatrix
       for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = rhs(i, j);
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// the defaiult copy constructor
   TinyMatrix(TinyMatrix const&) = default;
 
   /// the default assignment
   TinyMatrix& operator=(TinyMatrix const&) = default;
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// assign from a matrix with a potentially different type and alignment
   template <class U, unsigned alignrhs>
@@ -114,6 +119,8 @@ class TinyMatrix
       for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = rhs[i][j];
     return *this;
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// the number of matrix rows
   constexpr size_type numRows() const { return M; }
@@ -134,6 +141,8 @@ class TinyMatrix
     return data_[i][j];
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// access a matrix element
   ///
   /// \param i the row index
@@ -146,6 +155,8 @@ class TinyMatrix
     return data_[i][j];
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// \brief compare two matrices element-wise for equality
   template <class U, unsigned alignrhs>
   bool operator==(TinyMatrix<U, M, N, alignrhs> const& rhs) const
@@ -155,6 +166,8 @@ class TinyMatrix
         if (data_[i][j] != rhs(i, j)) return false;
     return true;
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// \brief compare two matrices element-wise for inequality
   template <class U, unsigned alignrhs>
@@ -180,6 +193,8 @@ class TinyMatrix
     return !(*this == rhs);
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// obtain a pointer to the first element of the matrix
   const_pointer getPtr() const { return &data_[0][0]; }
   /// C-style array subscript
@@ -194,6 +209,8 @@ class TinyMatrix
     return data_[i];
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// C-style array subscript for a const matrix
   ///
   /// the TinyMatrix can be indexed both using the mat(i,j) syntax or the
@@ -205,6 +222,8 @@ class TinyMatrix
     assert(i < this->numRows());
     return data_[i];
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// Get submatrices
   ///
@@ -239,9 +258,11 @@ class TinyMatrix
     return tmp;
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
  void print(std::string name) 
  {
-   printf("name: %s\n", name.c_str());
+   printf("name: %s\n", (const char *)name.c_str());
    for (size_type i = 0; i < this->numRows(); ++i) {
      for (size_type j = 0; j < this->numCols(); ++j)
      {
@@ -250,6 +271,9 @@ class TinyMatrix
      printf("\n"); 
    }
  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
  std::string tostr() const
  {
    std::string str;
@@ -268,11 +292,17 @@ class TinyMatrix
    return str;
  }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
  std::string name;
  private:
   alignas(align == 0 ? 8 : align) ValueType data_[M][N];
 };
 
-}  // end namespace
+/////////////////////////////////////////////////////////////////////////////////////////
 
-/** @}*/
+}	// end namespace qhipster
+
+/// @}*/
+
+#endif	// header guard IQS_TINYMATRIX

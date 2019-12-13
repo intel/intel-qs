@@ -14,16 +14,18 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+#include <climits>
+
 #include "qureg.hpp"
 
 /// \addtogroup qureg
 /// @{
 
 /// @file qureg_utils.cpp
-///  @brief Define the @c QubitRegister methods used as basic operations.
+/// @brief Define the @c QubitRegister methods used as basic operations.
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// @brief ???
+/// @brief Overload operator 'compare'.
 template <class Type>
 bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 {
@@ -42,28 +44,30 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// @brief ???
+/// @brief Return the L_infinity distance between two states, psi and x.
+/// Before the comparison, x can be multiplied by a complex factor.
 template <class Type>
-QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, Type sfactor)
+typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegister &x, Type sfactor)
 {
   assert(LocalSize() == x.LocalSize());
   BaseType lcl_maxabsdiff = -1.0;
 
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
-#pragma omp parallel for simd reduction(max : lcl_maxabsdiff)
+  #pragma omp parallel for simd reduction(max : lcl_maxabsdiff)
 #else
-   TODO(Remember to find 'omp parallel for simd reduction' equivalent for gcc)
+  // TODO: Remember to find 'omp parallel for simd reduction' equivalent for gcc.
+  #pragma omp parallel for reduction(max : lcl_maxabsdiff)
 #endif
-  for (std::size_t i = 0; i < lcl; i++) {
-    lcl_maxabsdiff = std::max(lcl_maxabsdiff, std::abs(state[i] - sfactor*x.state[i]));
+  for (std::size_t i = 0; i < lcl; i++)
+  {
+      lcl_maxabsdiff = std::max(lcl_maxabsdiff, std::abs(state[i] - sfactor*x.state[i]));
   }
 
   BaseType glb_maxabsdiff ;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  // MPI_Allreduce(&lcl_maxabsdiff, &glb_maxabsdiff, 1, MPI_DOUBLE, MPI_MAX, comm);
-  MPI_Allreduce_x(&lcl_maxabsdiff, &glb_maxabsdiff,  MPI_MAX, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&lcl_maxabsdiff, &glb_maxabsdiff, 1, MPI_MAX, comm);
 #else
   glb_maxabsdiff = lcl_maxabsdiff;
 #endif
@@ -71,20 +75,47 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, 
   return glb_maxabsdiff;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Return the amplitude given its global index.
+
+template <class Type>
+Type QubitRegister<Type>::GetGlobalAmplitude
+  (std::size_t global_index) const
+{
+  assert(global_index < global_size_);
+  // Determine in what (state) rank is the amplidute and what is its local index.
+  Type amplitude;
+#ifdef INTELQS_HAS_MPI
+  std::size_t local_index, hosting_rank;
+  hosting_rank = global_index/local_size_;
+  assert(hosting_rank < qhipster::mpi::Environment::GetStateSize());
+  local_index = global_index % local_size_;
+  // Broadcast the value to all ranks.
+  amplitude = state[local_index];
+  qhipster::mpi::MPI_Bcast_x(&amplitude, (int)hosting_rank,
+                             qhipster::mpi::Environment::GetStateComm());
+#else
+  amplitude = state[global_index];
+#endif
+  return amplitude;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
-/// @brief ???
+/// @brief Return the maximum L2 distance between the local parts of two states.
+/// The L2 distance between the states would be not the 'max', but the 'sum' of all
+/// rank-local contributions.
 template <class Type>
-QubitRegister<Type>::BaseType QubitRegister<Type>::maxl2normdiff(QubitRegister &x)
+typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxL2NormDiff(QubitRegister &x)
 {
   assert(LocalSize() == x.LocalSize());
   BaseType lcl_diff = 0.0;
-  // #pragma omp parallel for simd reduction(+:lcl_diff)
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
-#pragma omp parallel for reduction(+ : lcl_diff)
+  #pragma omp parallel for simd reduction(+ : lcl_diff)
 #else
-   TODO(Remember to find 'omp parallel for simd reduction' equivalent for gcc)
+  // TODO: Remember to find 'omp parallel for simd reduction' equivalent for gcc.
+  #pragma omp parallel for reduction(+ : lcl_diff)
 #endif
   for (std::size_t i = 0; i < lcl; i++)
   {
@@ -94,11 +125,10 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::maxl2normdiff(QubitRegister &
 
   BaseType glb_diff;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  // MPI_Allreduce(&lcl_diff, &glb_diff, 1, MPI_DOUBLE, MPI_MAX, comm);
-  MPI_Allreduce_x(&lcl_diff, &glb_diff,  MPI_MAX, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&lcl_diff, &glb_diff, 1, MPI_MAX, comm);
 #else
-   glb_diff = lcl_diff;
+  glb_diff = lcl_diff;
 #endif
 
   return glb_diff;
@@ -112,7 +142,11 @@ void QubitRegister<Type>::Normalize()
 {
   BaseType global_norm = ComputeNorm();
   std::size_t lcl = LocalSize();
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
 #pragma omp parallel for 
+#endif
   for(std::size_t i = 0; i < lcl; i++)
   {
      state[i] = state[i] / global_norm;
@@ -123,15 +157,11 @@ void QubitRegister<Type>::Normalize()
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Compute the norm of the state (L2 norm).
 template <class Type>
-QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
+typename QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 {
   BaseType local_normsq = 0;
   std::size_t lcl = LocalSize();
-#if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for reduction(+ : local_normsq)
-#else
-   TODO(Remember to find 'omp parallel for simd reduction' equivalent for gcc)
-#endif
   for(std::size_t i = 0; i < lcl; i++)
   {
      local_normsq += std::norm(state[i]);
@@ -139,9 +169,8 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 
   BaseType global_normsq;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  // MPI_Allreduce(&local_normsq, &global_normsq, 1, MPI_DOUBLE, MPI_SUM, comm);
-  MPI_Allreduce_x(&local_normsq, &global_normsq,  MPI_SUM, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&local_normsq, &global_normsq, 1, MPI_SUM, comm);
 #else
   global_normsq = local_normsq;
 #endif
@@ -165,24 +194,23 @@ Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
   BaseType local_over_im = 0.;
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
-#pragma omp parallel for private(local_over) reduction(+ : local_over_re,local_over_im)
+  // TODO: use 'simd' keyword?
+  #pragma omp parallel for private(local_over) reduction(+ : local_over_re,local_over_im)
 #else
-   TODO(Remember to find 'omp parallel for simd reduction' equivalent for gcc)
+  #pragma omp parallel for private(local_over) reduction(+ : local_over_re,local_over_im)
 #endif
   for(std::size_t i = 0; i < lcl; i++)
   {
-     local_over = std::conj(psi[i]) * state[i] ; 
+     local_over = std::conj(psi.state[i]) * state[i] ; 
      local_over_re +=  std::real( local_over );
      local_over_im +=  std::imag( local_over );
   }
   
   BaseType global_over_re(0.) , global_over_im(0.) ;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  // MPI_Allreduce(&local_over_re, &global_over_re, 1, MPI_DOUBLE, MPI_SUM, comm);
-  // MPI_Allreduce(&local_over_im, &global_over_im, 1, MPI_DOUBLE, MPI_SUM, comm);
-  MPI_Allreduce_x(&local_over_re, &global_over_re,  MPI_SUM, comm);
-  MPI_Allreduce_x(&local_over_im, &global_over_im,  MPI_SUM, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&local_over_re, &global_over_re, 1, MPI_SUM, comm);
+  qhipster::mpi::MPI_Allreduce_x(&local_over_im, &global_over_im, 1, MPI_SUM, comm);
 #else
   global_over_re = local_over_re;
   global_over_im = local_over_im;
@@ -197,7 +225,6 @@ Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
 template <class Type>
 double QubitRegister<Type>::Entropy()
 {
-
   std::size_t lcl = LocalSize();
   double local_Hp = 0;
 
@@ -220,9 +247,8 @@ double QubitRegister<Type>::Entropy()
 
   double global_Hp;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  // MPI_Allreduce(&local_Hp, &global_Hp, 1, MPI_DOUBLE, MPI_SUM, comm);
-  MPI_Allreduce_x(&local_Hp, &global_Hp,  MPI_SUM, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&local_Hp, &global_Hp, 1, MPI_SUM, comm);
 #else
   global_Hp = local_Hp;
 #endif
@@ -298,9 +324,9 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
   double global_entropy;
   double global_avgselfinfo;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  MPI_Allreduce_x(&entropy, &global_entropy,  MPI_SUM, comm);
-  MPI_Allreduce_x(&avgselfinfo, &global_avgselfinfo,  MPI_SUM, comm);
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&entropy, &global_entropy, 1, MPI_SUM, comm);
+  qhipster::mpi::MPI_Allreduce_x(&avgselfinfo, &global_avgselfinfo, 1, MPI_SUM, comm);
 #else
   global_entropy = entropy;
   global_avgselfinfo = avgselfinfo;
@@ -324,7 +350,7 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
 
       m[i] *= factor[i];
 #ifdef INTELQS_HAS_MPI
-      MPI_Allreduce_x(&(m[i]), &(global_m[i]),  MPI_SUM, comm);
+      qhipster::mpi::MPI_Allreduce_x(&(m[i]), &(global_m[i]), 1, MPI_SUM, comm);
 #else
       global_m[i] = m[i];
 #endif
@@ -364,7 +390,7 @@ std::string PrintVector(Type *state, std::size_t size, std::size_t num_qubits,
     char s[4096];
     sprintf(s, "\t%-13.8lf + i * %-13.8lf   %% |%s> p=%lf\n",
             std::real(state[i]), std::imag(state[i]),
-            bin.c_str(), std::norm(state[i]) );
+            (const char *)bin.c_str(), std::norm(state[i]) );
     str = str + s;
     cumulative_probability += std::norm(state[i]);
   }
@@ -387,12 +413,12 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   BaseType cumulative_probability = 0;
 
   unsigned myrank=0, nprocs=1;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
 #ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  openqu::mpi::barrier();
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
 #endif
+  qhipster::mpi::StateBarrier();
 
   if (myrank == 0)
   {
@@ -401,8 +427,8 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
       printf("permutation: %s\n", permutation->GetMapStr().c_str());
       std::string s = PrintVector<Type, BaseType>(state, LocalSize(), num_qubits,
                                                   cumulative_probability, permutation);
-      printf("%s=[\n", x.c_str());
-      printf("%s", s.c_str());
+      printf("%s=[\n", (const char *)x.c_str());
+      printf("%s", (const char *)s.c_str());
 #ifdef INTELQS_HAS_MPI
       for (std::size_t i = 1; i < nprocs; i++)
       {
@@ -418,7 +444,7 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 #else
           MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, i, comm, MPI_STATUS_IGNORE);
 #endif //BIGMPI
-          printf("%s", s.c_str());
+          printf("%s", (const char *)s.c_str());
       }
 #endif
   }
@@ -445,12 +471,10 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 #endif
   if (myrank == 0)
   {
-      printf("]; %% cumulative probability = %lf\n", glb_cumulative_probability);
+      printf("]; %% cumulative probability = %lf\n", (double)glb_cumulative_probability);
   }
 
-#ifdef INTELQS_HAS_MPI
-  openqu::mpi::barrier();
-#endif
+  qhipster::mpi::StateBarrier();
 }
 
 
@@ -461,8 +485,8 @@ template <class Type>
 void QubitRegister<Type>::dumpbin(std::string fn)
 {
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  unsigned myrank = openqu::mpi::Environment::rank();
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
   MPI_Status status;
   MPI_File fh;
   MPI_File_open(comm, (char *)fn.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY,
@@ -472,15 +496,15 @@ void QubitRegister<Type>::dumpbin(std::string fn)
   MPI_Offset offset = size * UL(myrank * sizeof(Type));
 
   double t0 = sec();
-  openqu::mpi::barrier();
+  qhipster::mpi::StateBarrier();
   MPI_File_write_at(fh, offset, (void *)(&(state[0])), size, MPI_DOUBLE_COMPLEX, &status);
-  openqu::mpi::barrier();
+  qhipster::mpi::StateBarrier();
   double t1 = sec();
   MPI_File_close(&fh);
   if (myrank == 0)
   {
       double bw = D(UL(sizeof(state[0])) * size) / (t1 - t0) / 1e6;
-      printf("Dumping state to %s took %lf sec (%lf MB/s)\n", fn.c_str(), t1 - t0, bw);
+      printf("Dumping state to %s took %lf sec (%lf MB/s)\n", (const char *)fn.c_str(), (double)(t1 - t0), (double)bw);
   }
 #else
   assert(0);
@@ -494,14 +518,14 @@ void QubitRegister<Type>::dumpbin(std::string fn)
 template <class Type>
 void QubitRegister<Type>::EnableStatistics()
 {
-  unsigned myrank=0, nprocs=1;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-#endif
+  int myrank=0, nprocs=1;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
 
-  assert(timer == NULL);
+  assert(timer == nullptr);
   timer = new Timer(num_qubits, myrank, nprocs);
+  assert(gate_counter == nullptr);
+  gate_counter = new GateCounter(num_qubits);
 }
 
 
@@ -511,25 +535,42 @@ void QubitRegister<Type>::EnableStatistics()
 template <class Type>
 void QubitRegister<Type>::GetStatistics()
 {
-  assert(timer);
+  assert(timer != nullptr);
   timer->Breakdown();
-  // delete timer;
-  // timer = NULL;
+  assert(gate_counter != nullptr);
+  gate_counter->Breakdown();
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Disable the statistics and delete the timer and gate counter.
+//------------------------------------------------------------------------------
+template <class Type>
+void QubitRegister<Type>::DisableStatistics()
+{
+  assert(timer != nullptr);
+  delete timer;
+  timer = nullptr;
+
+  assert(gate_counter != nullptr);
+  delete gate_counter;
+  gate_counter = nullptr;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Reset the statistics to allow a new start.
+// TODO: rename it DisableStatistics()?
 //------------------------------------------------------------------------------
 template <class Type>
 void QubitRegister<Type>::ResetStatistics()
 {
-// FIXME it does not delete the timer object!
-  assert(timer);
-  delete timer;
-  timer = NULL;
+  this->DisableStatistics();
+  this->EnableStatistics();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;

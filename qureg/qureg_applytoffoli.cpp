@@ -25,9 +25,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Apply the Toffoli gate.
-/// @param qubit1 index of the target qubit
-/// @param qubit2 index of the 1st control qubit
-/// @param qubit3 index of the 2nd control qubit
+/// @param control_1 index of the 1st control qubit
+/// @param control_2 index of the 2nd control qubit
+/// @param target index of the target qubit
 ///
 /// Implemented by decomposing the Toffoli gate in 5 two-qubit gates.
 /// Courtesy of Sonika Johri.
@@ -35,25 +35,25 @@
 template<typename Type>
 void QubitRegister<Type>::ApplyToffoli(unsigned const control_1, 
                                        unsigned const control_2, 
-                                       unsigned const qubit)
+                                       unsigned const target)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> V;
+  qhipster::TinyMatrix<Type, 2, 2, 32> V;
   V(0,0)={1.0/2.0,-1.0/2.0};
   V(0,1)={1.0/2.0,1.0/2.0};
   V(1,0)={1.0/2.0,1.0/2.0};
   V(1,1)={1.0/2.0,-1.0/2.0};
 
-  openqu::TinyMatrix<Type, 2, 2, 32> V_dag;
+  qhipster::TinyMatrix<Type, 2, 2, 32> V_dag;
   V_dag(0,0)={1.0/2.0,1.0/2.0};
   V_dag(0,1)={1.0/2.0,-1.0/2.0};
   V_dag(1,0)={1.0/2.0,-1.0/2.0};
   V_dag(1,1)={1.0/2.0,1.0/2.0};
 
-  ApplyControlled1QubitGate( control_1, qubit, V );
+  ApplyControlled1QubitGate( control_1, target, V );
   ApplyCPauliX( control_2, control_1 );
-  ApplyControlled1QubitGate( control_1, qubit, V_dag );
+  ApplyControlled1QubitGate( control_1, target, V_dag );
   ApplyCPauliX( control_2, control_1 );
-  ApplyControlled1QubitGate( control_2, qubit, V );
+  ApplyControlled1QubitGate( control_2, target, V );
 
   return;
 }

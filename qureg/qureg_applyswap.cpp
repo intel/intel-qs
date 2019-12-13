@@ -30,10 +30,20 @@
 template <class Type>
 void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> notg;
+  qhipster::TinyMatrix<Type, 2, 2, 32> notg;
   notg(0, 0) = notg(1, 1) = {0, 0};
   notg(0, 1) = notg(1, 0) = {1, 0};
+#if 10
+  TODO(Use this implementation of swap till we fix tmp buffer size issue with code below) 
+  TODO(    namely need to be able to use Send and Recv properly)
+  TODO(    The same problem with controlled gates was already solved. Import solution.)
+  unsigned b1 = qubit1, b2 = qubit2;
+  ApplyCPauliX(b1, b2);
+  ApplyCPauliX(b2, b1);
+  ApplyCPauliX(b1, b2);
+#else
   ApplySwap_helper(qubit1, qubit2, notg);
+#endif
 }
 
 
@@ -44,7 +54,7 @@ void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
   BaseType f0 = std::sqrt(.5);
   Type f1(0., f0);
 
-  openqu::TinyMatrix<Type, 2, 2, 32> g;
+  qhipster::TinyMatrix<Type, 2, 2, 32> g;
   g(0, 0) = f0;
   g(0, 1) = f1;
   g(1, 0) = f1;
@@ -65,7 +75,7 @@ void QubitRegister<Type>::ApplyISwapRotation(unsigned qubit1, unsigned qubit2, T
 template <class Type>
 void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> g;
+  qhipster::TinyMatrix<Type, 2, 2, 32> g;
   g(0, 0) = g(1, 1) = {0, 0};
   g(0, 1) = g(1, 0) = {0, 1};
   ApplySwap_helper(qubit1, qubit2, g);
@@ -82,7 +92,7 @@ void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
   Type f0(a - b);
   Type f1(a + b);
 
-  openqu::TinyMatrix<Type, 2, 2, 32> g;
+  qhipster::TinyMatrix<Type, 2, 2, 32> g;
   g(0, 0) = f0;
   g(0, 1) = f1;
   g(1, 0) = f1;
@@ -99,14 +109,25 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 #if 0
   TODO(Use this implementation of swap till we fix tmp buffer size issue with code below) 
   TODO(    namely need to be able to use Send and Recv properly)
-  TODO(    same problem as with controlled gates nbeed care)
+  TODO(    The same problem with controlled gates was already solved. Import solution.)
   unsigned b1 = qubit1_, b2 = qubit2_;
-  applyCPauliX(b1, b2);
-  applyCPauliX(b2, b1);
-  applyCPauliX(b1, b2);
+  ApplyCPauliX(b1, b2);
+  ApplyCPauliX(b2, b1);
+  ApplyCPauliX(b1, b2);
 
   return true;
 #endif
+
+
+  // Update counter of the statistics.
+  if (gate_counter != nullptr)
+  {
+      // Verify that permutation is identity.
+      assert(qubit1_ == (*permutation)[qubit1_]);
+      assert(qubit2_ == (*permutation)[qubit2_]);
+      // Otherwise find better location that is compatible with the permutation.
+      gate_counter->TwoQubitIncrement(qubit1_, qubit2_);
+  }
 
   // flush fusion buffers
   if (fusion == true)
@@ -122,15 +143,13 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
   assert(qubit2 < num_qubits);
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
   std::size_t lcl_size_half = LocalSize() / 2UL;
-  std::size_t lcl_size_quarter = lcl_size_half / 2U;
-  // assert(lcl_size_quarter >= 1);
+  std::size_t lcl_size_quarter = lcl_size_half / 2UL;
+  assert(lcl_size_quarter >= 1);
 
   Type m00 = m(0, 0),
        m01 = m(0, 1),
@@ -174,7 +193,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
   else
   {
 #ifdef INTELQS_HAS_MPI
-    MPI_Comm comm = openqu::mpi::Environment::comm();
+    MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
     MPI_Status status;
     // HP_Distrpair(qubit1, qubit2);
     std::size_t src_glb_start = UL(myrank) * LocalSize();
@@ -211,7 +230,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
             assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
             jtask = dst_glb_start / LocalSize();
-            // openqu::mpi::Environment::remaprank(jtask);
+            // qhipster::mpi::Environment::RemapStateRank(jtask);
             assert(jtask > myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
         }
@@ -223,7 +242,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
             assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
             itask = dst_glb_start / LocalSize();
-            // openqu::mpi::Environment::remaprank(itask);
+            // qhipster::mpi::Environment::RemapStateRank(itask);
             assert(itask < myrank);
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
         }
@@ -231,7 +250,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
         {
             // early return if no rank permutation
             return true;
-            openqu::mpi::Environment::remaprank(myrank);
+            qhipster::mpi::Environment::RemapStateRank(myrank);
         }
     }
 
@@ -247,19 +266,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
        t = sec();
    
        std::size_t start_ind = (qubit1 + 1 != M) ? 0 : lcl_size_half;
-       #if 0
-       MPI_Sendrecv(&(state[start_ind]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                    jtask, tag1,
-                    &(tmp_state[0]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                    jtask, tag2,
-                    comm, &status);
-       #else
-       MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, 
-                      jtask, tag1,
-                      &(tmp_state[0]), lcl_size_half, 
-                      jtask, tag2,
-                      comm, &status);
-       #endif
+       qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, jtask, tag1,
+                                     &(tmp_state[0])    , lcl_size_half, jtask, tag2,
+                                     comm, &status);
 
        tnet += sec() - t;
 
@@ -286,19 +295,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
        t = sec();
        if (qubit1 + 1 != M)
        {
-         #if 0
-         MPI_Sendrecv(&(tmp_state[0]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                      jtask, tag1,
-                      &(state[0]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                      jtask, tag2,
-                      comm, &status);
-         #else
-         MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half,
-                        jtask, tag1,
-                        &(state[0]), lcl_size_half,
-                        jtask, tag2,
-                        comm, &status);
-         #endif
+         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half, jtask, tag1,
+                                       &(state[0])    , lcl_size_half, jtask, tag2,
+                                       comm, &status);
        }
        tnet += sec() - t;
 
@@ -309,19 +308,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
        //    dst sends d2 to src into dT
        t = sec();
        std::size_t start_ind = (qubit1 + 1 == M) ? 0 : lcl_size_half;
-       #if 0
-       MPI_Sendrecv(&(state[start_ind]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                    itask, tag2,
-                    &(tmp_state[0]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                    itask, tag1,
-                    comm, &status);
-       #else
-       MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, 
-                      itask, tag2,
-                      &(tmp_state[0]), lcl_size_half,
-                      itask, tag1,
-                      comm, &status);
-       #endif
+       qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
+                                     &(tmp_state[0])    , lcl_size_half, itask, tag1,
+                                     comm, &status);
        tnet += sec() - t;
 
        // 3. src and dst compute
@@ -346,19 +335,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 
        t = sec();
        if(qubit1 + 1 != M) {
-         #if 0
-         MPI_Sendrecv(&(tmp_state[0]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                      itask, tag2,
-                      &(state[lcl_size_half]), lcl_size_half, MPI_DOUBLE_COMPLEX,
-                      itask, tag1,
-                      comm, &status);
-         #else
-         MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half,
-                        itask, tag2,
-                        &(state[lcl_size_half]), lcl_size_half, 
-                        itask, tag1,
-                        comm, &status);
-         #endif
+         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])        , lcl_size_half, itask, tag2,
+                                       &(state[lcl_size_half]), lcl_size_half, itask, tag1,
+                                       comm, &status);
        }
        tnet += sec() - t;
     }
@@ -377,12 +356,12 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
     if(check_bit(glb_start, qubit2) == 0)
     {
        printf("%d ==> %d\n", myrank, myrank + (1 << (qubit2 - M)));
-       openqu::mpi::Environment::remaprank(myrank + (1 << (qubit2 - M)));
+       qhipster::mpi::Environment::RemapStateRank(myrank + (1 << (qubit2 - M)));
     }
     else
     {
        printf("%d ==> %d\n", myrank, myrank - (1 << (qubit2 - M)));
-       openqu::mpi::Environment::remaprank(myrank - (1 << (qubit2 - M)));
+       qhipster::mpi::Environment::RemapStateRank(myrank - (1 << (qubit2 - M)));
     }
     printf("here2\n");
 #endif
@@ -395,8 +374,8 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
   return true;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
 void QubitRegister<Type>::Swap(unsigned b1, unsigned b2)
 {
@@ -405,9 +384,9 @@ void QubitRegister<Type>::Swap(unsigned b1, unsigned b2)
 
   assert(0);
 #if 0
-  applyControlled1QubitGate(b1, b2, openqu::gates::X);
-  applyControlled1QubitGate(b2, b1, openqu::gates::X);
-  applyControlled1QubitGate(b1, b2, openqu::gates::X);
+  ApplyCPauliX(b1, b2);
+  ApplyCPauliX(b2, b1);
+  ApplyCpauliX(b1, b2);
 #endif
 
 }

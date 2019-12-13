@@ -14,19 +14,17 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-/**
- * @file omp_test1.cpp
- *
- * This file tests creation/destruction of an OMP session.
- *
- */
-#include "openmp_affinity_corei7.hpp"
+/// @file omp_test1.cpp
+///
+/// This file tests creation/destruction of an OMP session.
+
 #include <stdexcept>
 #include <stdio.h>
 
+#include "openmp_affinity_corei7.hpp"
 
-int main(int argc, char **argv) {
-
+int main(int argc, char **argv)
+{
     double integral_start = 0.0,
            integral_end   = 1.0;
     unsigned long N = 100000; // number of steps.

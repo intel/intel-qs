@@ -14,8 +14,11 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include <vector>
+#ifndef NOISY_QUREG_H
+#define NOISY_QUREG_H
+
 #include <random>
+#include <vector>
 
 /// \addtogroup NoisyQureg
 /// @{
@@ -41,17 +44,18 @@ class NoisyQureg : public QubitRegister<Type>
 
     typedef typename QubitRegister<Type>::BaseType BaseType;
 
-    std::vector<BaseType> time_from_last_gate;		// given in terms of the chosen time unit
+    std::vector<BaseType> time_from_last_gate;	// given in terms of the chosen time unit
     BaseType time_one_qubit_experimental_gate = 1.;
     BaseType time_two_qubit_experimental_gate = 1.;
 
-    std::vector<unsigned> experimental_gate_count_matrix;	// matrix with number of gates between qubits (diagonal is one-qubit gates)
+    // matrix with number of gates between qubits (diagonal is one-qubit gates)
+    std::vector<unsigned> experimental_gate_count_matrix;
     unsigned one_qubit_experimental_gate_count=0;
     unsigned two_qubit_experimental_gate_count=0;
 
     // ~~~~~~~~~~ parameters characterizing the noise model ~~~~~~~~~
-    BaseType T_1 = 1000;				// T_1   given in terms of the chosen time unit
-    BaseType T_2 = 100;					// T_2   given in terms of the chosen time unit
+    BaseType T_1 = 1000;		// T_1   given in terms of the chosen time unit
+    BaseType T_2 = 100;			// T_2   given in terms of the chosen time unit
     BaseType T_phi = 1./( 1./T_2 - 1./(2.*T_1) );	// T_phi given in terms of the chosen time unit
 
     // Pseudo random-number-generator to sample from normal distribution
@@ -106,13 +110,13 @@ class NoisyQureg : public QubitRegister<Type>
     void NoiseGate_OLD(unsigned const);
 
     // Perform gates
-    void Apply1QubitGate(unsigned const, openqu::TinyMatrix<Type, 2, 2, 32>);
+    void Apply1QubitGate(unsigned const, qhipster::TinyMatrix<Type, 2, 2, 32>);
     void ApplyHadamard(unsigned const);
     void ApplyRotationX(unsigned const, BaseType);
     void ApplyRotationY(unsigned const, BaseType);
     void ApplyRotationZ(unsigned const, BaseType);
     void ApplyCPauliX(unsigned const, unsigned const);
-    void ApplyControlled1QubitGate(unsigned const, unsigned const, openqu::TinyMatrix<Type, 2, 2, 32>);
+    void ApplyControlled1QubitGate(unsigned const, unsigned const, qhipster::TinyMatrix<Type, 2, 2, 32>);
 
 };
 
@@ -298,7 +302,7 @@ void NoisyQureg<Type>::NoiseGate(unsigned const qubit )
   B = { std::cos(v_X)*std::cos(v_Y) , -std::sin(v_X)*std::sin(v_Y) };
   C = { std::cos(v_X)*std::sin(v_Y) , -std::sin(v_X)*std::cos(v_Y) };
 
-  openqu::TinyMatrix<Type, 2, 2, 32> U_noise;
+  qhipster::TinyMatrix<Type, 2, 2, 32> U_noise;
   U_noise(0, 0) = A*B;
   U_noise(0, 1) = -std::conj(A)*std::conj(C);
   U_noise(1, 0) = A*C;
@@ -444,7 +448,7 @@ void NoisyQureg<Type>::NoiseGate_OLD(unsigned const qubit )
   //    sigma_axis
   // and use it to implement the single-qubit rotation :
   //    rot = exp( i * angle * sigma_axis )
-  openqu::TinyMatrix<Type, 2, 2, 32> rot;
+  qhipster::TinyMatrix<Type, 2, 2, 32> rot;
   BaseType s(std::sin(angle/2.)) , c(std::cos(angle/2.)) ;
   rot(0, 0) = Type(  c         ,  s*axis[2] );
   rot(0, 1) = Type(  s*axis[1] ,  s*axis[0] );
@@ -463,7 +467,7 @@ void NoisyQureg<Type>::NoiseGate_OLD(unsigned const qubit )
 
 template <class Type>
 void NoisyQureg<Type>::Apply1QubitGate(unsigned const q,
-                                       openqu::TinyMatrix<Type, 2, 2, 32> V)
+                                       qhipster::TinyMatrix<Type, 2, 2, 32> V)
 {
   AddNoiseOneQubitGate(q); 
   QubitRegister<Type>::Apply1QubitGate(q,V);
@@ -506,10 +510,12 @@ void NoisyQureg<Type>::ApplyCPauliX(unsigned const q1, unsigned const q2)
 
 template <class Type>
 void NoisyQureg<Type>::ApplyControlled1QubitGate(unsigned const q1, unsigned const q2,
-                                                 openqu::TinyMatrix<Type, 2, 2, 32> V)
+                                                 qhipster::TinyMatrix<Type, 2, 2, 32> V)
 {
   AddNoiseTwoQubitGate(q1,q2); 
   QubitRegister<Type>::ApplyControlled1QubitGate(q1,q2,V);
 }
 
 /// @}
+
+#endif	// header guard NOISY_QUREG_H

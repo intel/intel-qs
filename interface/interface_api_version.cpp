@@ -15,7 +15,7 @@
 //------------------------------------------------------------------------------
 #include <iostream>
 
-#include "qureg/qureg_version.hpp"
+#include "../qureg/qureg_version.hpp"
 #include "interface_api_version.h"
 
 

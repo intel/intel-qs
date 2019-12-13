@@ -27,14 +27,17 @@
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 {
-#ifdef INTELQS_HAS_MPI
+  assert(LocalSize() > 1);
+#ifndef INTELQS_HAS_MPI
+  assert(0);
+#else
   MPI_Status status;
-  MPI_Comm comm = openqu::mpi::Environment::comm();
-  std::size_t myrank = openqu::mpi::Environment::rank();
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
 
   assert(position < num_qubits);
   int strideexp = position;
-  int memexp = num_qubits - openqu::ilog2(openqu::mpi::Environment::size());
+  int memexp = num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   int pstrideexp = strideexp - memexp;
 
   //  Steps:     1.         2.           3.              4.
@@ -53,16 +56,16 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
   {
       itask = myrank;
       jtask = itask + (1 << pstrideexp);
-      // s = openqu::toString(itask) + "==>" + openqu::toString(jtask);
+      // s = qhipster::toString(itask) + "==>" + qhipster::toString(jtask);
   }
   else
   {
       jtask = myrank;
       itask = jtask - (1 << pstrideexp);
-      // s = openqu::toString(jtask) + "==>" + openqu::toString(itask);
+      // s = qhipster::toString(jtask) + "==>" + qhipster::toString(itask);
   }
 
-  // openqu::mpi::print(s, true);
+  // qhipster::mpi::StatePrint(s, true);
 
   if (specialize == true)
   { 
@@ -73,36 +76,35 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
       {
           // printf("Xgate: remaping MPI rank %d <==> %d\n", jtask, itask);
           if (check_bit(glb_start, UL(position)) == 0)
-              openqu::mpi::Environment::remaprank(jtask);
+              qhipster::mpi::Environment::RemapStateRank(jtask);
           else
-              openqu::mpi::Environment::remaprank(itask);
+              qhipster::mpi::Environment::RemapStateRank(itask);
           TODO(Fix problem when coming here from controlled gate)
-          openqu::mpi::barrier();
+          qhipster::mpi::StateBarrier();
           if (timer)
               timer->record_cm(0., 0.);
           return 0.0;
       }
-    bool Ygate = (m[0][0] == Type(0., 0.) && m[0][1] == Type(0., -1.) &&
-                  m[1][0] == Type(0., 1.) && m[1][1] == Type(0., 0.));
-    if (Ygate == true)
-    {
-      // printf("Ygate: remaping MPI rank\n");
-      if (check_bit(glb_start, UL(position)) == 0)
+      bool Ygate = (m[0][0] == Type(0., 0.) && m[0][1] == Type(0., -1.) &&
+                    m[1][0] == Type(0., 1.) && m[1][1] == Type(0., 0.));
+      if (Ygate == true)
       {
-          openqu::mpi::Environment::remaprank(jtask);
-          ScaleState(0UL, LocalSize(), state, Type(0, 1.0), timer);
+          // printf("Ygate: remaping MPI rank\n");
+          if (check_bit(glb_start, UL(position)) == 0)
+          {
+              qhipster::mpi::Environment::RemapStateRank(jtask);
+              ScaleState(0UL, LocalSize(), state, Type(0, 1.0), timer);
+          }
+          else
+          {
+              qhipster::mpi::Environment::RemapStateRank(itask);
+              ScaleState(0UL, LocalSize(), state, Type(0, -1.0), timer);
+          }
+          qhipster::mpi::StateBarrier();
+          if (timer)
+              timer->record_cm(0., 0.);
+          return 0.0;
       }
-      else
-      {
-          openqu::mpi::Environment::remaprank(itask);
-          ScaleState(0UL, LocalSize(), state, Type(0, -1.0), timer);
-      }
-      openqu::mpi::barrier();
-      if (timer)
-          timer->record_cm(0., 0.);
-      return 0.0;
-    }
-
   }
 
 
@@ -119,7 +121,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
       assert((lcl_size_half % lcl_chunk) == 0);
   
   double t, tnet = 0;
-  for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
+  for(std::size_t c = 0; c < lcl_size_half; c += lcl_chunk)
   {
     // if(!myrank) printf("c=%lu lcl_size_half=%lu lcl_chujnk=%lu\n", c, lcl_size_half, lcl_chunk);
     if (itask == myrank)  // this is itask
@@ -127,16 +129,18 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
         // 2. src sends s1 to dst into dT
         //    dst sends d2 to src into dT
         t = sec();
-        MPI_Sendrecv_x(&(state[c]), lcl_chunk, jtask, tag1, &(tmp_state[0]),
-                       lcl_chunk, jtask, tag2, comm, &status);
+        qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
+                                      &(tmp_state[0]), lcl_chunk, jtask, tag2,
+                                      comm, &status);
         tnet += sec() - t;
 
         // 3. src and dst compute
         Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L, m, specialize, timer);
 
         t = sec();
-        MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3, &(state[c]),
-                       lcl_chunk, jtask, tag4, comm, &status);
+        qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
+                                      &(state[c])    , lcl_chunk, jtask, tag4,
+                                      comm, &status);
         tnet += sec() - t;
     }
     else  // this is jtask
@@ -144,17 +148,17 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
         // 2. src sends s1 to dst into dT
         //    dst sends d2 to src into dT
         t = sec();
-        MPI_Sendrecv_x(&(state[lcl_size_half + c]), lcl_chunk, itask, tag2,
-                       &(tmp_state[0]), lcl_chunk, itask, tag1, comm,
-                       &status);
+        qhipster::mpi::MPI_Sendrecv_x(&(state[lcl_size_half + c]), lcl_chunk, itask, tag2,
+                                      &(tmp_state[0])            , lcl_chunk, itask, tag1,
+                                      comm, &status);
         tnet += sec() - t;
 
         Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L, m, specialize, timer);
 
         t = sec();
-        MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, itask, tag4,
-                       &(state[lcl_size_half + c]), lcl_chunk, itask, tag3,
-                       comm, &status);
+        qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])            , lcl_chunk, itask, tag4,
+                                      &(state[lcl_size_half + c]), lcl_chunk, itask, tag3,
+                                      comm, &status);
         tnet += sec() - t;
     }
   }
@@ -164,9 +168,6 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
   //      it, sizeof(Type)*lcl_size_half, tnet, netsize, netbw / 1e9);
 
   if (timer) {timer->record_cm(tnet, netbw); };
-
-#else
-  assert(0);
 #endif
   return 0.0;
 }
@@ -184,11 +185,9 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   TODO(Add diagonal special case)
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(openqu::mpi::Environment::size());
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
   std::size_t P = qubit;
 
@@ -197,7 +196,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   bool diagonal = (m[0][1].real() == 0. && m[0][1].imag() == 0. &&
                    m[1][0].real() == 0. && m[1][0].imag() == 0.);
 
-  std::string gate_name = "SQG("+openqu::toString(P)+")::"+m.name;
+  std::string gate_name = "SQG("+qhipster::toString(P)+")::"+m.name;
 
   if (timer)
       timer->Start(gate_name, P);
@@ -234,6 +233,15 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
 template <class Type>
 void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
 {
+  // Update counter of the statistics.
+  if (gate_counter != nullptr)
+  {
+      // Verify that permutation is identity.
+      assert(qubit == (*permutation)[qubit]);
+      // Otherwise find better location that is compatible with the permutation.
+      gate_counter->OneQubitIncrement(qubit);
+  }
+
   if (fusion == true)
   {
       assert((*permutation)[qubit] < num_qubits);
@@ -267,7 +275,7 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
 template <class Type>
 void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> rx;
+  qhipster::TinyMatrix<Type, 2, 2, 32> rx;
   rx(0, 1) = rx(1, 0) = Type(0, -std::sin(theta / 2.));
   rx(0, 0) = rx(1, 1) = std::cos(theta / 2.);
   Apply1QubitGate(qubit, rx);
@@ -286,7 +294,7 @@ void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> ry;
+  qhipster::TinyMatrix<Type, 2, 2, 32> ry;
   ry(0, 1) = Type(-std::sin(theta / 2.), 0.);
   ry(1, 0) = Type( std::sin(theta / 2.), 0.);
   ry(0, 0) = ry(1, 1) = std::cos(theta / 2.);
@@ -306,7 +314,7 @@ void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> rz;
+  qhipster::TinyMatrix<Type, 2, 2, 32> rz;
   rz(0, 0) = Type(std::cos(theta / 2.), -std::sin(theta / 2.));
   rz(1, 1) = Type(std::cos(theta / 2.), std::sin(theta / 2.));
   rz(0, 1) = rz(1, 0) = Type(0., 0.);
@@ -323,7 +331,7 @@ void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> px;
+  qhipster::TinyMatrix<Type, 2, 2, 32> px;
   px(0, 0) = Type(0., 0.);
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
@@ -341,7 +349,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> px;
+  qhipster::TinyMatrix<Type, 2, 2, 32> px;
   px(0, 0) = Type(0.5,  0.5);
   px(0, 1) = Type(0.5, -0.5);
   px(1, 0) = Type(0.5, -0.5);
@@ -359,7 +367,7 @@ void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> py;
+  qhipster::TinyMatrix<Type, 2, 2, 32> py;
   py(0, 0) = Type(0., 0.);
   py(0, 1) = Type(0., -1.);
   py(1, 0) = Type(0., 1.);
@@ -377,7 +385,7 @@ void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> py;
+  qhipster::TinyMatrix<Type, 2, 2, 32> py;
   py(0, 0) = Type(0.5,   0.5);
   py(0, 1) = Type(-0.5, -0.5);
   py(1, 0) = Type(0.5,   0.5);
@@ -395,7 +403,7 @@ void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> pz;
+  qhipster::TinyMatrix<Type, 2, 2, 32> pz;
   pz(0, 0) = Type(1., 0.);
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
@@ -413,7 +421,7 @@ void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> pz;
+  qhipster::TinyMatrix<Type, 2, 2, 32> pz;
   pz(0, 0) = Type(1., 0.);
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
@@ -433,7 +441,7 @@ void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> h;
+  qhipster::TinyMatrix<Type, 2, 2, 32> h;
   BaseType f = 1. / std::sqrt(2.);
   h(0, 0) = h(0, 1) = h(1, 0) = Type(f, 0.);
   h(1, 1) = Type(-f, 0.);
@@ -451,7 +459,7 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyT(unsigned const qubit)
 {
-  openqu::TinyMatrix<Type, 2, 2, 32> t;
+  qhipster::TinyMatrix<Type, 2, 2, 32> t;
   t(0, 0) = Type(1.0, 0.0);
   t(0, 1) = Type(0.0, 0.0);
   t(1, 0) = Type(0.0, 0.0);

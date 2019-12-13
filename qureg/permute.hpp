@@ -14,12 +14,14 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#pragma once
+#ifndef PERMUTE_H
+#define PERMUTE_H
+
+#include <map>
+#include <numeric>
+#include <vector>
 
 #include "../util/utils.hpp"
-#include <numeric>
-#include <map>
-#include <vector>
 #include "../util/conversion.hpp"
 
 inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t num_qubits)
@@ -28,8 +30,6 @@ inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t num_qubits)
   for (std::size_t i = 0; i < num_qubits; i++) v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
   return v_;
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // declaration and definition of class Permutation
@@ -67,14 +67,14 @@ class Permutation
   std::string GetMapStr()
   {
     std::string s;
-    for (std::size_t i = 0; i < map.size(); i++) s += " " + openqu::toString(map[i]);
+    for (std::size_t i = 0; i < map.size(); i++) s += " " + qhipster::toString(map[i]);
     return s;
   }
 
   std::string GetImapStr()
   {
     std::string s;
-    for (std::size_t i = 0; i < imap.size(); i++) s += " " + openqu::toString(imap[i]);
+    for (std::size_t i = 0; i < imap.size(); i++) s += " " + qhipster::toString(imap[i]);
     return s;
   }
 
@@ -236,14 +236,12 @@ class Permutation
   }
 };
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
-// FIXME FIXME FIXME: the code below has probably be written by Misha to test the permutation class.
-//                    I did not strip MPI (if it is used at all) from it.
+// FIXME FIXME: the code below was probably written by Misha to test the permutation class.
+//              The MPI part has not been stripped from it.
 
 #if defined(MAIN)
 class State
@@ -368,3 +366,5 @@ std::size_t main(std::size_t argc, char **argv)
 #endif
 }
 #endif
+
+#endif	// header guard PERMUTE_H

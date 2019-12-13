@@ -14,7 +14,8 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#pragma once
+#ifndef HIGH_PERF_KERNELS_H
+#define HIGH_PERF_KERNELS_H
 
 #include "qureg.hpp"
 
@@ -47,3 +48,5 @@ void ScaleState(std::size_t start, std::size_t end, Type *state,
 // for debugging purposes
 static __attribute__((noinline)) void LOOP_START() {printf("\n");}
 static __attribute__((noinline)) void LOOP_END() {printf("\n");}
+
+#endif	// header guard HIGH_PERF_KERNELS_H

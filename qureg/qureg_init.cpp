@@ -14,6 +14,16 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
+#ifdef USE_MKL
+#include "mkl_vsl.h"
+#endif
+
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#include <malloc.h>
+#else
+#include <mm_malloc.h>
+#endif
+
 #include "qureg.hpp"
 
 /// \addtogroup qureg
@@ -27,13 +37,12 @@ template <class Type>
 QubitRegister<Type>::QubitRegister()
 {
   unsigned myrank=0, nprocs=1;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
 
-  timer = NULL;
-  permutation = NULL;
+  timer = nullptr;
+  gate_counter = nullptr;
+  permutation = nullptr;
   imported_state = false;
   specialize = false;
   num_qubits = 1;
@@ -48,7 +57,7 @@ QubitRegister<Type>::QubitRegister()
             "nprocs > 1: seperate tmp storage from state vector, or some routines won't work\n");
     assert(0);
   }
-  timer = NULL;
+  timer = nullptr;
 }
 
 
@@ -57,15 +66,13 @@ template <class Type>
 void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(nprocs);
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
 
   // FIXME GG: I believe this limits the use of "resize" to adding a single qubit
   if(GlobalSize()) assert(GlobalSize() * 2UL == new_num_amplitudes);
-  num_qubits = openqu::ilog2(new_num_amplitudes);
+  num_qubits = qhipster::ilog2(new_num_amplitudes);
 
   local_size_  = UL(1L << UL(num_qubits - log2_nprocs));
   global_size_ = UL(1L << UL(num_qubits));
@@ -77,7 +84,7 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.resize(num_amplitudes);
+  state_storage.Resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 
@@ -97,40 +104,55 @@ void QubitRegister<Type>::AllocateAdditionalQubit()
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// The second argument is not used nor returned modified.
+// 
 template <class Type>
 void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp_spacesize_)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0, num_ranks_per_node=1;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(nprocs);
-  num_ranks_per_node = openqu::mpi::Environment::get_nrankspernode();
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
+  assert(new_num_qubits>log2_nprocs);
+  num_ranks_per_node = qhipster::mpi::Environment::GetNumRanksPerNode();
   unsigned M = new_num_qubits - log2_nprocs;
 
   assert(new_num_qubits > 0);
   local_size_  = UL(1L << UL(new_num_qubits - log2_nprocs));
   global_size_ = UL(1L << UL(new_num_qubits));
 
+  assert(LocalSize()>1);	// Check in case one used too many ranks.
   std::size_t lcl_size_half = LocalSize() / 2L;
 
-  #if 0
-  if (tmp_spacesize_ == 0 || local_size_ < tmp_spacesize_ )
+  // tmp_spacesize_ is used to determine the amount of memory allocated for the communication
+  // scheme during the distributed implementation of quantum operations.
+  // The case where tmp_spacesize_==lcl_size_half is fully implemented and efficient.
+  // Sometimes it is useful to reduce the tmp_spacesize_, to be able to simulate
+  // one extra qubit. The implementation of SWAP-like gates is not ready for this yet.
+
+  #if 1
+  size_t hard_bound_tmp_spacesize = UL(1L << UL(30));  // 4194304 = 2^22
+  if (    tmp_spacesize_ == 0		// default case
+       || local_size_ <= tmp_spacesize_	// to avoid waste of memory
+       || num_ranks_per_node <= 2 )	// extra case, probably unnecessary
   {
-      if (!myrank) printf("Setting tmp storage to half the local state size\n");
+      // if (!myrank) printf("Setting tmp storage to half the local state size\n");
       this->tmp_spacesize_ =  lcl_size_half;
   }
-  else
+  else if (tmp_spacesize_ <= hard_bound_tmp_spacesize)
   {
+      assert((lcl_size_half % tmp_spacesize_) == 0);
+      // if (!myrank) printf("Setting tmp storage to less than half the local state size, specifically to: %lu\n",tmp_spacesize_);
       this->tmp_spacesize_ =  tmp_spacesize_;
-      assert((lcl_size_half % tmpSize()) == 0);
   }
+  else
+      this->tmp_spacesize_ = hard_bound_tmp_spacesize;
   #else
   if (num_ranks_per_node <= 2)
       this->tmp_spacesize_ =  lcl_size_half;
   else
       this->tmp_spacesize_ =  (lcl_size_half > 4194304) ? 4194304 : lcl_size_half;
+  // 4194304 = 2^22
   assert((lcl_size_half % TmpSize()) == 0);
   #endif
 
@@ -140,9 +162,11 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   // set-up initial permutation
   permutation = new Permutation(new_num_qubits);
 
-  if (!myrank) printf("Specialization is off\n");
+  if ( do_print_extra_info && !myrank)
+      printf("Specialization is off\n");
 
-  timer = NULL;
+  timer = nullptr;
+  gate_counter = nullptr;
 }
 
 
@@ -151,11 +175,9 @@ template <class Type>
 void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_spacesize_)
 {
   unsigned myrank=0, nprocs=1, num_ranks_per_node=1;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  num_ranks_per_node = openqu::mpi::Environment::get_nrankspernode();
-#endif
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  num_ranks_per_node = qhipster::mpi::Environment::GetNumRanksPerNode();
 
   imported_state = false;
   specialize = false;
@@ -166,8 +188,8 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
   std::size_t num_amplitudes = (nprocs == 1) ? LocalSize() : (LocalSize() + TmpSize());
   std::size_t nbytes = num_amplitudes * sizeof(state[0]);
 
-  // print some information
-  if (!myrank)
+  // Print some information.
+  if (do_print_extra_info && !myrank)
   {
       double MB = 1024.0 * 1024.0;
       double s;
@@ -219,13 +241,16 @@ template <class Type>
 void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-  nprocs = openqu::mpi::Environment::size();
-  log2_nprocs = openqu::ilog2(nprocs);
-  MPI_Comm comm = openqu::mpi::Environment::comm();
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  nprocs = qhipster::mpi::Environment::GetStateSize();
+  log2_nprocs = qhipster::ilog2(nprocs);
+  unsigned nthreads = 1;
+#ifdef _OPENMP
+#pragma omp parallel
+  {
+      nthreads = omp_get_num_threads();
+  }
 #endif
-  unsigned nthreads = glb_affinity.get_num_threads();
 
   double t0 = time_in_seconds();
 
@@ -233,34 +258,34 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd
 #else
-TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
+#pragma omp parallel for
 #endif
-  for (std::size_t i = 0; i < lcl; i++) state[i] = {0, 0};
+  for (std::size_t i = 0; i < lcl; i++)
+      state[i] = {0, 0};
 
-//// each amplitude is random , then state is normalized ////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Random state:
+  // real and imag part of each amplitude is uniformly random,
+  // using the **local** stream associated with the seed,
+  // then state is normalized.
   if (style == "rand")
   {
-      BaseType local_normsq = 0;
+      // The random number generator pointed by rng_ptr_ is used.
+      // It must have been initialized earlier.
+      assert(rng_ptr_!=nullptr);
+      // The RNG must have been initialized with a seed different from 0.
+      assert(rng_ptr_->GetSeed()!=0);
 
-#if defined(SEQUENTIAL_INITIALIZATION)
-      // sequential
-      srand(base_index);
-      // no need of fast-forward rng
-      for (std::size_t i = 0; i < LocalSize(); i++)
-      {
-          state[i] = {RAND01(), RAND01()};
-          local_normsq += std::abs(state[i]) * std::abs(state[i]);
-      }
-#endif
+      // The value of base_index determines whether the random state is common among
+      // all states of the pool, or unique for each distinct state_id.
+      // base_index=0         : common state, use pool RNG stream
+      // base_index=num_states: individual random states, use local RNG stream
+      //                        (and reduced fast-forward)
+      // Any other values return error.
+      assert(base_index==0 || base_index==qhipster::mpi::Environment::GetNumStates() );
 
-#if (defined(__ICC) || defined(__INTEL_COMPILER))
-// --------------------- FIXME by Gian: moved to separate method with template specialization
-      RandomInitialize(base_index);
-#elif 0 
-// --------------------- FIXME by Gian: MIT prng_engine excluded from the choices
-  // Parallel initialization using open source parallel RNG
-//  std::vector<sitmo::prng_engine> eng(openqu::openmp::omp_get_set_num_threads());
-#pragma omp parallel reduction(+ : local_normsq)
+      // Parallel initialization using open-source parallel RNG or VRL (if MKL is used).
+#pragma omp parallel
       {
 #ifdef _OPENMP
           std::size_t thread_id   = omp_get_thread_num();
@@ -270,52 +295,57 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
           std::size_t num_threads = 1;
 #endif
           std::size_t chunk = LocalSize() / num_threads;
-          std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-          if (thread_id == num_threads - 1) end = LocalSize();
-          // fast forward
-          eng[thread_id].discard( 2 * myrank * LocalSize() + 2 * beginning );
-#pragma simd reduction(+ : local_normsq)
-          for (std::size_t i = beginning; i < end; i++)
+          std::size_t beginning = thread_id * chunk;
+          std::size_t end = (thread_id + 1) * chunk;
+          if (thread_id == num_threads - 1)
+              end = LocalSize();
+
+          // Since the threads are not executed in order, we copy the rng stream per thread.
+          // at this point every copy is independent of each other and from the original.
+          qhipster::RandomNumberGenerator<BaseType> thread_rng ( rng_ptr_);
+
+          // Fast forward for the thread:
+          std::size_t num_skip = 2UL * beginning;
+
+          if (base_index>0)
           {
-              BaseType r1 = (BaseType)eng[thread_id]() / D(UINT_MAX);
-              BaseType r2 = (BaseType)eng[thread_id]() / D(UINT_MAX);
-              state[i] = {r1, r2};
-              // std::cout << "i: " << i << " state: " << state[i];
+              thread_rng.SkipAhead(num_skip,"local");
+              // Directly generate numbers in the correct range of the state storage.
+//FIXME
+#if 0
+std::stringstream buffer;
+buffer << "random init, thread_id = " << thread_id << " , from " << beginning
+       << " to " << end << "\n";//FIXME
+if (beginning != end) printf( (buffer.str()).c_str() );
+#endif
+              thread_rng.UniformRandomNumbers( (BaseType *)&(state[beginning]),
+                                              2UL*(end-beginning), -1., 1., "local");
+          }
+          else
+          {
+              // If the RNG stream is the pool one, then one has to skip many more numbers:
+              num_skip += 2UL * myrank * LocalSize();
+              thread_rng.SkipAhead(num_skip,"pool");
+              // Directly generate numbers in the correct range of the state storage.
+              thread_rng.UniformRandomNumbers( (BaseType *)&(state[beginning]),
+                                              2UL*(end-beginning), -1., 1., "pool");
           }
       }
-#else
-      std::cout << " ~~~~~~~~~~~~~~~~ no random number generator !! ~~~~~~~~~~~~~~ \n";
-#endif
+      // Update the main rng_prt_ by skipping the numbers already used.
+      if (base_index>0)
+          rng_ptr_->SkipAhead(2UL*LocalSize(),"local");
+      else
+          rng_ptr_->SkipAhead(2UL*GlobalSize(),"pool" );
 
-      std::size_t lcl = LocalSize();
-#pragma omp parallel for reduction(+ : local_normsq)
-      for (std::size_t i = 0; i < lcl; i++)
-      {
-          local_normsq += std::norm(state[i]) ;
-      }
-
-      BaseType global_normsq;
-#ifdef INTELQS_HAS_MPI
-      // MPI_Allreduce(&local_normsq, &global_normsq, 1, MPI_DOUBLE, MPI_SUM, comm);
-      MPI_Allreduce_x(&local_normsq, &global_normsq,  MPI_SUM, comm);
-#else
-      global_normsq = local_normsq;
-#endif
-
-#if defined(__ICC) || defined(__INTEL_COMPILER)
-//   #pragma omp parallel for simd
-#else
-TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
-#endif
-      for (std::size_t i = 0; i < lcl; i++)
-      {
-          state[i] = state[i] / std::sqrt(global_normsq);
-      }
-
+      // Normalize the state.
+      this->Normalize();
   }
-//// computational basis state //////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Computational basis state.
   else if (style == "base")
   {
+      assert(base_index < GlobalSize());
+
       std::size_t whereid = base_index / LocalSize();
       if (whereid == myrank)
       {
@@ -323,18 +353,19 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
           state[lclind] = {1.0, 0.0};
       }
   }
-//// balanced superposition of all classical bitstrings /////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Balanced superposition of all basis states.
   else if (style == "++++")
   {
-      state[0] = {1./std::sqrt( GlobalSize() ),0.};
-      for (std::size_t i = 1; i < LocalSize(); i++)
-      {
-          state[i] = state[0];
-      }
+      Type amplitude = {1./std::sqrt( GlobalSize() ),0.};
+      std::size_t lcl = LocalSize();
+#pragma omp parallel for
+      for (std::size_t i = 0; i < lcl; i++)
+          state[i] = amplitude;
   }
 
 #ifdef INTELQS_HAS_MPI
-  openqu::mpi::barrier();
+  qhipster::mpi::StateBarrier();
 #endif
 
 #if 0
@@ -343,81 +374,6 @@ TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
     printf("[%u] Time to init: %lf\n", myrank, t1 - t0);
   }
 #endif
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// template specialization depending on the type of Type
-template <typename Type>
-void QubitRegister<Type>::RandomInitialize(std::size_t base_index)
-{
-  std::cout << " ~~~~~~~~~~~~~~~~ wrong type for state! ~~~~~~~~~~~~~~ \n";
-}
-//--
-template <>
-void QubitRegister<ComplexDP>::RandomInitialize(std::size_t base_index)
-{
-    unsigned myrank=0;
-#ifdef INTELQS_HAS_MPI
-    myrank = openqu::mpi::Environment::rank();
-#endif
-
-    // Parallel initialization using parallel MKL RNG
-#pragma omp parallel
-    {
-#ifdef _OPENMP
-      std::size_t thread_id  = omp_get_thread_num();
-      std::size_t num_threads= omp_get_num_threads();
-#else
-      std::size_t thread_id = 0;
-      std::size_t num_threads = 1;
-#endif
-      VSLStreamStatePtr stream;
-      std::size_t chunk = LocalSize() / num_threads;
-      std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-      if (thread_id == num_threads - 1) end = LocalSize();
-
-      int errcode = vslNewStream(&stream, VSL_BRNG_MCG31, base_index);
-      assert(errcode == VSL_STATUS_OK);
-      std::size_t num_skip = 2UL * (myrank * LocalSize() + beginning);
-      vslSkipAheadStream(stream, num_skip);
-      errcode = vdRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, 2L * (end - beginning),
-                             (double *)&state[beginning], 0.0, 1.0);
-      assert(errcode == VSL_STATUS_OK);
-    }
-}
-//--
-template <>
-void QubitRegister<ComplexSP>::RandomInitialize(std::size_t base_index)
-{
-    unsigned myrank=0;
-#ifdef INTELQS_HAS_MPI
-    myrank = openqu::mpi::Environment::rank();
-#endif
-
-    // Parallel initialization using parallel MKL RNG
-#pragma omp parallel
-    {
-#ifdef _OPENMP
-      std::size_t thread_id  = omp_get_thread_num();
-      std::size_t num_threads= omp_get_num_threads();
-#else
-      std::size_t thread_id = 0;
-      std::size_t num_threads = 1;
-#endif
-      VSLStreamStatePtr stream;
-      std::size_t chunk = LocalSize() / num_threads;
-      std::size_t beginning = thread_id * chunk, end = (thread_id + 1) * chunk;
-      if (thread_id == num_threads - 1) end = LocalSize();
-
-      int errcode = vslNewStream(&stream, VSL_BRNG_MCG31, base_index);
-      assert(errcode == VSL_STATUS_OK);
-      std::size_t num_skip = 2L * (myrank * LocalSize() + beginning);
-      vslSkipAheadStream(stream, num_skip);
-      errcode = vsRngUniform(VSL_RNG_METHOD_UNIFORM_STD, stream, 2L * (end - beginning),
-                        (float *)&state[beginning], 0.0, 1.0);
-      assert(errcode == VSL_STATUS_OK);
-    }
 }
 
 
@@ -442,11 +398,10 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
 template <class Type>
 void QubitRegister<Type>::TurnOnSpecialize()
 {
-  unsigned myrank=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-#endif
-  if (!myrank) printf("Specialization is on\n");
+  int myrank=0;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+      printf("Specialization is on\n");
   specialize = true;
 }
 
@@ -456,10 +411,9 @@ template <class Type>
 void QubitRegister<Type>::TurnOffSpecialize()
 {
   unsigned myrank=0;
-#ifdef INTELQS_HAS_MPI
-  myrank = openqu::mpi::Environment::rank();
-#endif
-  if (!myrank) printf("Specialization is off\n");
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+      printf("Specialization is off\n");
   specialize = false;
 }
 
@@ -468,11 +422,12 @@ void QubitRegister<Type>::TurnOffSpecialize()
 template <class Type>
 QubitRegister<Type>::~QubitRegister()
 {
-#if defined(USE_MM_MALLOC)
+#ifdef USE_MM_MALLOC
   _mm_free(state); 
 #endif
-  if (timer) delete timer;
-  if (permutation) delete permutation;
+  if (timer != nullptr) delete timer;
+  if (gate_counter != nullptr) delete gate_counter;
+  if (permutation != nullptr) delete permutation;
 }
 
 template class QubitRegister<ComplexSP>;

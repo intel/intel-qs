@@ -210,9 +210,9 @@ void Loop_SN(std::size_t start, std::size_t end, Type *state0, Type *state1,
              bool specialize, Timer *timer)
 {
   Type m00 = m[0][0], 
-             m01 = m[0][1], 
-             m10 = m[1][0], 
-             m11 = m[1][1];
+       m01 = m[0][1], 
+       m10 = m[1][0], 
+       m11 = m[1][1];
 
   std::string label;
   double frac_of_state_accessed;
@@ -315,17 +315,23 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
 #endif
 
   Type m00 = m[0][0],
-             m01 = m[0][1],
-             m10 = m[1][0],
-             m11 = m[1][1];
+       m01 = m[0][1],
+       m10 = m[1][0],
+       m11 = m[1][1];
 
   std::string label;
   double frac_of_state_accessed;
   double ttot = 0., tnov = 0., ttmp1, ttmp2;
   ttmp1 = sec();
 
-  std::size_t nthreads = glb_affinity.get_num_threads();
-  TODO(Add nthreads check to clamp to smaller number of too little work)
+  size_t nthreads = 1;
+#ifdef _OPENMP
+#pragma omp parallel 
+  {
+      nthreads = omp_get_num_threads();
+  }
+#endif
+  TODO(Add nthreads check to clamp to smaller number if too little work)
   TODO(Generalize for AVX3 cases so we check for pos <=1 etc)
 
   if(specialize == false)
@@ -401,19 +407,26 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
 
 template <class Type>
 __attribute__((noinline))
-void Loop_TN(Type *state, std::size_t c11, std::size_t c12,
-             std::size_t c13, std::size_t c21, std::size_t c22, 
-             std::size_t c23, std::size_t c31, std::size_t c32, 
+void Loop_TN(Type *state,
+             std::size_t c11, std::size_t c12, std::size_t c13,
+             std::size_t c21, std::size_t c22, std::size_t c23,
+             std::size_t c31, std::size_t c32, 
              std::size_t ind_shift, TM2x2<Type> const&m, bool specialize, Timer *timer)
 {
   double ttmp1 = sec(), ttot = 0.;
   Type m00 = m[0][0],
-             m01 = m[0][1],
-             m10 = m[1][0],
-             m11 = m[1][1];
+       m01 = m[0][1],
+       m10 = m[1][0],
+       m11 = m[1][1];
 
   // std::cout << m00 << " " << m01 << " " << m10 << " " << m11 << std::endl;
-  size_t nthreads = glb_affinity.get_num_threads();
+  size_t nthreads = 1;
+#ifdef _OPENMP
+#pragma omp parallel 
+  {
+      nthreads = omp_get_num_threads();
+  }
+#endif
 
   if ((c12 - c11) / c13 >= nthreads)
   {

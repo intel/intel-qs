@@ -44,9 +44,9 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
   for (std::size_t i = 0; i < LocalSize(); i++)
       state[i] = state_new[i];
 #else
-  unsigned myrank = openqu::mpi::Environment::rank();
-  unsigned nprocs = openqu::mpi::Environment::size();
-  MPI_Comm comm = openqu::mpi::Environment::comm();
+  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
+  unsigned nprocs = qhipster::mpi::Environment::GetStateSize();
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
 
   // Dummy multi-node permutation code
   std::vector<Type> glb_state(GlobalSize(), 0);

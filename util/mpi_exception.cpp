@@ -1,6 +1,5 @@
-//------------------------------------------------------------------------------
-// Copyright (C) 2017 Intel Corporation 
-//
+//ff(/ Copyright (C) 2016 Theoretical Physics, ETHZ Zurich
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,22 +11,51 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//------------------------------------------------------------------------------
+
+/// @file mpi_env.cpp
+///
+///  This header implements MPI support functionality
+
+#ifdef INTELQS_HAS_MPI
+#include <mpi.h>
+#endif
+
+#include <cassert>
+#include <stdexcept>
 
 #include "mpi_exception.hpp"
-#include <string>
 
-qhipster::MpiWrapperException::MpiWrapperException(int ec) {
-    char c_err_str[MPI_MAX_ERROR_STRING];
-    int str_len = -1;
+/////////////////////////////////////////////////////////////////////////////////////////
 
-    // Decode the error string for the error code.
-    MPI_Error_string(ec,c_err_str,&str_len);
+namespace qhipster {
 
-    // Store the results in our instance variables.
-    _ec_text  = c_err_str;
-    _ec_text.append("dork");
-    _ec_value = ec;
+namespace mpi {
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+Exception::Exception(const char* routine, int error_code)
+  : routine_(routine), error_code_(error_code)
+{
+#ifndef INTELQS_HAS_MPI
+  assert(0);
+#else
+  // Get the error message from the MPI implementation.
+  char buffer[MPI_MAX_ERROR_STRING];
+  int len;
+  MPI_Error_string(error_code, buffer, &len);
+
+  if (routine!=nullptr)
+    description_ = std::string(routine) + ": " + std::string(buffer);
+  else
+    description_ = "Error in exception handling since 'routine' or 'buffer' are NULL";
+#endif
 }
 
-qhipster::MpiWrapperException::~MpiWrapperException() throw() { }
+Exception::~Exception() throw() {}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+}	// end namespace mpi
+}	// end namespace qhipster
+
+/////////////////////////////////////////////////////////////////////////////////////////

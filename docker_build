@@ -1,0 +1,32 @@
+#!/bin/bash
+
+check_if_container_exists () {
+if test ! -z "$(docker ps -q --filter ancestor=qhipster)"; then
+  mapfile -t my_array < <(docker ps -q --filter ancestor=qhipster)
+  declare -p my_array
+  echo "${my_array[0]}"
+#  command docker exec -it "${my_array[0]}" /bin/bash
+#  build_iqs_in_container
+else
+  docker run -t -d qhipster
+  container_id=$(docker ps -q --filter ancestor=qhipster)
+  echo $container_id
+#  command docker exec -it $container_id /bin/bash
+#  build_iqs_in_container
+fi  
+}
+
+#build_iqs_in_container () {
+#CXX=g++ cmake -DEnableMPI=OFF -DIqsUtest=ON -DIqsPython=OFF ..
+#make
+#} 
+
+
+if test ! -z "$(docker images -q qhipster)"; then
+  echo "already exists"
+  check_if_container_exists
+else
+  echo "doesnt exist"
+  docker build --tag=qhipster .
+  check_if_container_exists
+fi

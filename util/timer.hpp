@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright (C) 2017 Intel Corporation 
+// Copyright (C) 2019 Intel Corporation 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#pragma once
+#ifndef IQS_TIMER
+#define IQS_TIMER
 
 #include "utils.hpp"
 #include "conversion.hpp"
-#include "mpi.hpp"
+#include "mpi_env.hpp"
+#include "mpi_utils.hpp"
 
 #ifdef INTELQS_HAS_MPI
 #include <mpi.h>
@@ -29,30 +31,44 @@
 #include <sys/time.h>
 #include <vector>
 
-/**
- * Was a struct, but this is slightly nicer (due to having a constructor).
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// \class Header
+/// \brief It was a struct, but this is slightly nicer (due to having a constructor).
 class Header
 {
  public:
-  std::size_t nqbits;
-  std::size_t nprocs;
-  std::size_t nrecords;
+
+  std::size_t num_qubits;
+  std::size_t num_procs;
+  std::size_t num_records;
+
   Header() {}
-  Header(int nqbits_, int nprocs_, int nrecords_)
-      : nqbits(nqbits_), nprocs(nprocs_), nrecords(nrecords_)
-  {
-  }
+
+  Header(int num_qubits_, int num_procs_, int num_records_)
+    : num_qubits(num_qubits_), num_procs(num_procs_), num_records(num_records_)
+  { }
+
   std::string sprint()
   {
-    return "nqbits:" + openqu::toString(nqbits) + " " + "nprocs:" + openqu::toString(nprocs) +
-           " " + "nrecords:" + openqu::toString(nrecords);
+    return "num_qubits:" + qhipster::toString(num_qubits)
+            + " " + "num_procs:" + qhipster::toString(num_procs)
+             + " " + "num_records:" + qhipster::toString(num_records);
   }
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// \class Time
+/// \brief Stores the time spent in the various part of the computation/communication.
 class Time
 {
  public:
+
   double start;
 
   bool exists;
@@ -115,27 +131,45 @@ class Time
   }
 };
 
-/**
- * The Timer class serves two purposes:
- * 1) To provide a reliable and static call to Wtime() (since MPI_Wtime may not be available).
- * 2) To provide a tidy way of profiling the code.
- */
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// \class Timer
+/// The Timer class serves two purposes:
+/// 1) To provide a reliable and static call to Wtime()
+///    (since MPI_Wtime may not be available).
+/// 2) To provide a tidy way of profiling the code.
 class Timer
 {
+  int num_qubits, my_rank, num_procs, combinedstats;
 
-  int nqbits, myrank, nprocs, combinedstats;
+ private:
+  std::map<std::string, Time>* timer_map;
 
  public:
   std::map<std::string, Time>::iterator curiter;
 
-  Timer(bool combinedstats = false) : combinedstats(combinedstats) { timer_map = NULL; }
+/////////////////////////////////////////////////////////////////////////////////////////
 
-  Timer(int nqbits_, int myrank_, int nprocs_) : nqbits(nqbits_), myrank(myrank_), nprocs(nprocs_)
+  Timer(bool combinedstats = false)
+    : combinedstats(combinedstats)
   {
+    timer_map = nullptr;
+  }
+
+  Timer(int num_qubits_, int my_rank_, int num_procs_)
+    : num_qubits(num_qubits_), my_rank(my_rank_), num_procs(num_procs_)
+  { 
     timer_map = new std::map<std::string, Time>;
   }
 
-  ~Timer() { delete timer_map; }
+  ~Timer() {
+    if (timer_map != nullptr)
+      delete timer_map;
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   void Reset()
   {
@@ -151,9 +185,9 @@ class Timer
     return t.tv_sec + t.tv_usec * 1.0e-6;
   }
 
-  /**
-   * Start the timer.
-   */
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Start the timer.
   // std::string  name;
   void Start(std::string s, std::size_t cpos, std::size_t tpos = 999999)
   {
@@ -176,9 +210,11 @@ class Timer
     curiter->second.tpos = tpos;
     curiter->second.ncalls++;
 
-    openqu::mpi::barrier();
+    qhipster::mpi::Barrier();
     curiter->second.start = Wtime();
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   void record_sn(double time, double bw)
   {
@@ -187,12 +223,14 @@ class Timer
     curiter->second.sn_bw += bw;
     // printf("sn_bw=%lf bw=%lf\n", curiter->second.sn_bw, bw);
   }
+
   void record_dn(double time, double bw)
   {
     assert(timer_map);
     curiter->second.dn_time += time;
     curiter->second.dn_bw += bw;
   }
+
   void record_tn(double time, double bw)
   {
     assert(timer_map);
@@ -206,57 +244,61 @@ class Timer
     curiter->second.cm_bw += bw;
   }
 
-  /**
-   * Stop the timer.
-   */
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Stop the timer.
   void Stop()
   {
     assert(timer_map);
     double start = curiter->second.start;
-    openqu::mpi::barrier();
+    qhipster::mpi::Barrier();
     double now = Wtime();
     curiter->second.total += (now - start);
-    curiter->second.flops += D(UL(1) << UL(nqbits - 1)) * 38.0;
+    curiter->second.flops += D(UL(1) << UL(num_qubits - 1)) * 38.0;
     curiter->second.gflops = curiter->second.flops / curiter->second.total / 1e9;
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Print the statistics to screen.
   void Breakdown()
   {
 
+// TODO: this version is untested
 #if 0
-    int rank = openqu::mpi::Environment::rank();
-            std::vector<Time> tv;
-            std::map<std::string, Time>::iterator iter;
-            for(iter = timer_map->begin(); iter != timer_map->end(); iter++) {
-               tv.push_back(iter->second);
-            }
+    int rank = qhipster::mpi::Environment::GetStateRank();
+    std::vector<Time> tv;
+    std::map<std::string, Time>::iterator iter;
+    for(iter = timer_map->begin(); iter != timer_map->end(); iter++)
+    {
+        tv.push_back(iter->second);
+    }
          
-            std::string fn = "gatestats_"+openqu::toString(nqbits)+"qbits_"+openqu::toString(nprocs)+"sock.bin";
-            MPI_Status status;
-            MPI_File fh;
-            MPI_File_open(MPI_COMM_WORLD, (char*)fn.c_str(),
-                          MPI_MODE_CREATE|MPI_MODE_WRONLY,
-                          MPI_INFO_NULL, &fh);
-      
-            int nrecords = tv.size();
+    std::string fn = "gatestats_"+qhipster::toString(num_qubits)+"qbits_"+qhipster::toString(num_procs)+"sock.bin";
+    MPI_Status status;
+    MPI_File fh;
+    MPI_File_open(MPI_COMM_WORLD, (char*)fn.c_str(),
+                  MPI_MODE_CREATE|MPI_MODE_WRONLY,
+                  MPI_INFO_NULL, &fh);
 
-            Header h(nqbits, nprocs, nrecords);
-            if(rank == 0)
-              MPI_File_write_at(fh, 0, (void *)(&(h)), sizeof(h), MPI_CHAR, &status);
+    int num_records = tv.size();
 
-            int size = nrecords * sizeof(tv[0]);
-            MPI_Offset offset= sizeof(h) + UL(rank) * UL(size);
-            MPI_File_write_at(fh, offset, (void *)(&(tv[0])), size, MPI_CHAR, &status);
-            MPI_File_close(&fh);
-            if(rank == 0)
-              printf("stored stats in %s\n", fn.c_str());
+    Header h(num_qubits, num_procs, num_records);
+    if(rank == 0)
+        MPI_File_write_at(fh, 0, (void *)(&(h)), sizeof(h), MPI_CHAR, &status);
+
+    int size = num_records * sizeof(tv[0]);
+    MPI_Offset offset= sizeof(h) + UL(rank) * UL(size);
+    MPI_File_write_at(fh, offset, (void *)(&(tv[0])), size, MPI_CHAR, &status);
+    MPI_File_close(&fh);
+    if(rank == 0)
+        printf("stored stats in %s\n", fn.c_str());
 #else
 #ifdef INTELQS_HAS_MPI
 
-
     #if 0
-    int nrecords = timer_map->size();
-    std::vector<Time> tv(nrecords);
+    int num_records = timer_map->size();
+    std::vector<Time> tv(num_records);
     std::map<std::string, Time>::iterator iter;
     int i = 0;
     for (iter = timer_map->begin(); iter != timer_map->end(); iter++) {
@@ -264,15 +306,15 @@ class Timer
     }
 
     int srcid = 0;
-    std::vector<Time> tv_(nrecords * nprocs);
-    MPI_Gather(&(tv[0]), nrecords * sizeof(tv[0]), MPI_CHAR, &(tv_[0]), nrecords * sizeof(tv[0]),
+    std::vector<Time> tv_(num_records * num_procs);
+    MPI_Gather(&(tv[0]), num_records * sizeof(tv[0]), MPI_CHAR, &(tv_[0]), num_records * sizeof(tv[0]),
                MPI_CHAR, srcid, MPI_COMM_WORLD);
 
-    if (myrank == srcid) {
-      std::string s = "gatestats_" + openqu::toString(nqbits) + "qbits_" +
-                      openqu::toString(nprocs) + "sock.bin";
+    if (my_rank == srcid) {
+      std::string s = "gatestats_" + qhipster::toString(num_qubits) + "qbits_" +
+                      qhipster::toString(num_procs) + "sock.bin";
       FILE* fp = fopen(s.c_str(), "wb");
-      Header h(nqbits, nprocs, nrecords);
+      Header h(num_qubits, num_procs, num_records);
       fwrite(&h, sizeof(h), 1, fp);
       fwrite(&(tv_[0]), sizeof(tv_[0]), tv_.size(), fp);
       fclose(fp);
@@ -282,22 +324,36 @@ class Timer
       }
     }
     #else
-    if (myrank == 0) {
+    if (my_rank == 0) {
       std::map<std::string, Time>::iterator iter;
       for (iter = timer_map->begin(); iter != timer_map->end(); iter++) {
         printf("%-19s %-s\n", iter->first.c_str(), iter->second.sprint(combinedstats).c_str());
       }
     }
     #endif
-    MPI_Barrier(openqu::mpi::Environment::comm());
+    MPI_Barrier(qhipster::mpi::Environment::GetComm());
 #else
     printf(" *** The statistics (i.e. time used in computation and bandwidth) are available only when MPI is used inside Intel QS.\n");
-    printf(" *** This is not the case for this simulation. If needed, define flag 'INTELQS_HAS_MPI' in 'make.inc' before compilation of Intel QS.\n");
-//    assert(0);
+    printf(" *** This is not the case for this simulation. If needed, rebuild the IQS adding the CMake option '-DIqsMPI=ON'.\n");
 #endif
 #endif
   }
 
- private:
-  std::map<std::string, Time>* timer_map;
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+private:
+  // The constructor for the Timer() class can allocate dynamic memory. If this happens,
+  // then both Timer variables involved in the assignment will have a reference to the dynamic
+  // memory. When each class is destructed, it is possible that each will attempt
+  // to free the dynamic memory resulting in a <double free'ing> runtime error.
+  //
+  // By making the class assignment operator, private, we can find and address this issue
+  // through a compiler error during compilation.
+  Timer& operator=(const Timer& src) { return *this; }
+  Timer(const Timer& src){ /* do not create copies */ }
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+#endif	// header guard IQS_TIMER
