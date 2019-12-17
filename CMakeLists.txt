@@ -295,6 +295,8 @@ add_library(intel_qs STATIC
     util/utils.cpp
     util/rng_utils.cpp
 )
+target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
 
