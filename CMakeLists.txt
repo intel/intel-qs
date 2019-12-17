@@ -147,6 +147,11 @@ if(IqsMPI)
 else()
     message(STATUS "MPI functionality: disabled.")
     # Required by pybind11 to compile the Python wrapper.
+    option(IqsFPIC "" ON)
+
+endif()
+
+if(IqsFPIC)
     add_compile_options(-fPIC)
 endif()
 
