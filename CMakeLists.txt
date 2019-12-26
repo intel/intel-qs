@@ -147,6 +147,11 @@ if(IqsMPI)
 else()
     message(STATUS "MPI functionality: disabled.")
     # Required by pybind11 to compile the Python wrapper.
+    option(IqsFPIC "" ON)
+
+endif()
+
+if(IqsFPIC)
     add_compile_options(-fPIC)
 endif()
 
@@ -295,6 +300,8 @@ add_library(intel_qs STATIC
     util/utils.cpp
     util/rng_utils.cpp
 )
+target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
 
