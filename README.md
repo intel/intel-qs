@@ -182,9 +182,9 @@ Thanks for your interest in the project! We welcome pull requests from developer
 If you find a bug or want to propose a new feature, open an issue.
 If you have written some code that should be merged, open a pull request describing your changes and why it should be merged.
 If you have a question or want to discuss something, feel free to send an email to
-[Justin Hogaboam](justin.w.hogaboam@intel.com)
-or to
-[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com).
+[Justin Hogaboam](justin.w.hogaboam@intel.com),
+[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), or to
+[Fabio Baruffa](fabio.baruffa@intel.com)
 
 
 
