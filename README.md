@@ -194,7 +194,12 @@ If you have a question or want to discuss something, feel free to send an email 
 
 When using the Intel Quantum Simulator for research projects, please cite:
 
+   Gian Giacomo Guerreschi, Justin Hogaboam, Fabio Baruffa, Nicolas P. D. Sawaya
+   *Intel Quantum Simulator: A cloud-ready high-performance simulator of quantum circuits*
+   [arXiv:2001.10554]((https://arxiv.org/abs/2001.10554)
+
+The original implementation is described here: 
+
    Mikhail Smelyanskiy, Nicolas P. D. Sawaya, Alán Aspuru-Guzik
    *qHiPSTER: The Quantum High Performance Software Testing Environment*
    [arXiv:1601.07195](https://arxiv.org/abs/1601.07195)
-
