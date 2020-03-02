@@ -67,12 +67,12 @@ int main(int argc, char **argv)
  */
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  int num_qubits = 4;
-
   // Allocate memory for the quantum register's state and initialize it to |0000>.
   // This can be achieved by using the codeword "base".
+  int num_qubits = 4;
+  QubitRegister<ComplexDP> psi (num_qubits);
   std::size_t index = 0;
-  QubitRegister<ComplexDP> psi (num_qubits, "base", index);
+  psi.Initialize("base", index);
 
   // The state can be initialized to a random state. To allow such initialization,
   // we need to declare a (pseudo) random number generator...
@@ -147,19 +147,18 @@ int main(int argc, char **argv)
 
   // State is |1000>.
   // Flip qubit 1 by applying the Pauli X gate: |1000> ==> |1100>
-  int qubit = 1;
-  psi.ApplyPauliX(qubit);
+  psi.ApplyPauliX(1);
 
   // Display all amplitudes.
   psi.Print("Computational basis state |1100>");
   if (myid==0) std::cout << std::endl;
     
   // Apply the Hadamard gate on qubit 0: |1100> ==> |-100> ~ |0100>-|1100>
-  qubit = 0;
-  psi.ApplyHadamard(qubit);
+  psi.ApplyHadamard(0);
 
   // Apply Pauli Z gate on qubit 1:  |-100> ==> -|-100>
-  psi.ApplyPauliZ(1);
+  int qubit = 1;
+  psi.ApplyPauliZ(qubit);
 
   // Apply Pauli X gate on qubit 0: -|-100> ==>  |-100>
   psi.ApplyPauliX(0);
@@ -178,17 +177,17 @@ int main(int argc, char **argv)
   // Currently, state is |-100>.
   // Apply a CNOT(1,0): flip qubit 0 conditioned on the state of qubit 1.
   // |-100> ==> -|-100>
-  int control = 1;
-  int target = 0;
-  psi.ApplyCPauliX(control, target);
+  int control_qubit = 1;
+  int target_qubit = 0;
+  psi.ApplyCPauliX(control_qubit, target_qubit);
 
   // The application of the previous CNOT did not create any entanglement.
   // This is achieved by exchanging the role of control and target qubits.
   // Apply a CNOT(0,1): flip qubit 1 conditioned on the state of qubit 0.
   // -|-100> ~ -|0100>+|1100> ==> -|0100>+|1000>
-  control = 0;
-  target = 1;
-  psi.ApplyCPauliX(control, target);
+  control_qubit = 0;
+  target_qubit = 1;
+  psi.ApplyCPauliX(control_qubit, target_qubit);
 
   // Display all amplitudes.
   psi.Print("Entangled state ~ -|0100>+|1000>");
@@ -235,9 +234,9 @@ int main(int argc, char **argv)
 
   // It is also possible to apply the arbitrary gate specified by G conditioned
   // on the state of another qubit. G is applied only when the control qubit is in |1>.
-  control = 1;
-  target = 0;
-  psi.ApplyControlled1QubitGate( control, target, G);
+  control_qubit = 1;
+  target_qubit = 0;
+  psi.ApplyControlled1QubitGate(control_qubit, target_qubit, G);
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Single-qubit measurements
@@ -254,13 +253,15 @@ int main(int argc, char **argv)
  */
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  // Compute the probability of qubit 1 being in state |1>.
+  // Compute the probability of observing qubit 1 in state |1>.
   int measured_qubit = 1;
-  double prob = psi.GetProbability( measured_qubit );
+  double probability = psi.GetProbability(measured_qubit);
+  // The expectation value of <Z1> can be computed from the above probability
+  double expectation = -1*probability + 1*(1-probability);
 
   if (myid==0)
       std::cout << "The probability that qubit " << measured_qubit
-                << " is in state |1> is " << prob
+                << " is in state |1> is " << probability
                 << " \t<== should be 0.5\n"
                 << "The Von Neumann measurement can be simulated by generating "
                 << "the outcome at random and then collapsing the state accordingly:\n";
@@ -269,7 +270,7 @@ int main(int argc, char **argv)
   double r;
   r = 0.66;
 //  r = np.random.rand() //FIXME
-  if (r < prob)
+  if (r < probability)
   {
       // Collapse the wavefunction according to qubit 1 being in |1>.
       if (myid==0)
@@ -287,11 +288,11 @@ int main(int argc, char **argv)
   // In both cases one needs to re-normalize the wavefunction:
   psi.Normalize();
 
-  prob = psi.GetProbability( measured_qubit );
+  probability = psi.GetProbability( measured_qubit );
   if (myid==0)
       std::cout << "After collapse, the probability that qubit " << measured_qubit
-                << " is in state |1> is " << prob
-                << " \t<== should be " << (r<prob?"1":"0") << "\n";
+                << " is in state |1> is " << probability
+                << " \t<== should be " << (r<probability?"1":"0") << "\n";
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Expectation value of products of Pauli matrices
@@ -329,7 +330,6 @@ int main(int argc, char **argv)
   std::vector<unsigned> observables = {1,3,3};
 
   // The expectation value <psi|X_0.id_1.Z_2.Z_3|psi> is obtained via:
-  double expectation;
   expectation = psi.ExpectationValue(qubits_to_be_measured, observables, 1.);
   if (myid==0)
       std::cout << "Expectation value <psi|X_0.id_1.Z_2.Z_3|psi> = " << expectation
