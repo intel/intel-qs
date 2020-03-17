@@ -161,12 +161,16 @@ TEST_F(GateCounterTest, CustomTwoQubitGates)
 TEST_F(GateCounterTest, ToffoliGate)
 {
   // |psi> = |0000000000> = |"0">
+  std::cout << "Checkpoint A\n"; // FIXME: to check origin of github action error
   QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
-  std::cout << "Checkpoint\n"; // FIXME: to check origin of github action error
+  // TODO: this test creates problem to the "C++ build with CMake" action in github
+  //       despite it runs fine locally. It is difficult to debug since github
+  //       actions cannot be manually triggered yet.
+  std::cout << "Checkpoint B\n"; // FIXME: to check origin of github action error
   // Recall that the Toffoli gate is implemented by decomposing it in 5 two-qubit gates.
   psi.EnableStatistics();
   psi.ApplyToffoli(0,1,2);
-  std::cout << "Checkpoint\n"; // FIXME: to check origin of github action error
+  std::cout << "Checkpoint C\n"; // FIXME: to check origin of github action error
   ASSERT_EQ(psi.gate_counter->GetOneQubitGateCount(), 0);
   GTEST_SKIP(); // FIXME: to check if action error comes from memory limits
   ASSERT_EQ(psi.gate_counter->GetTwoQubitGateCount(), 5);
