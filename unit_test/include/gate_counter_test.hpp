@@ -162,11 +162,13 @@ TEST_F(GateCounterTest, ToffoliGate)
 {
   // |psi> = |0000000000> = |"0">
   QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
-  GTEST_SKIP(); // FIXME: to check if action error comes from memory limits
+  std::cout << "Checkpoint\n"; // FIXME: to check origin of github action error
   // Recall that the Toffoli gate is implemented by decomposing it in 5 two-qubit gates.
   psi.EnableStatistics();
   psi.ApplyToffoli(0,1,2);
+  std::cout << "Checkpoint\n"; // FIXME: to check origin of github action error
   ASSERT_EQ(psi.gate_counter->GetOneQubitGateCount(), 0);
+  GTEST_SKIP(); // FIXME: to check if action error comes from memory limits
   ASSERT_EQ(psi.gate_counter->GetTwoQubitGateCount(), 5);
   psi.ApplyToffoli(5,8,3);
   ASSERT_EQ(psi.gate_counter->GetOneQubitGateCount(), 0);
