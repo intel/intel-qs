@@ -23,7 +23,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && CXX=g++ cmake -DIqsMPI=OFF -DIqsUtest=ON ..
     - name: build
-      run: cd build && make
+      run: cmake --build build
 
     - name: unit test
-      run: cd build && ./bin/utest
+      run: ./build/bin/utest
