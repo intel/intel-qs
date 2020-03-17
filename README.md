@@ -1,4 +1,5 @@
-![](https://github.com/iqusoft/intel-qs/workflows/.github/workflows/cpp_build_with_cmake.yml/badge.svg)
+![](https://github.com/iqusoft/intel-qs/workflows/.github/workflows/cpp_build_with_cmake.yml/badge.svg?branch=test/github-action)
+[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=inactive)](https://arxiv.org/abs/2001.10554)
 
 # Intel Quantum Simulator
 
