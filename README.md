@@ -1,3 +1,5 @@
+![](https://github.com/iqusoft/intel-qs/workflows/.github/workflows/cpp_build_with_cmake.yml/badge.svg)
+
 # Intel Quantum Simulator
 
 The Intel Quantum Simulator, also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
