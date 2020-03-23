@@ -12,29 +12,36 @@ further maintained by the current developers).
 
 
 ----
-## Installation
+## Build instructions
 ----
 
-Intel Quantum Simulator builds as a static library.
-Its building process requires the following packages to be installed:
+### Overview
+----
+
+IQS builds as a static library, which can be linked by your program, to benefit of the high-performance
+implementation if the curcuit simulation.
+
+### Requirements
+----
+
+The library can be built on a variety of different systems, from laptop to HPC server systems. The following packages are required
+befor the installation:
 
 *  CMake tools version 3.15+
-*  MPICH3 for distributed communication
+*  MPICH3 library for enabling the distributed communication
 *  optional: MKL for distributed random number generation
 *  optional: PyBind11 (installed via conda, not pip) required by the Python bunding of Intel-QS
 
 The first step is cloning the repository:
 ```bash
-  git clone https://github.com/intel/Intel-QS.git
-  cd Intel-QS
+  git clone https://github.com/iqusoft/intel-qs.git
+  cd intel-qs
 ```
-
-
 
 ### Use Intel Parallel Studio compilers to build.
 ----
 
-If you wish to build Intel-QS using the latest Intel compiler technologies then
+If you wish to build intel-qs using the latest Intel compiler technologies then
 you need to configure your environment properly according to that tool's documentation.
 
 Assuming that you have installed Intel Parallel Studio in the standard location on your
@@ -60,11 +67,10 @@ To re-build Intel-QS with different settings or options, we recommend to delete 
 `build` directory and then restart from the CMake command.
 
 
-
 ### Use standard GNU tools to build Intel-QS.
 ----
 
-If you wish to build Intel-QS using only standard GNU compilers type:
+If you wish to build intel-qs using only standard GNU compilers type:
  
 ```bash
   mkdir build
@@ -82,11 +88,10 @@ https://www.mpich.org
 ### Enable MPI protocol for distributed memory use.
 ----
 
-The above installation enables MPI functionalities to deploy Intel-QS on High Performance
+The above installation enables MPI functionalities to deploy intel-qs on High Performance
 Computing and Cloud Computing infrastructures. There is the option of disabling MPI:
 simply set the CMake option selection to `-DIqsMPI=OFF`
 (or just omit the option selection since MPI is disabled by default in the CMake build).
-
 
 
 ### Enable Python binding (only available without MPI).
@@ -101,7 +106,6 @@ To disable the Python wrap, even without MPI, set the CMake option selection to
 `-DIqsPython=OFF`.
 
 
-
 ### Unit test.
 ----
 
@@ -112,7 +116,6 @@ the up-to-date repository of gtest and installs it in the `build` path.
 
 To disable the unit tests, set the CMake option selection to
 `-DIqsUtest=OFF`.
-
 
 
 ### Recommended build for HPC.
@@ -127,7 +130,6 @@ the OpenMP affinity directly. Affinity settings can be set using the syntax:
 `KMP_AFFINITY=compact,1,0,granularity=fine`.
 A quick look at the options can be found at
 [this page](https://www.nas.nasa.gov/hecc/support/kb/using-intel-openmp-thread-affinity-for-pinning_285.html).
-
 
 
 ----
@@ -160,7 +162,6 @@ For stability of the container, in addition to the 'root' user we create a user 
   docker exec -itd --user tester <container_id> /bin/bash
 ```
 
-
 ----
 ## Getting started
 ----
@@ -174,28 +175,25 @@ define a qubit register object, perform quantum gates, measure one or multiple q
 If the Python bindings were enabled, the same learning can be performed using the iPython
 notebook `examples/get_started_with_IQS.ipynb`.
 
-
-
 ----
 ## How to contribute
 ----
 
-Thanks for your interest in the project! We welcome pull requests from developers of all skill levels.
+Thanks for your interest in the project! We welcome pull requests from developers of all skill levels. If you would like
+to contribute to IQS, please take a look to our [contributing policy](https://github.com/iqusoft/intel-qs/CONTRIBUTING.md) and also to the 
+[code of conduct](https://github.com/iqusoft/intel-qs/CODE_OF_CONDUCT.md). 
+For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/intel-qs/issues). Please submit your request there.
 
-If you find a bug or want to propose a new feature, open an issue.
-If you have written some code that should be merged, open a pull request describing your changes and why it should be merged.
 If you have a question or want to discuss something, feel free to send an email to
 [Justin Hogaboam](justin.w.hogaboam@intel.com),
-[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), or to
+[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), and to
 [Fabio Baruffa](fabio.baruffa@intel.com)
-
-
 
 ----
 ## How to cite
 ----
 
-When using the Intel Quantum Simulator for research projects, please cite:
+When using Intel Quantum Simulator for research projects, please cite:
 
    Gian Giacomo Guerreschi, Justin Hogaboam, Fabio Baruffa, Nicolas P. D. Sawaya
    *Intel Quantum Simulator: A cloud-ready high-performance simulator of quantum circuits*
