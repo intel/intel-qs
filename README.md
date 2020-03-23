@@ -1,11 +1,14 @@
 # Intel Quantum Simulator
 
-The Intel Quantum Simulator, also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
-is a simulator of quantum circuits coded to take maximum advantage of multi-core and multi-nodes architectures.
-It is based on a complete representation of the qubit register state in terms of a distributed vector, but
+The Intel Quantum Simulator (IQS), also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
+is a simulator of quantum circuits optimized to take maximum advantage of multi-core and multi-nodes architectures.
+It is based on a complete representation of the qubit register state in terms of a full-distributed vector, but
 operations and gates are never explicitely represented in terms of matrices.
-qHiPSTER uses MPI (message-passing-interface) protocols to handle the communication between disctributed
+IQS uses MPI (message-passing-interface) protocols to handle the communication between distributed
 resources that are used to store and manipulate the quantum state.
+
+(This project repository is a follow-up of the known https://github.com/intel/Intel-QS , which will not be
+further maintained by the current developers). 
 
 
 ----
