@@ -167,8 +167,8 @@ notebook `examples/get_started_with_IQS.ipynb`.
 ## How to contribute
 
 Thanks for your interest in the project! We welcome pull requests from developers of all skill levels. If you would like
-to contribute to IQS, please take a look to our [contributing policy](intel-qs/blob/master/CONTRIBUTING.md) and also to the 
-[code of conduct](intel-qs/blob/master/CODE_OF_CONDUCT.md). 
+to contribute to IQS, please take a look to our [contributing policy](CONTRIBUTING.md) and also to the 
+[code of conduct](CODE_OF_CONDUCT.md). 
 For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/intel-qs/issues). Please submit your request there.
 
 If you have a question or want to discuss something, feel free to send an email to
