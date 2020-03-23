@@ -171,6 +171,8 @@ to contribute to IQS, please take a look to our [contributing policy](CONTRIBUTI
 [code of conduct](CODE_OF_CONDUCT.md). 
 For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/intel-qs/issues). Please submit your request there.
 
+## How to contact us
+
 If you have a question or want to discuss something, feel free to send an email to
 [Justin Hogaboam](justin.w.hogaboam@intel.com),
 [Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), and to
