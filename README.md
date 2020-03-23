@@ -1,5 +1,5 @@
 # Intel Quantum Simulator
-
+----
 The Intel Quantum Simulator (IQS), also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
 is a simulator of quantum circuits optimized to take maximum advantage of multi-core and multi-nodes architectures.
 It is based on a complete representation of the qubit register state in terms of a full-distributed vector, but
@@ -13,16 +13,13 @@ further maintained by the current developers).
 
 ----
 ## Build instructions
-----
 
 ### Overview
-----
 
 IQS builds as a static library, which can be linked by your program, to benefit of the high-performance
 implementation if the curcuit simulation.
 
 ### Requirements
-----
 
 The library can be built on a variety of different systems, from laptop to HPC server systems. The following packages are required
 befor the installation:
@@ -39,7 +36,6 @@ The first step is cloning the repository:
 ```
 
 ### Use Intel Parallel Studio compilers to build.
-----
 
 If you wish to build intel-qs using the latest Intel compiler technologies then
 you need to configure your environment properly according to that tool's documentation.
@@ -68,7 +64,6 @@ To re-build Intel-QS with different settings or options, we recommend to delete 
 
 
 ### Use standard GNU tools to build Intel-QS.
-----
 
 If you wish to build intel-qs using only standard GNU compilers type:
  
@@ -84,9 +79,7 @@ that you have at least version 3.1 of MPICH installed for the build to succeed.
 https://www.mpich.org
 
 
-
 ### Enable MPI protocol for distributed memory use.
-----
 
 The above installation enables MPI functionalities to deploy intel-qs on High Performance
 Computing and Cloud Computing infrastructures. There is the option of disabling MPI:
@@ -95,7 +88,6 @@ simply set the CMake option selection to `-DIqsMPI=OFF`
 
 
 ### Enable Python binding (only available without MPI).
-----
 
 By default, whenever MPI is disabled, the building process includes the Python binding for
 Intel-QS. The binding code uses the Pybind11 library which needs to be installed via 'conda'
@@ -107,7 +99,6 @@ To disable the Python wrap, even without MPI, set the CMake option selection to
 
 
 ### Unit test.
-----
 
 By default, with MPI either enabled or disabled, the building process includes a suite
 of unit tests written in the [googletest framework](https://github.com/google/googletest).
@@ -119,7 +110,6 @@ To disable the unit tests, set the CMake option selection to
 
 
 ### Recommended build for HPC.
-----
 
 The recommended building process requires
 [Intel Math Kernel Library](https://software.intel.com/en-us/mkl)
@@ -134,7 +124,6 @@ A quick look at the options can be found at
 
 ----
 ## Docker: build image and run/execute container
-----
 
 `Dockerfile` includes the instructions to build the docker image of an Ubuntu machine
 with Intel-QS already installed. The image can be 'run' to create a container.
@@ -162,9 +151,8 @@ For stability of the container, in addition to the 'root' user we create a user 
   docker exec -itd --user tester <container_id> /bin/bash
 ```
 
-----
-## Getting started
-----
+
+## Getting started with IQS
 
 The simplest way of familiarize with the Intel Quantum Simulator is by exploring the tutorials
 provided in the directory `examples/`.
@@ -175,9 +163,8 @@ define a qubit register object, perform quantum gates, measure one or multiple q
 If the Python bindings were enabled, the same learning can be performed using the iPython
 notebook `examples/get_started_with_IQS.ipynb`.
 
-----
+
 ## How to contribute
-----
 
 Thanks for your interest in the project! We welcome pull requests from developers of all skill levels. If you would like
 to contribute to IQS, please take a look to our [contributing policy](https://github.com/iqusoft/intel-qs/CONTRIBUTING.md) and also to the 
@@ -189,9 +176,7 @@ If you have a question or want to discuss something, feel free to send an email 
 [Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), and to
 [Fabio Baruffa](fabio.baruffa@intel.com)
 
-----
 ## How to cite
-----
 
 When using Intel Quantum Simulator for research projects, please cite:
 
