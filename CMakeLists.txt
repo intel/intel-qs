@@ -260,10 +260,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 
 add_library(intel_qs STATIC
-    interface/interface_api_memory.cpp
-    interface/interface_api_qasm.cpp
-    interface/interface_api_qubitid.cpp
-    interface/interface_api_version.cpp
+    src/interface_api_memory.cpp
+    src/interface_api_qasm.cpp
+    src/interface_api_qubitid.cpp
+    src/interface_api_version.cpp
     src/highperfkernels.cpp
     src/qureg_apply1qubitgate.cpp
     src/qureg_apply2qubitgate.cpp
@@ -347,12 +347,11 @@ if(BuildExamples)
 endif()
 
 ################################################################################
-# Build the QASM interface executables (.exe) contained in the interface/
-# sub-folder.
+# Build the QASM interface executables (.exe) contained in the src/ folder.
 ################################################################################
 
 if(BuildInterface)
-    add_executable(intelqs_interface_main.exe interface/intelqs_interface_main.cpp)
+    add_executable(intelqs_interface_main.exe src/intelqs_interface_main.cpp)
     target_link_libraries(intelqs_interface_main.exe intel_qs)
 endif()
 

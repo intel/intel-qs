@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "../include/qureg_version.hpp"
-#include "interface_api_version.h"
+#include "../include/interface_api_version.h"
 
 
 using namespace std;

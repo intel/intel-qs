@@ -31,7 +31,9 @@
 |-- \unit_test
 |   |-- suite_of_tests.cpp
 |   |-- \include
-|       |-- <header files with unit tests>
+|   |   |-- <header files with unit tests>
+|   |-- \data
+|       |-- <files used in testing>
 |
 |-- \examples
     |-- <C++ main files of small applications>

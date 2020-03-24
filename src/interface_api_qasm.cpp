@@ -4,9 +4,9 @@
 #include <stdexcept>
 
 #include "../include/qureg.hpp"
-#include "interface_api_qubitid.h"
-#include "interface_api_version.h"
-#include "interface_api_memory.h"
+#include "../include/interface_api_qubitid.h"
+#include "../include/interface_api_version.h"
+#include "../include/interface_api_memory.h"
 
 
 using namespace std;
