@@ -264,28 +264,27 @@ add_library(intel_qs STATIC
     interface/interface_api_qasm.cpp
     interface/interface_api_qubitid.cpp
     interface/interface_api_version.cpp
-    qureg/highperfkernels.cpp
-    qureg/qureg_apply1qubitgate.cpp
-    qureg/qureg_apply2qubitgate.cpp
-    qureg/qureg_applyctrl1qubitgate.cpp
-    qureg/qureg_applydiag.cpp
-    qureg/qureg_applyswap.cpp
-    qureg/qureg_applytoffoli.cpp
-    qureg/qureg_expectval.cpp
-    qureg/qureg_fusion.cpp
-    qureg/qureg_init.cpp
-    qureg/qureg_measure.cpp
-    qureg/qureg_noisysimul.cpp
-    qureg/qureg_permute.cpp
-    qureg/qureg_utils.cpp
-    qureg/qureg_version.cpp
-    util/mpi_env.cpp
-    util/mpi_exception.cpp
-    util/utils.cpp
-    util/rng_utils.cpp
+    src/highperfkernels.cpp
+    src/qureg_apply1qubitgate.cpp
+    src/qureg_apply2qubitgate.cpp
+    src/qureg_applyctrl1qubitgate.cpp
+    src/qureg_applydiag.cpp
+    src/qureg_applyswap.cpp
+    src/qureg_applytoffoli.cpp
+    src/qureg_expectval.cpp
+    src/qureg_fusion.cpp
+    src/qureg_init.cpp
+    src/qureg_measure.cpp
+    src/qureg_noisysimul.cpp
+    src/qureg_permute.cpp
+    src/qureg_utils.cpp
+    src/qureg_version.cpp
+    src/mpi_env.cpp
+    src/mpi_exception.cpp
+    src/utils.cpp
+    src/rng_utils.cpp
 )
 target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_include_directories(intel_qs ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
@@ -302,12 +301,12 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 ################################################################################
 
 add_executable(mpi_env_test.exe unit_test/mpi_env_test.cpp
-               util/mpi_env.cpp
-               util/mpi_exception.cpp)
+               src/mpi_env.cpp
+               src/mpi_exception.cpp)
 
 add_executable(mpi_speedup_test.exe unit_test/mpi_speedup_test.cpp
-               util/mpi_env.cpp
-               util/mpi_exception.cpp)
+               src/mpi_env.cpp
+               src/mpi_exception.cpp)
 target_link_libraries(mpi_speedup_test.exe intel_qs)
 
 add_executable(openmp_test.exe unit_test/openmp_test.cpp)
@@ -319,14 +318,14 @@ add_executable(openmp_test.exe unit_test/openmp_test.cpp)
 ################################################################################
 
 if(BuildExamples)
-    add_executable(benchgates.exe examples/benchgates.cpp)
-    target_link_libraries(benchgates.exe intel_qs)
-
-    add_executable(get_started_with_IQS.exe examples/get_started_with_IQS.cpp)
+    add_executable(get_started_with_IQS.exe tutorials/get_started_with_IQS.cpp)
     target_link_libraries(get_started_with_IQS.exe intel_qs)
 
-    add_executable(get_started_with_noisy_IQS.exe examples/get_started_with_noisy_IQS.cpp)
+    add_executable(get_started_with_noisy_IQS.exe tutorials/get_started_with_noisy_IQS.cpp)
     target_link_libraries(get_started_with_noisy_IQS.exe intel_qs)
+
+    add_executable(benchgates.exe examples/benchgates.cpp)
+    target_link_libraries(benchgates.exe intel_qs)
 
     add_executable(quantum_fourier_transform.exe  examples/quantum_fourier_transform.cpp)
     target_link_libraries(quantum_fourier_transform.exe intel_qs)
@@ -406,7 +405,7 @@ if (NOT IqsUtest)
 else()
     message(STATUS "Unit test: enabled.")
     add_executable(utest unit_test/suite_of_tests.cpp
-                   util/extra_features/qaoa_features.cpp)
+                   src/qaoa_features.cpp)
     target_link_libraries(utest gtest_main intel_qs)
     #add_test(NAME utest_test COMMAND utest)
 endif()
@@ -425,7 +424,7 @@ else()
 #    target_link_libraries(intelqs_py`python3-config --extension-suffix` intel_qs)
     find_package(pybind11 REQUIRED)
     pybind11_add_module(intelqs_py SHARED pybind11/intelqs_py.cpp
-                        util/extra_features/qaoa_features.cpp)
+                        src/qaoa_features.cpp)
     target_link_libraries(intelqs_py PRIVATE intel_qs)
 #    target_compile_definitions(intelqs_py NDEBUG)
 #    add_link_options(-shared)

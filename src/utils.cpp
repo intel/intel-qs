@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "timer.hpp"
+#include "../include/timer.hpp"
 
 double time_in_seconds(void)
 {

@@ -1,5 +1,5 @@
-#include "./include/qureg.hpp"
-#include "./include/highperfkernels.hpp"
+#include "../include/qureg.hpp"
+#include "../include/highperfkernels.hpp"
 
 /// \addtogroup qureg
 /// @{

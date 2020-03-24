@@ -1,4 +1,4 @@
-TODO("The Toffoli gate creates problem to the unit test in github workflow.")
+//TODO("The Toffoli gate creates problem to the unit test in github workflow.")
 
 #include "../include/qureg.hpp"
 #include "../include/highperfkernels.hpp"

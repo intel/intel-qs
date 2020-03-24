@@ -23,7 +23,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "mpi_exception.hpp"
+#include "../include/mpi_exception.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
