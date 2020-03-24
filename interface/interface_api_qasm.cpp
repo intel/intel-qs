@@ -1,24 +1,9 @@
-//------------------------------------------------------------------------------
-// Copyright 2017 Intel Corporation
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//------------------------------------------------------------------------------
 #include <iostream>
 #include <unordered_map>
 #include <functional>
 #include <stdexcept>
 
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 #include "interface_api_qubitid.h"
 #include "interface_api_version.h"
 #include "interface_api_memory.h"
@@ -26,10 +11,8 @@
 
 using namespace std;
 
-
 using Type = ComplexDP;
 extern QubitRegister<Type> *psi1;
-
 
 // Constant defining the rotational angle of a T-dagger gate. Basically, -(pi/4).
 #define TDAG_THETA -0.785398163397448
