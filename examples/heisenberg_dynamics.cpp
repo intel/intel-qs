@@ -14,9 +14,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-
-
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 using namespace std;
 

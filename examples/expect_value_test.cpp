@@ -18,7 +18,7 @@
 // proper implementation of the methods to compute the expectation value of Pauli strings
 // on single, two or multiple qubitsi.
 
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 using namespace std;
 

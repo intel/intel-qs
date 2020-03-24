@@ -28,7 +28,7 @@
 #endif
 
 // Include the header file with the declaration of all classes and methods of IQS.
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
