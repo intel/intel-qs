@@ -199,6 +199,8 @@ class QubitRegister
   void ApplyCPauliSqrtZ(unsigned const control_qubit, unsigned const target_qubit);
   void ApplyCHadamard(unsigned const control_qubit, unsigned const target_qubit);
 
+  void ApplyCPhaseRotation(unsigned const qubit, unsigned const qubit2, BaseType theta);
+
   // fusion  
   void TurnOnFusion(unsigned log2llc = 20);
   void TurnOffFusion();
