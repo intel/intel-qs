@@ -14,7 +14,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 // The scope is applying a sequence of num_gates=40 gates to the quantum register.
 // The form of each gate is the same:
