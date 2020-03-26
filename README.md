@@ -11,11 +11,6 @@ other quantum operations in terms of matrices.
 Intel-QS uses MPI (message-passing-interface) protocols to handle the communication between distributed
 resources that are used to store and manipulate the quantum state.
 
-This project repository is a follow-up of the known
-[https://github.com/intel/Intel-QS](https://github.com/intel/Intel-QS),
-which will not be actively maintained by the current developers anymore. 
-
-
 ----
 ## Build instructions
 ----
