@@ -559,6 +559,24 @@ void QubitRegister<Type>::ApplyCHadamard(unsigned const control, unsigned const 
   ApplyControlled1QubitGate(control, qubit, h);
 }
 
+//Controlled Phase Rotation///
+//  1 0 0 0
+//  0 1 0 0
+//  0 0 1 0
+//  0 0 0 exp(i Theta)
+
+template <class Type>
+void QubitRegister<Type>::ApplyCPhaseRotation(unsigned const control, unsigned const qubit, BaseType theta)
+{
+  qhipster::TinyMatrix<Type, 2, 2, 32> phase_gate;
+  phase_gate(0, 1) = phase_gate(1, 0) = Type(0, 0);
+  phase_gate(0, 0) = Type(1,0);
+  phase_gate(1, 1) = Type(std::cos(theta), std::sin(theta));
+  ApplyControlled1QubitGate(control, qubit, phase_gate);
+}
+
+
+
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
 
