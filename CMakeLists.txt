@@ -1,19 +1,3 @@
-##------------------------------------------------------------------------------
-## Copyright 2019 Intel Corporation
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-## you may not use this file except in compliance with the License.
-## You may obtain a copy of the License at
-##
-##     http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing, software
-## distributed under the License is distributed on an "AS IS" BASIS,
-## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-## See the License for the specific language governing permissions and
-## limitations under the License.
-##------------------------------------------------------------------------------
-
 # Check the version of CMake and assert it must be 3.15 minimum.
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
@@ -276,29 +260,29 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 
 add_library(intel_qs STATIC
-    interface/interface_api_memory.cpp
-    interface/interface_api_qasm.cpp
-    interface/interface_api_qubitid.cpp
-    interface/interface_api_version.cpp
-    qureg/highperfkernels.cpp
-    qureg/qureg_apply1qubitgate.cpp
-    qureg/qureg_apply2qubitgate.cpp
-    qureg/qureg_applyctrl1qubitgate.cpp
-    qureg/qureg_applydiag.cpp
-    qureg/qureg_applyswap.cpp
-    qureg/qureg_applytoffoli.cpp
-    qureg/qureg_expectval.cpp
-    qureg/qureg_fusion.cpp
-    qureg/qureg_init.cpp
-    qureg/qureg_measure.cpp
-    qureg/qureg_noisysimul.cpp
-    qureg/qureg_permute.cpp
-    qureg/qureg_utils.cpp
-    qureg/qureg_version.cpp
-    util/mpi_env.cpp
-    util/mpi_exception.cpp
-    util/utils.cpp
-    util/rng_utils.cpp
+    src/interface_api_memory.cpp
+    src/interface_api_qasm.cpp
+    src/interface_api_qubitid.cpp
+    src/interface_api_version.cpp
+    src/highperfkernels.cpp
+    src/qureg_apply1qubitgate.cpp
+    src/qureg_apply2qubitgate.cpp
+    src/qureg_applyctrl1qubitgate.cpp
+    src/qureg_applydiag.cpp
+    src/qureg_applyswap.cpp
+    src/qureg_applytoffoli.cpp
+    src/qureg_expectval.cpp
+    src/qureg_fusion.cpp
+    src/qureg_init.cpp
+    src/qureg_measure.cpp
+    src/qureg_noisysimul.cpp
+    src/qureg_permute.cpp
+    src/qureg_utils.cpp
+    src/qureg_version.cpp
+    src/mpi_env.cpp
+    src/mpi_exception.cpp
+    src/utils.cpp
+    src/rng_utils.cpp
 )
 target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
@@ -317,12 +301,12 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 ################################################################################
 
 add_executable(mpi_env_test.exe unit_test/mpi_env_test.cpp
-               util/mpi_env.cpp
-               util/mpi_exception.cpp)
+               src/mpi_env.cpp
+               src/mpi_exception.cpp)
 
 add_executable(mpi_speedup_test.exe unit_test/mpi_speedup_test.cpp
-               util/mpi_env.cpp
-               util/mpi_exception.cpp)
+               src/mpi_env.cpp
+               src/mpi_exception.cpp)
 target_link_libraries(mpi_speedup_test.exe intel_qs)
 
 add_executable(openmp_test.exe unit_test/openmp_test.cpp)
@@ -334,14 +318,14 @@ add_executable(openmp_test.exe unit_test/openmp_test.cpp)
 ################################################################################
 
 if(BuildExamples)
-    add_executable(benchgates.exe examples/benchgates.cpp)
-    target_link_libraries(benchgates.exe intel_qs)
-
-    add_executable(get_started_with_IQS.exe examples/get_started_with_IQS.cpp)
+    add_executable(get_started_with_IQS.exe tutorials/get_started_with_IQS.cpp)
     target_link_libraries(get_started_with_IQS.exe intel_qs)
 
-    add_executable(get_started_with_noisy_IQS.exe examples/get_started_with_noisy_IQS.cpp)
+    add_executable(get_started_with_noisy_IQS.exe tutorials/get_started_with_noisy_IQS.cpp)
     target_link_libraries(get_started_with_noisy_IQS.exe intel_qs)
+
+    add_executable(benchgates.exe examples/benchgates.cpp)
+    target_link_libraries(benchgates.exe intel_qs)
 
     add_executable(quantum_fourier_transform.exe  examples/quantum_fourier_transform.cpp)
     target_link_libraries(quantum_fourier_transform.exe intel_qs)
@@ -363,12 +347,11 @@ if(BuildExamples)
 endif()
 
 ################################################################################
-# Build the QASM interface executables (.exe) contained in the interface/
-# sub-folder.
+# Build the QASM interface executables (.exe) contained in the src/ folder.
 ################################################################################
 
 if(BuildInterface)
-    add_executable(intelqs_interface_main.exe interface/intelqs_interface_main.cpp)
+    add_executable(intelqs_interface_main.exe src/intelqs_interface_main.cpp)
     target_link_libraries(intelqs_interface_main.exe intel_qs)
 endif()
 
@@ -421,7 +404,7 @@ if (NOT IqsUtest)
 else()
     message(STATUS "Unit test: enabled.")
     add_executable(utest unit_test/suite_of_tests.cpp
-                   util/extra_features/qaoa_features.cpp)
+                   src/qaoa_features.cpp)
     target_link_libraries(utest gtest_main intel_qs)
     #add_test(NAME utest_test COMMAND utest)
 endif()
@@ -440,7 +423,7 @@ else()
 #    target_link_libraries(intelqs_py`python3-config --extension-suffix` intel_qs)
     find_package(pybind11 REQUIRED)
     pybind11_add_module(intelqs_py SHARED pybind11/intelqs_py.cpp
-                        util/extra_features/qaoa_features.cpp)
+                        src/qaoa_features.cpp)
     target_link_libraries(intelqs_py PRIVATE intel_qs)
 #    target_compile_definitions(intelqs_py NDEBUG)
 #    add_link_options(-shared)

@@ -1,19 +1,3 @@
-//------------------------------------------------------------------------------
-// Copyright (C) 2019 Intel Corporation 
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//------------------------------------------------------------------------------
-
 //////////////////////////////////////////////////////////////////////////////
 /// @file suite_of_tests.cpp
 /// @brief Collection of unit tests based on the 'googletest' framework.
@@ -38,7 +22,7 @@
 #include "gtest/gtest.h"
 
 // Class that we want to test: QubitRegister<ComplexDP>
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 // To compare complex values in an approximated way.
 #define ASSERT_COMPLEX_NEAR(val1,val2,error)   \
@@ -50,9 +34,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 #include "include/conversion_test.hpp"
 #include "include/tinymatrix_test.hpp"
 #include "include/random_number_generator_test.hpp"
-
 #include "include/apply_1q_gate_test.hpp"
-
 #include "include/one_qubit_register_test.hpp"
 #include "include/two_qubit_register_test.hpp"
 #include "include/state_initialization_test.hpp"

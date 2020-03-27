@@ -14,7 +14,7 @@
 // limitations under the License.
 //------------------------------------------------------------------------------
 
-#include "../qureg/qureg.hpp"
+#include "../include/qureg.hpp"
 
 #ifdef USE_MKL
 #include <mkl.h>
