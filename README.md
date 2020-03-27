@@ -3,7 +3,7 @@
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=inactive)](https://arxiv.org/abs/1601.07195)
 
 # Intel Quantum Simulator
-----
+
 Intel Quantum Simulator (Intel-QS), also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
 is a simulator of quantum circuits optimized to take maximum advantage of multi-core and multi-nodes architectures.
 It is based on a complete representation of the qubit state, but avoids the explicit representation of gates and
@@ -13,7 +13,6 @@ resources that are used to store and manipulate the quantum state.
 
 ----
 ## Build instructions
-----
 
 Intel-QS builds as a static library which, once linked to the application program, allows to take advantage
 of the high-performance implementation of circuit simulations.
@@ -123,7 +122,6 @@ A quick look at the options can be found at
 
 ----
 ## Docker: build image and run/execute container
-----
 
 `Dockerfile` includes the instructions to build the docker image of an Ubuntu machine
 with Intel-QS already installed. The image can be 'run' to create a container.
@@ -154,21 +152,19 @@ For stability of the container, in addition to the 'root' user we create a user 
 
 ----
 ## Getting started with Intel-QS
-----
 
-The simplest way of familiarize with the Intel Quantum Simulator is by exploring the tutorials
-provided in the directory `examples/`.
-In particular, the code `examples/get_started_with_IQS.cpp` provides step-by-step
-description of the main commands:
+The simplest way of familiarize with the Intel Quantum Simulator is by exploring
+the tutorials provided in the directory `tutorials/`.
+In particular, the code `tutorials/get_started_with_IQS.cpp` provides step-by-step
+description of the main commands to:
 define a qubit register object, perform quantum gates, measure one or multiple qubits.
 
 If the Python bindings were enabled, the same learning can be performed using the iPython
-notebook `examples/get_started_with_IQS.ipynb`.
+notebook `tutorials/get_started_with_IQS.ipynb`.
 
 
 ----
 ## How to contribute
-----
 
 Thanks for your interest in the project! We welcome pull requests from developers of all skill levels. If you would like
 to contribute to Intel-QS, please take a look to our [contributing policy](CONTRIBUTING.md) and also to the 
@@ -177,16 +173,14 @@ For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/int
 
 ----
 ## How to contact us
-----
 
 If you have a question or want to discuss something, feel free to send an email to
 [Justin Hogaboam](justin.w.hogaboam@intel.com),
-[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), and to
-[Fabio Baruffa](fabio.baruffa@intel.com)
+[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), or to
+[Fabio Baruffa](fabio.baruffa@intel.com).
 
 ----
 ## How to cite
-----
 
 When using Intel Quantum Simulator for research projects, please cite:
 
