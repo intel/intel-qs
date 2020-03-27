@@ -203,6 +203,36 @@ template float GetExpectationValueFromCostFunction<ComplexSP>
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Type>
+typename QubitRegister<Type>::BaseType
+GetExpectationValueSquaredFromCostFunction(const QubitRegister<Type> & psi,
+                                           const QubitRegister<Type> & diag)
+{
+  // Extract basic type from IQS objects.
+  typename QubitRegister<Type>::BaseType global_expectation, local_expectation = 0.;
+
+  #pragma omp parallel for reduction(+: local_expectation)
+  for ( size_t i=0 ; i < psi.LocalSize(); ++i)
+  {
+      local_expectation += diag[i].real() * diag[i].real()  * norm(psi[i]) ;
+  }
+
+#ifdef INTELQS_HAS_MPI
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(&local_expectation, &global_expectation, 1, MPI_SUM, comm);
+#else
+  global_expectation = local_expectation;
+#endif
+  return global_expectation;
+}
+
+template double GetExpectationValueSquaredFromCostFunction<ComplexDP>
+    (const QubitRegister<ComplexDP> &, const QubitRegister<ComplexDP> & );
+template float  GetExpectationValueSquaredFromCostFunction<ComplexSP>
+    (const QubitRegister<ComplexSP> &, const QubitRegister<ComplexSP> & );
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Type>
 std::vector<typename QubitRegister<Type>::BaseType>
 GetHistogramFromCostFunction( const QubitRegister<Type> & psi,
                               const QubitRegister<Type> & diag, int max_value)

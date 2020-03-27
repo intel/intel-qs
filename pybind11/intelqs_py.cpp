@@ -180,7 +180,7 @@ PYBIND11_MODULE(intelqs_py, m)
 // Extra features: QAOA circuits
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef QAOA_EXTRA_FEATURES_H
+#ifdef QAOA_EXTRA_FEATURES_HPP
     m.def("InitializeVectorAsMaxCutCostFunction",
           &qaoa::InitializeVectorAsMaxCutCostFunction<ComplexDP>,
           "Use IQS vector to store a large real vector and not as a quantum state.");
@@ -192,6 +192,10 @@ PYBIND11_MODULE(intelqs_py, m)
     m.def("GetExpectationValueFromCostFunction",
           &qaoa::GetExpectationValueFromCostFunction<ComplexDP>,
           "Get expectation value from the cost function.");
+
+    m.def("GetExpectationValueSquaredFromCostFunction",
+          &qaoa::GetExpectationValueSquaredFromCostFunction<ComplexDP>,
+          "Get expectation value squared from the cost function.");
 
     m.def("GetHistogramFromCostFunction",
           &qaoa::GetHistogramFromCostFunction<ComplexDP>,

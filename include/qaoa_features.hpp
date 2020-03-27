@@ -44,6 +44,15 @@ namespace qaoa
                                       const QubitRegister<Type> & diag);
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Return the expectation value of the (cost function)^2.
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  template<typename Type>
+  typename QubitRegister<Type>::BaseType
+  GetExpectationValueSquaredFromCostFunction(const QubitRegister<Type> & psi,
+                                             const QubitRegister<Type> & diag);
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // Return the histogram with the probability of measuring a graph coloring
 // associated to a specific value of the cost function.
 /////////////////////////////////////////////////////////////////////////////////////////
