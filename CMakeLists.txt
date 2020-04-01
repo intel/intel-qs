@@ -1,8 +1,4 @@
-# Check the version of CMake and assert it must be 3.15 minimum.
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-
-# Required backwards compatibility for some older SUSE Linux environments.
-set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
+cmake_minimum_required(VERSION 3.10)
 
 ################################################################################
 # Define our package information.
@@ -16,10 +12,17 @@ set(PACKAGE_DESCRIPTION
     "Intel high performance quantum computing pure state simulator framework."
 )
 set(PACKAGE_AUTHOR "Intel Corporation")
-set(PACKAGE_AUTHOR_EMAIL "AQUA and QAPG Groups at Intel Corporation")
+set(PACKAGE_AUTHOR_EMAIL "AQUA, QAPG and IAGS Groups at Intel Corporation")
 
-project(intel_qs CXX)
+project(intel-qs)
 
+# Out-of-source builds only
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
+
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+    message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt.")
+endif()
 
 ################################################################################
 # Set the location of helper CMake modules in the source tree.
@@ -31,18 +34,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 # Set some compiler options related to C++.
 ################################################################################
 
-# INFO: this applies also during the build of googletest.
-if($ENV{CXX} STREQUAL "gcc")
-    message(STATUS "gcc is the compiler of choice.")
-    add_compile_options(-lstdc++)
-elseif($ENV{CXX} STREQUAL "mpicc")
-    message(STATUS "mpicc is the compiler of choice.")
-    add_compile_options(-lstdc++)
-endif()
-
-#set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_options(-std=c++14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
 # Options for the build.
@@ -52,9 +45,6 @@ option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" OFF)
-
-option(BuildExamples "Build examples and tutorials?" ON)
-option(BuildInterface "Build QASM interface?" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
@@ -73,11 +63,12 @@ if(IqsMPI)
 #        message(STATUS "UnitTest not compatible with MPI: disabled.")
 #        set(IqsUtest OFF)
     endif()
-
+    
+    find_package(MPI REQUIRED) 
     # Locate an MPI compiler and set appropriate flags.
     message(STATUS "@@ before looking for MPI,    CXX = $ENV{CXX}.")
     message(STATUS "@@ before looking for MPI, MPICXX = ${MPI_CXX_COMPILER}.")
-    find_package(MPI REQUIRED)
+    
     message(STATUS "@@ after  looking for MPI,    CXX = $ENV{CXX}.")
     message(STATUS "@@ after  looking for MPI, MPICXX = ${MPI_CXX_COMPILER}.")
 
@@ -112,6 +103,7 @@ if(IqsMPI)
 
             add_compile_options(${MPI_CXX_COMPILE_OPTIONS})
             add_compile_definitions(${MPI_CXX_COMPILE_DEFINITIONS})
+        
         # Intel compilers.
         elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
             message(STATUS "Intel compiler has already configured includes and libs.")
@@ -130,13 +122,6 @@ if(IqsMPI)
 
 else()
     message(STATUS "MPI functionality: disabled.")
-    # Required by pybind11 to compile the Python wrapper.
-    option(IqsFPIC "" ON)
-
-endif()
-
-if(IqsFPIC)
-    add_compile_options(-fPIC)
 endif()
 
 ################################################################################
