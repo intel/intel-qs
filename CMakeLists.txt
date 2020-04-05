@@ -64,8 +64,10 @@ if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
 
     if(IqsPython)
-        message(STATUS "Python not compatible with MPI: disabled.")
-        set(IqsPython OFF)
+        message(STATUS "Python interface with MPI is an experimental feature.") 
+        set(IqsFPIC ON)
+        # message(STATUS "Python not compatible with MPI: disabled.")
+        # set(IqsPython OFF)
     endif()
 
     if(IqsUtest)
