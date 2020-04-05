@@ -120,7 +120,7 @@ of MPI resources.
   static void Init();
   static void Init(int &argc, char**&argv);
   static void Finalize();
-  static Environment *SharedInstance() { return shared_instance; };
+  static Environment *GetSharedInstance() {return shared_instance;}
 
  private:
 // Shared helper for constructor overload
