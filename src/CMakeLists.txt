@@ -33,7 +33,6 @@ add_library(iqs SHARED ${IQS_FILES})
 add_library(iqstatic STATIC ${IQS_FILES})
 set_target_properties(iqs PROPERTIES POSITION_INDEPENDENT_CODE 1)
 
-target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
 
