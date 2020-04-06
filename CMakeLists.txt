@@ -14,7 +14,7 @@ set(PACKAGE_DESCRIPTION
 set(PACKAGE_AUTHOR "Intel Corporation")
 set(PACKAGE_AUTHOR_EMAIL "AQUA, QAPG and IAGS Groups at Intel Corporation")
 
-project(intel-qs)
+project(IQS)
 
 # Out-of-source builds only
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
@@ -243,33 +243,37 @@ add_compile_definitions(USE_MM_MALLOC)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 
-add_library(intel_qs SHARED
-    src/interface_api_memory.cpp
-    src/interface_api_qasm.cpp
-    src/interface_api_qubitid.cpp
-    src/interface_api_version.cpp
-    src/highperfkernels.cpp
-    src/qureg_apply1qubitgate.cpp
-    src/qureg_apply2qubitgate.cpp
-    src/qureg_applyctrl1qubitgate.cpp
-    src/qureg_applydiag.cpp
-    src/qureg_applyswap.cpp
-    src/qureg_applytoffoli.cpp
-    src/qureg_expectval.cpp
-    src/qureg_fusion.cpp
-    src/qureg_init.cpp
-    src/qureg_measure.cpp
-    src/qureg_noisysimul.cpp
-    src/qureg_permute.cpp
-    src/qureg_utils.cpp
-    src/qureg_version.cpp
-    src/mpi_env.cpp
-    src/mpi_exception.cpp
-    src/utils.cpp
-    src/rng_utils.cpp
-)
+add_subdirectory(src)
 
-set_target_properties(intel_qs PROPERTIES POSITION_INDEPENDENT_CODE 1)
+#include_directories(${PROJECT_SOURCE_DIR}/include)
+
+#add_library(intel_qs SHARED
+#    src/interface_api_memory.cpp
+#    src/interface_api_qasm.cpp
+#    src/interface_api_qubitid.cpp
+#    src/interface_api_version.cpp
+#    src/highperfkernels.cpp
+#    src/qureg_apply1qubitgate.cpp
+#    src/qureg_apply2qubitgate.cpp
+#    src/qureg_applyctrl1qubitgate.cpp
+#    src/qureg_applydiag.cpp
+#    src/qureg_applyswap.cpp
+#    src/qureg_applytoffoli.cpp
+#    src/qureg_expectval.cpp
+#    src/qureg_fusion.cpp
+#    src/qureg_init.cpp
+#    src/qureg_measure.cpp
+#    src/qureg_noisysimul.cpp
+#    src/qureg_permute.cpp
+#    src/qureg_utils.cpp
+#    src/qureg_version.cpp
+#    src/mpi_env.cpp
+#    src/mpi_exception.cpp
+#    src/utils.cpp
+#    src/rng_utils.cpp
+#)
+
+#set_target_properties(intel_qs PROPERTIES POSITION_INDEPENDENT_CODE 1)
 
 
 #target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
