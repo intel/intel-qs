@@ -1,4 +1,4 @@
-#cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.12)
 project(iqs)
 
 ################################################################################
@@ -30,8 +30,11 @@ set(IQS_FILES
   CACHE INTERNAL "" FORCE)
 
 add_library(iqs SHARED ${IQS_FILES})
-
+add_library(iqstatic STATIC ${IQS_FILES})
 set_target_properties(iqs PROPERTIES POSITION_INDEPENDENT_CODE 1)
+
+target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
 
 
 

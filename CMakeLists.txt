@@ -46,6 +46,7 @@ option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" OFF)
+option(BuildExamples "Build the Examples" ON)
 
 ################################################################################
 # Enable MPI, yes or not?
@@ -245,6 +246,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 
 add_subdirectory(src)
 
+if(BuildExamples)
+  add_subdirectory(examples)
+endif()
+
+
 #include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #add_library(intel_qs SHARED
@@ -311,7 +317,7 @@ add_subdirectory(src)
 
 #if(BuildExamples)
 #    add_executable(get_started_with_IQS.exe tutorials/get_started_with_IQS.cpp)
-#    target_link_libraries(get_started_with_IQS.exe intel_qs)
+#    target_link_libraries(get_started_with_IQS.exe iqs)
 
 #    add_executable(get_started_with_noisy_IQS.exe tutorials/get_started_with_noisy_IQS.cpp)
 #    target_link_libraries(get_started_with_noisy_IQS.exe intel_qs)
