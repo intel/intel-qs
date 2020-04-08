@@ -1,12 +1,6 @@
-cmake_minimum_required(VERSION 3.12)
-project(iqs)
-
 ################################################################################
 # Set some compiler options related to C++.
 ################################################################################
-
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(IQS_FILES 
   interface_api_memory.cpp
@@ -27,14 +21,24 @@ set(IQS_FILES
   qureg_noisysimul.cpp
   qureg_permute.cpp
   qureg_utils.cpp
+  qureg_version.cpp
+  mpi_env.cpp
+  mpi_exception.cpp
+  utils.cpp
+  rng_utils.cpp
   CACHE INTERNAL "" FORCE)
 
-add_library(iqs SHARED ${IQS_FILES})
-add_library(iqstatic STATIC ${IQS_FILES})
-set_target_properties(iqs PROPERTIES POSITION_INDEPENDENT_CODE 1)
+#add_library(iqs_shared SHARED ${IQS_FILES})
+#target_include_directories(iqs_shared PUBLIC ../include)
 
+add_library(intel_qs STATIC ${IQS_FILES})
+target_include_directories(intel_qs PUBLIC ../include)
 
+target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 
-
-
-
+set_target_properties(intel_qs
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+    POSITION_INDEPENDENT_CODE 1
+)

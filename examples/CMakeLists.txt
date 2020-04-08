@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.12)
-project(iqs-examples)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 add_executable(benchgates.exe benchgates.cpp)
-include_directories(/home/fbaruffa/intel-qs/include)
-target_link_libraries(benchgates.exe iqs)
+target_link_libraries(benchgates.exe PRIVATE intel_qs)
 
 #add_executable(quantum_fourier_transform.exe quantum_fourier_transform.cpp)
 #target_link_libraries(quantum_fourier_transform.exe iqs)
@@ -20,5 +18,9 @@ target_link_libraries(benchgates.exe iqs)
 #add_executable(test_of_custom_gates.exe test_of_custom_gates.cpp)
 #target_link_libraries(test_of_custom_gates.exe iqs)
 
+set_target_properties( benchgates.exe
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
+)
 
 
