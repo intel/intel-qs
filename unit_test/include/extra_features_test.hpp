@@ -88,4 +88,64 @@ TEST_F(ExtraFeaturesTest, qaoa_maxcut)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
+{
+  // Instance of the max-cut problem provided as adjacency matrix.
+  // It is a ring of 6 vertices:
+  //
+  //   0--1--2
+  //   |     |
+  //   5--4--3
+  //
+  // where the verical edges have weight 1.4
+  std::vector<double> adjacency = {0  , 1  , 0  , 0  , 0  , 1.4,
+                                   1  , 0  , 1  , 0  , 0  , 0  ,
+                                   0  , 1  , 0  , 1.4, 0  , 0  ,
+                                   0  , 0  , 1.4, 0  , 1  , 0  ,
+                                   0  , 0  , 0  , 1  , 0  , 1  ,
+                                   1.4, 0  , 0  , 0  , 1  , 0  };
+  QubitRegister<ComplexDP> diag (num_qubits_,"base",0);
+  double max_cut_value;
+  max_cut_value = qaoa::InitializeVectorAsWeightedMaxCutCostFunction(diag,adjacency);
+
+  // Among other properties, only two bipartition has cut=0.
+  ComplexDP amplitude;
+  amplitude = { 0, 0 };
+  ASSERT_COMPLEX_NEAR(diag.GetGlobalAmplitude(0), amplitude, accepted_error_);
+  ASSERT_COMPLEX_NEAR(diag.GetGlobalAmplitude(diag.GlobalSize()-1), amplitude,
+                      accepted_error_);
+
+  // Case in which only 2 is dis-aligned:
+  // 001000 = 1*2^2
+  amplitude = { 1+1.4, 0 };
+  size_t index = 2*2;
+  ASSERT_COMPLEX_NEAR(diag.GetGlobalAmplitude(index), amplitude, accepted_error_);
+
+  // Case in which only 2 and 5 are dis-aligned:
+  // 001001 = 1*2^2 + 1*2^5
+  amplitude = { 1+1.4+1+1.4, 0 };
+  index = 4+32;
+  ASSERT_COMPLEX_NEAR(diag.GetGlobalAmplitude(index), amplitude, accepted_error_);
+
+  // No bipartition can cut a single edge.
+  for (size_t j=0; j<diag.LocalSize(); ++j)
+      ASSERT_GT( std::abs(diag[j].real()-1.), accepted_error_);
+
+  // Perform QAOA simulation (p=1).
+  QubitRegister<ComplexDP> psi  (num_qubits_,"++++",0);
+  double gamma = 0.4;
+  double beta  = 0.3;
+  // Emulation of the layer based on the cost function: 
+  qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma);
+  // Simulation of the layer based on the local transverse field: 
+  for (int qubit=0; qubit<num_qubits_; ++qubit)
+      psi.ApplyRotationX(qubit, beta);
+  // Get average of cut value:
+  double expectation = qaoa::GetExpectationValueFromCostFunction( psi, diag);
+  
+  // NOTE: Get histogram of the cut values is not possible with wighted maxcut.
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #endif	// header guard EXTRA_FEATURES_TEST_HPP
