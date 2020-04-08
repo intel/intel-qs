@@ -243,17 +243,14 @@ add_compile_definitions(USE_MM_MALLOC)
 add_subdirectory(src)
 
 if(BuildExamples)
-  add_subdirectory(examples)
+    add_subdirectory(examples)
 endif()
+
+add_subdirectory(tutorials)
+add_subdirectory(benchmarks)
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
-
-################################################################################
-# Build all of the executables (.exe) contained in the subfolder.
-################################################################################
-
-#set(EXECUTABLE_OUTPUT_PATH bin)
 
 ################################################################################
 # Build the executables (.exe) contained in the unit_test/ subfolder.
@@ -278,14 +275,6 @@ endif()
 ################################################################################
 
 #if(BuildExamples)
-#    add_executable(get_started_with_IQS.exe tutorials/get_started_with_IQS.cpp)
-#    target_link_libraries(get_started_with_IQS.exe iqs)
-
-#    add_executable(get_started_with_noisy_IQS.exe tutorials/get_started_with_noisy_IQS.cpp)
-#    target_link_libraries(get_started_with_noisy_IQS.exe intel_qs)
-
-#    add_executable(basic_code_for_scaling.exe benchmarks/basic_code_for_scaling.cpp)
-#    target_link_libraries(basic_code_for_scaling.exe intel_qs)
 #endif()
 
 ################################################################################
