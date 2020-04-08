@@ -1,3 +1,5 @@
+################################################################################
+
 add_executable(benchgates.exe benchgates.cpp)
 target_link_libraries(benchgates.exe PRIVATE intel_qs)
 
@@ -16,6 +18,8 @@ target_link_libraries(noisy_circuit_test.exe intel_qs)
 add_executable(test_of_custom_gates.exe test_of_custom_gates.cpp)
 target_link_libraries(test_of_custom_gates.exe intel_qs)
 
+################################################################################
+
 set_target_properties( benchgates.exe
                        quantum_fourier_transform.exe
                        expect_value_test.exe
@@ -26,4 +30,4 @@ set_target_properties( benchgates.exe
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
 )
 
-
+################################################################################

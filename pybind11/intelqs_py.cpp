@@ -12,12 +12,12 @@
 #include <string>
 #include <vector>
 
-#include "../qureg/qureg.hpp"
-#include "../util/rng_utils.hpp"
+#include "../include/qureg.hpp"
+#include "../include/rng_utils.hpp"
 
 // Extra feature. It can be included optionally.
 #if 1
-#include "../util/extra_features/qaoa_features.hpp"
+#include "../include/qaoa_features.hpp"
 #endif
 
 #ifdef INTELQS_HAS_MPI

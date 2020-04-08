@@ -284,13 +284,7 @@ if (NOT IqsPython)
     message(STATUS "Python wrapper: disabled.")
 else()
     message(STATUS "Python wrapper: enabled.")
-#    set(EXECUTABLE_OUTPUT_PATH lib)
-#    add_executable(intelqs_py`python3-config --extension-suffix` pybind11/intelqs_py.cpp)
-#    target_link_libraries(intelqs_py`python3-config --extension-suffix` intel_qs)
-    find_package(pybind11 REQUIRED)
-    pybind11_add_module(intelqs_py SHARED pybind11/intelqs_py.cpp
-                        src/qaoa_features.cpp)
-    target_link_libraries(intelqs_py PRIVATE intel_qs)
-#    target_compile_definitions(intelqs_py NDEBUG)
-#    add_link_options(-shared)
+    add_subdirectory(pybind11)
 endif()
+
+################################################################################
