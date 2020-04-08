@@ -185,6 +185,10 @@ PYBIND11_MODULE(intelqs_py, m)
           &qaoa::InitializeVectorAsMaxCutCostFunction<ComplexDP>,
           "Use IQS vector to store a large real vector and not as a quantum state.");
 
+    m.def("InitializeVectorAsWeightedMaxCutCostFunction",
+          &qaoa::InitializeVectorAsWeightedMaxCutCostFunction<ComplexDP>,
+          "Use IQS vector to store a large real vector and not as a quantum state.");
+
     m.def("ImplementQaoaLayerBasedOnCostFunction",
           &qaoa::ImplementQaoaLayerBasedOnCostFunction<ComplexDP>,
           "Implement exp(-i gamma C)|psi>.");

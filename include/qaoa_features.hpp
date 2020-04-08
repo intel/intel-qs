@@ -21,6 +21,11 @@ namespace qaoa
   template<typename Type>
   int InitializeVectorAsMaxCutCostFunction(QubitRegister<Type> & diag,
                                            std::vector<int> & adjacency);
+
+  template<typename Type>
+  typename QubitRegister<Type>::BaseType
+  InitializeVectorAsWeightedMaxCutCostFunction(QubitRegister<Type> & diag,
+      std::vector<typename QubitRegister<Type>::BaseType> & adjacency);
   
 /////////////////////////////////////////////////////////////////////////////////////////
 // Implement the QAOA operation:
