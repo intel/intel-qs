@@ -22,6 +22,7 @@
 |
 |-- \cmake
 |   |-- FindMKL.cmake
+|   |-- gtest.cmake.in
 |
 |-- \tutorials
 |   |-- get_started_with_IQS.cpp
@@ -36,6 +37,8 @@
 |       |-- <files used in testing>
 |
 |-- \examples
-    |-- <C++ main files of small applications>
+|   |-- <C++ main files of small applications>
+|
+|-- \notebooks
     |-- <iPython notebooks of small applications>
 ```
