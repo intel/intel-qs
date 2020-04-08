@@ -12,5 +12,3 @@ set_target_properties( get_started_with_IQS.exe
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
 )
-
-

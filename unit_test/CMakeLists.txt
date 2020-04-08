@@ -35,7 +35,24 @@ add_executable(utest suite_of_tests.cpp
 target_include_directories(utest PRIVATE include)
 target_link_libraries(utest PRIVATE intel_qs gtest_main)
 
+add_executable(mpi_env_test.exe mpi_env_test.cpp
+               ../src/mpi_env.cpp
+               ../src/mpi_exception.cpp)
+target_link_libraries(mpi_env_test.exe intel_qs)
+
+add_executable(mpi_speedup_test.exe mpi_speedup_test.cpp
+               ../src/mpi_env.cpp
+               ../src/mpi_exception.cpp)
+target_link_libraries(mpi_speedup_test.exe intel_qs)
+
+add_executable(openmp_test.exe openmp_test.cpp)
+
+################################################################################
+
 set_target_properties( utest
+                       mpi_env_test.exe
+                       mpi_speedup_test.exe
+                       openmp_test.exe
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin"
 )

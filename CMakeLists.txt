@@ -253,31 +253,6 @@ add_subdirectory(benchmarks)
 #target_compile_definitions(intel_qs NDEBUG)
 
 ################################################################################
-# Build the executables (.exe) contained in the unit_test/ subfolder.
-# No googletest framework.
-################################################################################
-
-#add_executable(mpi_env_test.exe unit_test/mpi_env_test.cpp
-#               src/mpi_env.cpp
-#               src/mpi_exception.cpp)
-
-#add_executable(mpi_speedup_test.exe unit_test/mpi_speedup_test.cpp
-#               src/mpi_env.cpp
-#               src/mpi_exception.cpp)
-#target_link_libraries(mpi_speedup_test.exe intel_qs)
-
-#add_executable(openmp_test.exe unit_test/openmp_test.cpp)
-
-#target_link_libraries(mpi_test.exe intel_qs)
-
-################################################################################
-# Build the executables (.exe) contained in the examples/ subfolder.
-################################################################################
-
-#if(BuildExamples)
-#endif()
-
-################################################################################
 # Build the QASM interface executables (.exe) contained in the src/ folder.
 ################################################################################
 
