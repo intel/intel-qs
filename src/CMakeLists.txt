@@ -28,20 +28,11 @@ set(IQS_FILES
   rng_utils.cpp
   CACHE INTERNAL "" FORCE)
 
-add_library(iqsstatic STATIC ${IQS_FILES})
 add_library(iqs SHARED ${IQS_FILES})
 
-target_include_directories(iqsstatic PUBLIC ../include)
 target_include_directories(iqs PUBLIC ../include)
 
-target_include_directories(iqsstatic INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
-
-set_target_properties(iqsstatic
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
-)
 
 set_target_properties(iqs
     PROPERTIES
