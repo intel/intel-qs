@@ -248,6 +248,8 @@ endif()
 
 add_subdirectory(tutorials)
 add_subdirectory(benchmarks)
+add_subdirectory(interface)
+
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
