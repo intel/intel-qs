@@ -3,7 +3,7 @@
 #include <functional>
 #include <stdexcept>
 
-#include "../include/qureg.hpp"
+#include "../../include/qureg.hpp"
 #include "../include/interface_api_qubitid.h"
 #include "../include/interface_api_version.h"
 #include "../include/interface_api_memory.h"

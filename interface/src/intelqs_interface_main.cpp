@@ -4,8 +4,8 @@
 #include <functional>
 #include <stdexcept>
 
-#include "../include/qureg.hpp"
-#include "interface_api_qasm.h"
+#include "../../include/qureg.hpp"
+#include "../include/interface_api_qasm.h"
 
 using namespace std;
 
@@ -13,8 +13,6 @@ using namespace std;
 using Type = ComplexDP;
 QubitRegister<Type> *psi1 = nullptr;
 bool fPsiAllocated = false;
-
-
 
 int main(int argc, char*argv[])
 {
