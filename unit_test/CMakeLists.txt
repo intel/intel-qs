@@ -33,17 +33,17 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 add_executable(utest suite_of_tests.cpp
                ../src/qaoa_features.cpp)
 target_include_directories(utest PRIVATE include)
-target_link_libraries(utest PRIVATE intel_qs gtest_main)
+target_link_libraries(utest PRIVATE iqs gtest_main)
 
 add_executable(mpi_env_test.exe mpi_env_test.cpp
                ../src/mpi_env.cpp
                ../src/mpi_exception.cpp)
-target_link_libraries(mpi_env_test.exe intel_qs)
+target_link_libraries(mpi_env_test.exe iqs)
 
 add_executable(mpi_speedup_test.exe mpi_speedup_test.cpp
                ../src/mpi_env.cpp
                ../src/mpi_exception.cpp)
-target_link_libraries(mpi_speedup_test.exe intel_qs)
+target_link_libraries(mpi_speedup_test.exe iqs)
 
 add_executable(openmp_test.exe openmp_test.cpp)
 
