@@ -3,10 +3,10 @@
 ################################################################################
 
 set(IQS_FILES 
-  interface_api_memory.cpp
-  interface_api_qasm.cpp
-  interface_api_qubitid.cpp
-  interface_api_version.cpp
+#  interface_api_memory.cpp
+#  interface_api_qasm.cpp
+#  interface_api_qubitid.cpp
+#  interface_api_version.cpp
   highperfkernels.cpp
   qureg_apply1qubitgate.cpp
   qureg_apply2qubitgate.cpp
@@ -28,17 +28,26 @@ set(IQS_FILES
   rng_utils.cpp
   CACHE INTERNAL "" FORCE)
 
-#add_library(iqs_shared SHARED ${IQS_FILES})
-#target_include_directories(iqs_shared PUBLIC ../include)
+add_library(iqsstatic STATIC ${IQS_FILES})
+add_library(iqs SHARED ${IQS_FILES})
 
-add_library(intel_qs STATIC ${IQS_FILES})
-target_include_directories(intel_qs PUBLIC ../include)
+target_include_directories(iqsstatic PUBLIC ../include)
+target_include_directories(iqs PUBLIC ../include)
 
-target_include_directories(intel_qs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+target_include_directories(iqsstatic INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 
-set_target_properties(intel_qs
+set_target_properties(iqsstatic
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
+)
+
+set_target_properties(iqs
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
     POSITION_INDEPENDENT_CODE 1
 )
+
+

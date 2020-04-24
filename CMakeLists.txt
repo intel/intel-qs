@@ -46,7 +46,7 @@ option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" OFF)
-option(BuildExamples "Build the Examples" ON)
+option(BuildExamples "Build the Examples" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
