@@ -14,7 +14,7 @@ resources that are used to store and manipulate the quantum state.
 ----
 ## Build instructions
 
-Intel-QS builds as a static library which, once linked to the application program, allows to take advantage
+Intel-QS builds as a shared library which, once linked to the application program, allows to take advantage
 of the high-performance implementation of circuit simulations.
 The library can be built on a variety of different systems, from laptop to HPC server systems.
 
