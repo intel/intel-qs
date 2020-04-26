@@ -6,7 +6,7 @@ pybind11_add_module(intelqs_py SHARED
                     intelqs_py.cpp
                     ../src/qaoa_features.cpp)
 
-target_link_libraries(intelqs_py PRIVATE intel_qs)
+target_link_libraries(intelqs_py PRIVATE iqs)
 
 set_target_properties( intelqs_py
     PROPERTIES
