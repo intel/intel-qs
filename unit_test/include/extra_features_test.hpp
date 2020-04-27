@@ -163,7 +163,6 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
   // The expval will be within less than bin_width of the actual since the cutvals are rounded down to the bin_width.
   ASSERT((expectation - average)<=( bin_width+1e-7));
   ASSERT((expectation - average)>=(-bin_width-1e-7));
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////
