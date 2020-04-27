@@ -20,7 +20,6 @@ set(PACKAGE_AUTHOR_EMAIL "AQUA and QAPG Groups at Intel Corporation")
 
 project(intel_qs CXX)
 
-
 ################################################################################
 # Set the location of helper CMake modules in the source tree.
 ################################################################################
