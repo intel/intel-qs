@@ -1,6 +1,8 @@
 #ifndef EXTRA_FEATURES_TEST_HPP
 #define EXTRA_FEATURES_TEST_HPP
 
+#include <math.h>
+
 #include "../../include/qureg.hpp"
 #include "../../include/qaoa_features.hpp"
 
@@ -144,8 +146,8 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
   double expectation = qaoa::GetExpectationValueFromCostFunction(psi, diag);
   
   // Histogram for rounded cutvals and check if it matches expval to the tolerance.
-  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionRounded(psi, diag, max_cut_value);
-  ASSERT_EQ(histo.size(), max_cut_value+1);
+  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value);
+  ASSERT_EQ(histo.size(), (int)floor(max_cut_value)+1);
   double average=0;
   for (int j=0; j<histo.size(); ++j)
       average += double(j)*histo[j];
@@ -155,7 +157,7 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
   
   // Histogram for rounded cutvals and check if it matches expval to the tolerance.
   double bin_width = 0.1;
-  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionBinned(psi, diag, max_cut_value, bin_width);
+  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width);
   ASSERT_EQ(histo.size(), max_cut_value+1);
   double average=0;
   for (int j=0; j<histo.size(); ++j)
