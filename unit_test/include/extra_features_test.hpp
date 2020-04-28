@@ -155,7 +155,7 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
   // Histogram for rounded cutvals and check if it matches expval to the tolerance.
   double bin_width = 0.1;
   std::vector<double> histo2 = qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width);
-  ASSERT_EQ(histo2.size(), (int)(ceil(max_value / bin_width)) + 1);
+  ASSERT_EQ(histo2.size(), (int)(ceil(max_cut_value / bin_width)) + 1);
   average = 0.0;
   for (int j=0; j<histo2.size(); ++j)
       average += double(j)*bin_width*histo2[j];
