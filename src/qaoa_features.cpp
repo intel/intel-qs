@@ -389,6 +389,140 @@ template std::vector<float>  GetHistogramFromCostFunction<ComplexSP>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+template<typename Type>
+std::vector<typename QubitRegister<Type>::BaseType>
+GetHistogramFromCostFunctionWithWeightsRounded( const QubitRegister<Type> & psi,
+                                                const QubitRegister<Type> & diag,
+                                                double max_value)
+{
+  // Extract basic type from IQS objects. 
+  typedef typename QubitRegister<Type>::BaseType Basetype;
+
+  // A few preliminary checks:
+  assert( psi.LocalSize( ) == diag.LocalSize( ) );	// Vectors with equal local size.
+  assert( psi.GlobalSize() == diag.GlobalSize() );	// Vectors with equal global size.
+  assert(max_value>0);					// The max_value must be positive.
+
+  int my_rank = qhipster::mpi::Environment::GetStateRank();
+
+  // Histogram of the specific MPI (state) rank.
+  int num_bins = (int)(floor(max_value))+1;
+  Basetype local_hist[num_bins];
+  for (int n=0; n<num_bins; ++n)
+      local_hist[n]=0;
+  #pragma omp parallel
+  {
+      double cut;
+      int index_bin;
+      // Histogram of the specific thread.
+      Basetype private_hist[num_bins] ;
+      for (int n=0; n<num_bins; ++n)
+          private_hist[n]=0;
+
+      #pragma omp for
+      for ( size_t i=0 ; i < psi.LocalSize(); ++i)
+      {
+          cut = diag[i].real();
+          // single precision: machine epsilon ~ 1e-7
+          // double precision: machine epsilon ~ 1e-16
+          assert( cut>=-1e-7 && cut <= (max_value + 1e-7) );
+          index_bin = (int)(floor(cut+1e-7));
+          private_hist[index_bin] += norm(psi[i]) ;
+      }
+      #pragma omp critical
+      {
+          for (int n=0; n<num_bins; ++n)
+              local_hist[n] += private_hist[n];
+      }
+  }
+
+  // Global histogram.
+  std::vector<Basetype> global_hist(num_bins, 0);
+#ifdef INTELQS_HAS_MPI
+  // Sum local histograms into (state) global histogram.
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
+#else
+  for ( int n=0; n<num_bins; ++n)
+      global_hist[n]=local_hist[n];
+#endif
+    
+  return global_hist;
+}
+
+template std::vector<double> GetHistogramFromCostFunctionWithWeightsRounded<ComplexDP>
+    (const QubitRegister<ComplexDP> &, const QubitRegister<ComplexDP> &, double );
+template std::vector<float>  GetHistogramFromCostFunctionWithWeightsRounded<ComplexSP>
+    (const QubitRegister<ComplexSP> &, const QubitRegister<ComplexSP> &, double );
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Type>
+std::vector<typename QubitRegister<Type>::BaseType>
+GetHistogramFromCostFunctionWithWeightsBinned( const QubitRegister<Type> & psi,
+                                               const QubitRegister<Type> & diag,
+                                               double max_value, double bin_width)
+{
+  // Extract basic type from IQS objects. 
+  typedef typename QubitRegister<Type>::BaseType Basetype;
+
+  // A few preliminary checks:
+  assert( psi.LocalSize( ) == diag.LocalSize( ) );	// Vectors with equal local size.
+  assert( psi.GlobalSize() == diag.GlobalSize() );	// Vectors with equal global size.
+  assert(max_value>0);					// The max_value must be positive.
+
+  int my_rank = qhipster::mpi::Environment::GetStateRank();
+
+  // Histogram of the specific MPI (state) rank.
+  int num_bins = (int)(ceil(max_value / bin_width)) + 1;
+  Basetype local_hist[num_bins] ;	// Initialize all elements to 0 (only with C++)
+  for (int n=0; n<num_bins; ++n)
+      local_hist[n]=0;
+  #pragma omp parallel
+  {
+      double cut;
+      int index_bin;
+      // Histogram of the specific thread.
+      Basetype private_hist[num_bins] ;
+      for (int n=0; n<num_bins; ++n)
+          private_hist[n]=0;
+      #pragma omp for
+      for ( size_t i=0 ; i < psi.LocalSize(); ++i)
+      {
+          cut = diag[i].real();
+          // single precision: machine epsilon ~ 1e-7
+          // double precision: machine epsilon ~ 1e-16
+          assert( cut>=-1e-7 && cut <= max_value + 1e-7 );
+          index_bin = (int)(floor(cut / bin_width + 1e-7));
+          private_hist[index_bin] += norm(psi[i]) ;
+      }
+      #pragma omp critical
+      {
+          for (int n=0; n<num_bins; ++n)
+              local_hist[n] += private_hist[n];
+      }
+  }
+
+  // Global histogram.
+  std::vector<Basetype> global_hist(num_bins, 0);
+#ifdef INTELQS_HAS_MPI
+  // Sum local histograms into (state) global histogram.
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  qhipster::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
+#else
+  for ( int n=0; n<num_bins; ++n)
+      global_hist[n]=local_hist[n];
+#endif
+  return global_hist;
+}
+
+template std::vector<double> GetHistogramFromCostFunctionWithWeightsBinned<ComplexDP>
+    (const QubitRegister<ComplexDP> &, const QubitRegister<ComplexDP> &, double, double);
+template std::vector<float>  GetHistogramFromCostFunctionWithWeightsBinned<ComplexSP>
+    (const QubitRegister<ComplexSP> &, const QubitRegister<ComplexSP> &, double, double);
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 }	// close namespace qaoa
 
 /////////////////////////////////////////////////////////////////////////////////////////
