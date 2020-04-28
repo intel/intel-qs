@@ -141,9 +141,26 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
   for (int qubit=0; qubit<num_qubits_; ++qubit)
       psi.ApplyRotationX(qubit, beta);
   // Get average of cut value:
-  double expectation = qaoa::GetExpectationValueFromCostFunction( psi, diag);
+  double expectation = qaoa::GetExpectationValueFromCostFunction(psi, diag);
   
-  // NOTE: Get histogram of the cut values is not possible with wighted maxcut.
+  // Histogram for rounded cutvals and check if it matches expval to the tolerance.
+  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value);
+  ASSERT_EQ(histo.size(), (int)(floor(max_cut_value))+1);
+  double average=0;
+  for (int j=0; j<histo.size(); ++j)
+      average += double(j)*histo[j];
+  // The expval will be within less than 1.0 of the actual since the cutvals are rounded down to nearest 1.0.
+  ASSERT_TRUE( (abs(expectation - average) )<=1.0+1e-7);
+    
+  // Histogram for rounded cutvals and check if it matches expval to the tolerance.
+  double bin_width = 0.1;
+  std::vector<double> histo2 = qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width);
+  ASSERT_EQ(histo.size(), (int)(floor(max_cut_value))+1);
+  average = 0.0;
+  for (int j=0; j<histo2.size(); ++j)
+      average += double(j)*bin_width*histo2[j];
+  // The expval will be within less than bin_width of the actual since the cutvals are rounded down to the bin_width.
+  ASSERT_TRUE( (abs(expectation - average) )<=bin_width+1e-7);
 }
 
 //////////////////////////////////////////////////////////////////////////////

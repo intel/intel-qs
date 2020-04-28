@@ -66,6 +66,29 @@ namespace qaoa
   std::vector<typename QubitRegister<Type>::BaseType>
   GetHistogramFromCostFunction(const QubitRegister<Type> & psi,
                                const QubitRegister<Type> & diag, int max_value);
+   
+/////////////////////////////////////////////////////////////////////////////////////////
+// Return the histogram with the probability of measuring a graph coloring
+// associated to a specific value of the cost function for a weighted graph with cutvals rounded down.
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  template<typename Type>
+  std::vector<typename QubitRegister<Type>::BaseType>
+  GetHistogramFromCostFunctionWithWeightsRounded(const QubitRegister<Type> & psi,
+                                                 const QubitRegister<Type> & diag,
+                                                 double max_value);
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Return the histogram with the probability of measuring a graph coloring
+// associated to a specific value of the cost function for a weighted graph binned
+// to a specified bin_width.
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  template<typename Type>
+  std::vector<typename QubitRegister<Type>::BaseType>
+  GetHistogramFromCostFunctionWithWeightsBinned(const QubitRegister<Type> & psi,
+                                                const QubitRegister<Type> & diag,
+                                                double max_value, double bin_width);
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

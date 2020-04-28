@@ -204,6 +204,14 @@ PYBIND11_MODULE(intelqs_py, m)
     m.def("GetHistogramFromCostFunction",
           &qaoa::GetHistogramFromCostFunction<ComplexDP>,
           "Get histogram instead of just the expectation value.");
+        
+    m.def("GetHistogramFromCostFunctionWithWeightsRounded",
+          &qaoa::GetHistogramFromCostFunctionWithWeightsRounded<ComplexDP>,
+          "Get histogram instead of just the expectation value for a weighted graph, with all cut values rounded down.");
+    
+    m.def("GetHistogramFromCostFunctionWithWeightsBinned",
+          &qaoa::GetHistogramFromCostFunctionWithWeightsBinned<ComplexDP>,
+          "Get histogram instead of just the expectation value for a weighted graph, with specified bin width.");
 #endif
 
 }
