@@ -14,19 +14,21 @@ resources that are used to store and manipulate the quantum state.
 ----
 ## Build instructions
 
-Intel-QS builds as a static library which, once linked to the application program, allows to take advantage
+Intel-QS builds as a shared library which, once linked to the application program, allows to take advantage
 of the high-performance implementation of circuit simulations.
 The library can be built on a variety of different systems, from laptop to HPC server systems.
 
 The directory structure of the repository can be found in
 [intel-qs/docs/directory_structure.md](/docs/directory_structure.md).
 
+The library object is: `/builb/lib/libiqs.so`
+
 
 ### Requirements
 
 The following packages are required by the installation:
 
-*  CMake tools version 3.15+
+*  CMake tools version 3.12+
 *  MPICH3 library for enabling the distributed communication
 *  optional: MKL for distributed random number generation
 *  optional: PyBind11 (installed via conda, not pip) required by the Python bunding of Intel-QS
@@ -37,7 +39,7 @@ The first step is cloning the repository:
   cd intel-qs
 ```
 
-### Use Intel Parallel Studio compilers to build
+### Use Intel Parallel Studio compilers to build Intel-QS
 
 If you wish to build Intel-QS using the latest Intel compiler technologies, then
 you need to configure your environment properly according to that tool's documentation.
@@ -80,7 +82,7 @@ https://www.mpich.org
 
 ### Enable MPI protocol for distributed memory use
 
-The above installation enables MPI functionalities to deploy intel-qs on High Performance
+The above installation enables MPI functionalities to deploy Intel-QS on High Performance
 Computing and Cloud Computing infrastructures. There is the option of disabling MPI:
 simply set the CMake option selection to `-DIqsMPI=OFF`
 (or just omit the option selection since MPI is disabled by default in the CMake build).
@@ -119,6 +121,8 @@ the up-to-date repository of gtest and installs it in the `build` path.
 
 To disable the unit tests, set the CMake option selection to `-DIqsUtest=OFF`.
 
+To run the unit tests, from `/build` launch the executable `./bin/utest`.
+
 
 ### Recommended build for HPC.
 
@@ -150,18 +154,6 @@ The container can be 'executed' to login into the machine.
 If Docker is used on a Windows host machine, the last line should be substituted by:
 `winpty docker exec -itd <container_id> //bin/bash`.
 
---TODO: Not yet implemented since environment variables and programs (like cmake) are
-not accessible to new users...
-For stability of the container, in addition to the 'root' user we create a user called
-'tester'. We suggest to login as such user: Intel-QS is available from tester's home directory.
-
-```bash
-  docker build -t qhipster .
-  docker run -d -t qhipster
-  docker ps
-  docker exec -itd --user tester <container_id> /bin/bash
-```
-
 
 ----
 ## Getting started with Intel-QS
@@ -179,8 +171,9 @@ notebook `tutorials/get_started_with_IQS.ipynb`.
 ----
 ## How to contribute
 
-Thanks for your interest in the project! We welcome pull requests from developers of all skill levels. If you would like
-to contribute to Intel-QS, please take a look to our [contributing policy](CONTRIBUTING.md) and also to the 
+Thanks for your interest in the project! We welcome pull requests from developers
+of all skill levels. If you would like to contribute to Intel-QS, please take a
+look to our [contributing policy](CONTRIBUTING.md) and also to the 
 [code of conduct](CODE_OF_CONDUCT.md). 
 For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/intel-qs/issues). Please submit your request there.
 
