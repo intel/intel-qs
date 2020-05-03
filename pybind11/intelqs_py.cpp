@@ -176,6 +176,9 @@ PYBIND11_MODULE(intelqs_py, m)
         .def("Initialize",
                (void (QubitRegister<ComplexDP>::*)(std::string, std::size_t ))
                  &QubitRegister<ComplexDP>::Initialize)
+        //Enable Specialization
+        .def("TurnOnSpecialize", &QubitRegister<ComplexDP>::TurnOnSpecialize)
+        .def("TurnOffSpecialize", &QubitRegister<ComplexDP>::TurnOffSpecialize)
         // Associate the random number generator and set its seed.
         .def("ResetRngPtr", &QubitRegister<ComplexDP>::ResetRngPtr)
         .def("SetRngPtr", &QubitRegister<ComplexDP>::SetRngPtr)
