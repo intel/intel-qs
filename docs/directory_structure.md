@@ -9,6 +9,18 @@
 |-- \docs
 |   |-- <documentation files>
 |
+|-- \benchmarks
+|   |-- CMakeLists.txt
+|   |-- <benchmarking files and scripts>
+|
+|-- \interface
+|   |-- CMakeLists.txt
+|   |-- \include
+|       |-- <header files for the interface application>
+|   |-- \src
+|       |-- CMakeLists.txt
+|       |-- <source files for the interface application>
+|
 |-- \include
 |   |-- qureg.hpp
 |   |-- <header files for utility functions>
@@ -22,8 +34,10 @@
 |
 |-- \cmake
 |   |-- FindMKL.cmake
+|   |-- gtest.cmake.in
 |
 |-- \tutorials
+|   |-- CMakeLists.txt
 |   |-- get_started_with_IQS.cpp
 |   |-- get_started_with_IQS.ipynb
 |   |-- get_started_with_noisy_IQS.cpp
@@ -36,6 +50,8 @@
 |       |-- <files used in testing>
 |
 |-- \examples
-    |-- <C++ main files of small applications>
+|   |-- <C++ main files of small applications>
+|
+|-- \notebooks
     |-- <iPython notebooks of small applications>
 ```

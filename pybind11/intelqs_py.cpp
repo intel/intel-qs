@@ -217,6 +217,10 @@ PYBIND11_MODULE(intelqs_py, m)
           &qaoa::InitializeVectorAsMaxCutCostFunction<ComplexDP>,
           "Use IQS vector to store a large real vector and not as a quantum state.");
 
+    m.def("InitializeVectorAsWeightedMaxCutCostFunction",
+          &qaoa::InitializeVectorAsWeightedMaxCutCostFunction<ComplexDP>,
+          "Use IQS vector to store a large real vector and not as a quantum state.");
+
     m.def("ImplementQaoaLayerBasedOnCostFunction",
           &qaoa::ImplementQaoaLayerBasedOnCostFunction<ComplexDP>,
           "Implement exp(-i gamma C)|psi>.");
@@ -232,6 +236,14 @@ PYBIND11_MODULE(intelqs_py, m)
     m.def("GetHistogramFromCostFunction",
           &qaoa::GetHistogramFromCostFunction<ComplexDP>,
           "Get histogram instead of just the expectation value.");
+        
+    m.def("GetHistogramFromCostFunctionWithWeightsRounded",
+          &qaoa::GetHistogramFromCostFunctionWithWeightsRounded<ComplexDP>,
+          "Get histogram instead of just the expectation value for a weighted graph, with all cut values rounded down.");
+    
+    m.def("GetHistogramFromCostFunctionWithWeightsBinned",
+          &qaoa::GetHistogramFromCostFunctionWithWeightsBinned<ComplexDP>,
+          "Get histogram instead of just the expectation value for a weighted graph, with specified bin width.");
 #endif
 
 
