@@ -47,6 +47,7 @@ option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" ON)
 option(BuildExamples "Build the Examples" OFF)
+option(IqsNative "Enable the latest instructions?" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
@@ -123,6 +124,22 @@ if(IqsMPI)
 else()
     message(STATUS "MPI functionality: disabled.")
 endif()
+
+
+################################################################################
+# Enable native compilation, yes or not?
+# This option allows AVX 256 and 512 instructions to be used.
+################################################################################
+if (IqsNative)
+    if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+        message(STATUS "Setting xhost...")
+        add_compile_options(-xhost)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+        message(STATUS "Setting march=native...")
+        add_compile_options(-march=native)
+    endif()
+endif()
+
 
 ################################################################################
 # Locate MKL if it is already configured through Intel (mklvars.sh) scripts.

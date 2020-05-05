@@ -88,6 +88,19 @@ simply set the CMake option selection to `-DIqsMPI=OFF`
 (or just omit the option selection since MPI is disabled by default in the CMake build).
 
 
+### Enable Latest Vector Instructions
+
+To compile with the latest instruction set supported by your machine, there is the option `-DIqsNative`. 
+Compiled with `-DIqsNative=ON`, the latest vector instructions (e.g. AVX512) are used if your hardware supports them. 
+By default, `-DIqsNative=OFF`.
+
+If the machine you compile and the machine you run have different architectures, 
+turning on `IqsNative` might cause problems.
+
+Underneath, this option uses [`-xhost`](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-xhost-qxhost)
+with Intel compilers and [`-march=native`](https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html) with GNU compilers.
+
+
 ### Enable Python binding (only available without MPI)
 
 By default, whenever MPI is disabled, the building process includes the Python binding for
