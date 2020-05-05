@@ -114,11 +114,9 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   // Sometimes it is useful to reduce the tmp_spacesize_, to be able to simulate
   // one extra qubit. The implementation of SWAP-like gates is not ready for this yet.
 
-  #if 1
   size_t hard_bound_tmp_spacesize = UL(1L << UL(30));  // 4194304 = 2^22
   if (    tmp_spacesize_ == 0		// default case
-       || local_size_ <= tmp_spacesize_	// to avoid waste of memory
-       || num_ranks_per_node <= 2 )	// extra case, probably unnecessary
+       || local_size_ <= tmp_spacesize_)	// to avoid waste of memory
   {
       // if (!myrank) printf("Setting tmp storage to half the local state size\n");
       this->tmp_spacesize_ =  lcl_size_half;
@@ -131,14 +129,6 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   }
   else
       this->tmp_spacesize_ = hard_bound_tmp_spacesize;
-  #else
-  if (num_ranks_per_node <= 2)
-      this->tmp_spacesize_ =  lcl_size_half;
-  else
-      this->tmp_spacesize_ =  (lcl_size_half > 4194304) ? 4194304 : lcl_size_half;
-  // 4194304 = 2^22
-  assert((lcl_size_half % TmpSize()) == 0);
-  #endif
 
   this->num_qubits = new_num_qubits;
   assert(LocalSize() >= 1L);
