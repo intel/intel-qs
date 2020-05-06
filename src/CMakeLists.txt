@@ -3,10 +3,6 @@
 ################################################################################
 
 set(IQS_FILES 
-#  interface_api_memory.cpp
-#  interface_api_qasm.cpp
-#  interface_api_qubitid.cpp
-#  interface_api_version.cpp
   highperfkernels.cpp
   qureg_apply1qubitgate.cpp
   qureg_apply2qubitgate.cpp

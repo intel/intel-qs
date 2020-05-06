@@ -47,7 +47,7 @@ option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" ON)
 option(BuildExamples "Build the Examples" OFF)
-option(IqsNative "Enable the latest instructions?" OFF)
+option(IqsNative "Enable the latest vector instructions?" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
@@ -272,15 +272,6 @@ add_subdirectory(interface)
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
 #target_compile_definitions(intel_qs NDEBUG)
-
-################################################################################
-# Build the QASM interface executables (.exe) contained in the src/ folder.
-################################################################################
-
-#if(BuildInterface)
-#    add_executable(intelqs_interface_main.exe src/intelqs_interface_main.cpp)
-#    target_link_libraries(intelqs_interface_main.exe intel_qs)
-#endif()
 
 ################################################################################
 # Build the suite of unit-tests for IQS.
