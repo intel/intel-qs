@@ -1,4 +1,5 @@
-![C++ build with CMake](https://github.com/iqusoft/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg?branch=test%2Fgithub-action)
+![C++ build with CMake](https://github.com/iqusoft/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg)
+![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=inactive)](https://arxiv.org/abs/1601.07195)
 
