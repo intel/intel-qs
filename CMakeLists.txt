@@ -44,8 +44,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
-option(IqsPython "Enable Python wrap?" OFF)
-option(IqsUtest "Enable unit test?" ON)
+option(IqsPython "Enable Python wrap?" ON)
+option(IqsUtest "Enable unit test?" oFF)
 option(BuildExamples "Build the Examples" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
@@ -57,8 +57,7 @@ if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
 
     if(IqsPython)
-        message(STATUS "Python not compatible with MPI: disabled.")
-        set(IqsPython OFF)
+        message(STATUS "Python interface with MPI: enabled." 
     endif()
 
     if(IqsUtest)
