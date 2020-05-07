@@ -57,7 +57,7 @@ if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
 
     if(IqsPython)
-        message(STATUS "Python interface with MPI: enabled." 
+        message(STATUS "Python interface with MPI: enabled." )
     endif()
 
     if(IqsUtest)
