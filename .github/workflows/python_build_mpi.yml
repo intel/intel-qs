@@ -28,9 +28,10 @@ jobs:
           conda install -y pybind11
           conda activate /usr/share/miniconda/envs/test
       - name: Install MPICH
-        run: sudo apt-get install mpich
-        run: which mpic++
-        run: mpic++ --version
+        run: | 
+          sudo apt-get install mpich
+          which mpic++
+          mpic++ --version
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
