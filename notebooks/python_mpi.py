@@ -19,7 +19,7 @@ if __name__ == '__main__':
     num_qubits = int(sys.argv[1])
 
     iqs.init()
-
+    
     reg = run_circuit(num_qubits)
     state_vector = np.array(reg, copy=False)
 
@@ -27,7 +27,6 @@ if __name__ == '__main__':
     print('\nFinal state at rank {}: {}'.format(rank, state_vector))
 
     iqs.finalize()
-
 
 # SAMPLE RUNS:
 
