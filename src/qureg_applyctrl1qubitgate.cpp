@@ -81,12 +81,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   // Which chunk do we have to Send/Recv?
   // If chunk == lcl_size_half, then all chunks are needed, and if chunk=2^C it means
   // that M=C+1 and there is a special case hardcoded.
-  // If chunk > 2^(C+1), then all chunks are needed since every chunk include
+  // If chunk >= 2^(C+1), then all chunks are needed since every chunk include
   // global indices with C-bit=0,1
   // If chunk < 2^(C+1), then chunks only include global indices with either C-bit=0
   // or C-bit=1
   if ( lcl_chunk == lcl_size_half
-       || lcl_chunk >= (UL(1)<<C+1) )
+       || lcl_chunk >= (UL(1)<<(C+1)) )
   {
       for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
       {
@@ -142,7 +142,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   else
   {
       assert( lcl_chunk <= (UL(1)<<C) );
-      assert( (UL(1)<<C % lcl_chunk)==0 );
+      assert( (UL(1)<<C) % lcl_chunk==0 );
       for(size_t gc = (UL(1)<<C); gc < lcl_size_half; gc += (UL(1)<<C+1))
       for(size_t c = gc+0; c < gc+(UL(1)<<C); c += lcl_chunk)
       {
