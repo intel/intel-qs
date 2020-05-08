@@ -45,7 +45,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
-option(IqsUtest "Enable unit test?" ON)
+option(IqsUtest "Enable unit test?" OFF)
 option(BuildExamples "Build the Examples" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
