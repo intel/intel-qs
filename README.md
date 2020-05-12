@@ -101,15 +101,16 @@ Underneath, this option uses [`-xhost`](https://software.intel.com/en-us/cpp-com
 with Intel compilers and [`-march=native`](https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html) with GNU compilers.
 
 
-### Enable Python binding (only available without MPI)
+### Enable Python binding
 
-By default, whenever MPI is disabled, the building process includes the Python binding for
+By default, the compilation does not include the the Python binding for
 Intel-QS. The binding code uses the Pybind11 library which needs to be installed via 'conda'
 (and not simply with pip) to include the relevant information in CMake.
 See [this page](https://github.com/pybind/pybind11/issues/1628) for more info on this issue.
 
-To disable the Python wrap, even without MPI, set the CMake option selection to
-`-DIqsPython=OFF`.
+To enable the Python wrap set the CMake option selection to
+`-DIqsPython=OFF`. 
+This option works also with the MPI buile enabled.
 
 
 ### Unit test
