@@ -109,7 +109,7 @@ Intel-QS. The binding code uses the Pybind11 library which needs to be installed
 See [this page](https://github.com/pybind/pybind11/issues/1628) for more info on this issue.
 
 To enable the Python wrap set the CMake option selection to
-`-DIqsPython=OFF`. 
+`-DIqsPython=ON`. 
 This option works also with the MPI buile enabled.
 
 
