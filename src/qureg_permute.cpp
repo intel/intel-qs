@@ -7,6 +7,7 @@
 /// @brief Define the @c QubitRegister methods to permute the index of the qubits.
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
 void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vector)
 {

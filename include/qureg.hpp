@@ -21,8 +21,8 @@
 #include <omp.h>
 #endif
 
-#include "permute.hpp"
 // utility files
+#include "permutation.hpp"
 #include "utils.hpp"
 #include "mpi_utils.hpp"
 #include "rng_utils.hpp"

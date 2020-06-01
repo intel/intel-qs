@@ -30,6 +30,7 @@ ASSERT_NEAR(val1.real(),val2.real(),error);    \
 ASSERT_NEAR(val1.imag(),val2.imag(),error);
 
 // Headers with the implementation of the various tests.
+#if 0
 #include "include/compiler_flags_test.hpp"
 #include "include/conversion_test.hpp"
 #include "include/tinymatrix_test.hpp"
@@ -46,6 +47,8 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 #include "include/noisy_simulation_test.hpp"
 #include "include/extra_features_test.hpp"
 #include "include/chunking_communication_test.hpp"
+#endif
+#include "include/permutation_test.hpp"
 
 // These tests make sense only when MPI is enabled.
 #include "include/multiple_states_test.hpp"

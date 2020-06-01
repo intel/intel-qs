@@ -1,5 +1,5 @@
-#ifndef PERMUTE_HPP
-#define PERMUTE_HPP
+#ifndef PERMUTATION_HPP
+#define PERMUTATION_HPP
 
 #include <map>
 #include <numeric>
@@ -11,15 +11,35 @@
 inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t num_qubits)
 {
   std::size_t v_ = 0;
-  for (std::size_t i = 0; i < num_qubits; i++) v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
+  for (std::size_t i = 0; i < num_qubits; i++)
+      v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
   return v_;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // declaration and definition of class Permutation
 /////////////////////////////////////////////////////////////////////////////////////////
+
+/// @class Permutation 
+/// Define the order of the qubits in the representation of teh quantum state
+///
+/// The N-qubit quantum state |psi> is stored as a 2^N complex vector.
+/// The global index i corresponds to the entry:
+///   state[i] = |i0>_dq0 * |i1>_dq1 * |i2>_dq2 * ...
+/// where ik is the k-th bit of i in its N-bit representation (with i0 being the
+/// least significant bit) and dqk corresponds to the k-th data qubit.
+///
+/// By default, data qubits and program qubits correspond trivially:
+///   pq(0) --> dq(0)      ,  pq(1) --> dq(1)      ,  ...
+/// However this does not have to be the case. Using the Permutation object, one has:
+///   pq(0) --> dq(map[0]) ,  pq(1) --> dq(map[1]) ,  ...
+/// and its inverse:
+///   dq(0) --> pq(imap[0]),  dq(1) --> pq(imap[1]),  ...
+/// 
+///
 /// @var map: map
 /// @var imap: inverse map
+
 class Permutation
 {
  public:
@@ -27,6 +47,8 @@ class Permutation
   std::size_t num_qubits;
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// overload operator [] to address single entries of the permutation map
+
   unsigned operator[](std::size_t i)
   {
     assert(i <= num_qubits);
@@ -48,25 +70,32 @@ class Permutation
   std::size_t size() {return map.size();}
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Return a desription of map or imap as a string with space separated entries.
+
   std::string GetMapStr()
   {
     std::string s;
-    for (std::size_t i = 0; i < map.size(); i++) s += " " + qhipster::toString(map[i]);
+    for (std::size_t i = 0; i < map.size(); i++)
+        s += " " + qhipster::toString(map[i]);
     return s;
   }
 
   std::string GetImapStr()
   {
     std::string s;
-    for (std::size_t i = 0; i < imap.size(); i++) s += " " + qhipster::toString(imap[i]);
+    for (std::size_t i = 0; i < imap.size(); i++)
+        s += " " + qhipster::toString(imap[i]);
     return s;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Creator of the Permutation object.
+
   Permutation(std::size_t num_qubits)
   {
     this->num_qubits = num_qubits;
     std::vector<std::size_t> m(num_qubits);
+    // Initialize the trivial permutation: {0,1,2,... num_qubits-1}
     iota(m.begin(), m.end(), 0);
     // for(auto i:m) printf("%d ", i); printf("\n");
     // exit(0);
@@ -80,6 +109,9 @@ class Permutation
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Find data qubit associated with program qubit 'position' .
+// If it exists, Find(pos)=imap(pos).
+
   std::size_t Find(std::size_t position)
   {
     bool found = false;
@@ -97,20 +129,28 @@ class Permutation
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Set new permutation after validating the input as a valid permutation.
+
   void SetNewPermutation(std::vector<std::size_t> m)
   {
     map = m;
-    // check consistency of map
+    // Check consistency of map.
+    assert (map.size() == this->num_qubits);
     std::vector<bool> exist(map.size(), 0);
-    for (auto &m : map) exist[m] = 1;
-    for (auto e : exist) assert(e > 0);
+    for (auto &m : map)
+        exist[m] = 1;
+    for (auto e : exist)
+        assert(e > 0);
 
-    // compute inverse map
+    // Compute inverse map.
     imap = map;
-    for (std::size_t i = 0; i < map.size(); i++) imap[map[i]] = i;
+    for (std::size_t i = 0; i < map.size(); i++)
+        imap[map[i]] = i;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions to transform between binary, decimal and string representation.
+
   std::string dec2bin(std::size_t in, std::size_t num_bits)
   {
     std::string s;
@@ -132,14 +172,30 @@ class Permutation
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Understanding bitwise operations:
+//   v & (1 << map[i]))   ---->   zero bitstring, apart from the bit value corresponding
+//                                to the data qubit associated with program qubit i
+//                                the bit value is in position map[i]
+//
+//   [ans] >> map[i]      ---->   the above bit is moved to position 0
+//
+//   [ans] << i           ---->   the above bit is moved to position i
+//
+// Notice that when one loops over i, the bit value always ends up in a different position.
+// Therefore, taking the 'bitwise or' will simply set the i-th bit once at a time.
+
+  // Transform index v in [0,2^N[ from the data representation to the program representation.
+  // FIXME: the name is poorly chosen, possibly opposite to intention
   inline std::size_t lin2perm_(std::size_t v)
   {
     std::size_t v_ = 0;
     for (std::size_t i = 0; i < num_qubits; i++)
-        v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
+        v_ = v_ | (((v & (((std::size_t) 1) << map[i])) >> map[i]) << i);
     return v_;
   }
 
+  // Transform index v in [0,2^N[ from the program representation to the data representation.
+  // FIXME: the name is poorly chosen, possibly opposite to intention
   inline std::size_t perm2lin_(std::size_t v)
   {
     std::size_t v_ = 0;
@@ -351,4 +407,4 @@ std::size_t main(std::size_t argc, char **argv)
 }
 #endif
 
-#endif	// header guard PERMUTE_HPP
+#endif	// header guard PERMUTATION_HPP
