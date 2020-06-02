@@ -196,9 +196,7 @@ class Permutation
 // Notice that when one loops over i, the bit value always ends up in a different position.
 // Therefore, taking the 'bitwise or' will simply set the i-th bit once at a time.
 
-  // Transform index v in [0,2^N[ from the data representation to the program representation.
-  // FIXME: the name is poorly chosen, possibly opposite to intention
-  //inline std::size_t lin2perm_(std::size_t v)
+  /// Transform index v in [0,2^N[ from the data representation to the program representation.
   inline std::size_t data2program_(std::size_t v)
   {
     std::size_t v_ = 0;
@@ -207,9 +205,7 @@ class Permutation
     return v_;
   }
 
-  // Transform index v in [0,2^N[ from the program representation to the data representation.
-  // FIXME: the name is poorly chosen, possibly opposite to intention
-  // inline std::size_t perm2lin_(std::size_t v)
+  /// Transform index v in [0,2^N[ from the program representation to the data representation.
   inline std::size_t program2data_(std::size_t v)
   {
     std::size_t v_ = 0;
@@ -219,7 +215,6 @@ class Permutation
   }
 
   /// Transform index v in [0,2^N[ from data decimal index to program string representation.
-  //std::string lin2perm(std::size_t v)
   std::string data2program(std::size_t v)
   {
     std::string s = dec2bin(v, num_qubits), sp(s);
@@ -237,7 +232,6 @@ class Permutation
   }
 
   /// Transform index v in [0,2^N[ from data string to program string representation.
-  //std::string lin2perm(std::string s)
   std::string data2program(std::string s)
   {
     std::string sp(s);
@@ -247,7 +241,6 @@ class Permutation
   }
 
   /// Transform index v in [0,2^N[ from program decimal index to data string representation.
-  //std::string perm2lin(std::size_t v)
   std::string program2data(std::size_t v)
   {
     std::string s = dec2bin(v, num_qubits), sp(s);
@@ -257,7 +250,6 @@ class Permutation
   }
 
   /// Transform index v in [0,2^N[ from program string to data string representation.
-  //std::string perm2lin(std::string s)
   std::string program2data(std::string s)
   {
     std::string sp(s);
@@ -269,7 +261,7 @@ class Permutation
 /////////////////////////////////////////////////////////////////////////////////////////
 
   /// Print permutation.
-  //void prange()//FIXME old name
+  // Previously called 'prange()'
   void Print()
   {
 #if 0

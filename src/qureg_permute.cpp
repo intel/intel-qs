@@ -27,8 +27,6 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
       for (std::size_t i = 0; i < LocalSize(); i++)
       {
           std::size_t to = permutation_new.program2data_(permutation_old.data2program_(i));
-          // FIXME delete assertion below after testing
-          assert(to == permutation_old.bin2dec(permutation_new.program2data(permutation_old.data2program(i))));
           state[to] = state_old[i];
       }
   }
@@ -80,7 +78,7 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
   for(std::size_t i = 0; i < LocalSize(); i++)
   {
       std::size_t glbind =
-          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+          permutation_old.bin2dec(permutation_new.program2data(permutation_old.data2program(i)));
     std::size_t rank = glbind / LocalSize(); 
     assert(rank < nprocs);
     counts[rank]++;
@@ -94,7 +92,7 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
   for(std::size_t i = 0; i < LocalSize(); i++)
   {
       std::size_t glbind =
-          permutation_old.bin2dec(permutation_new.perm2lin(permutation_old.lin2perm(i)));
+          permutation_old.bin2dec(permutation_new.program2data(permutation_old.data2program(i)));
       std::size_t rank = glbind / LocalSize();
       std::size_t lclind = glbind - rank * nprocs;
       tmp[displs[rank]
