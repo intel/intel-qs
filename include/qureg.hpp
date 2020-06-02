@@ -124,13 +124,16 @@ class QubitRegister
      return (variable & ~(UL(1) << UL(position)));
   }
 
+
+  // In the statistics, the term 'qubit' corresponds to the program qubit.
+  // When a non-identity permutation is considered, one has to be careful to
+  // interpret a certain qubit as 'local' or 'global' w.r.t. MPI communication.
   void EnableStatistics();
   void GetStatistics();
   void DisableStatistics();
   void ResetStatistics();
 
   void Permute(std::vector<std::size_t> permutation_new_vec);
-
 
   // Generic gates
   // single qubit gates
@@ -266,7 +269,7 @@ class QubitRegister
   Type *state;
   Permutation *permutation;
   Timer *timer;
-  GateCounter *gate_counter;
+  GateCounter *gate_counter;	// Count how many gates acted on given program qubits.
   std::size_t llc_watermarkbit;
   bool imported_state;
   bool specialize;
