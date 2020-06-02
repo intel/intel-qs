@@ -13,6 +13,7 @@ set(IQS_FILES
   qureg_expectval.cpp
   qureg_fusion.cpp
   qureg_init.cpp
+  qureg_ncu.cpp
   qureg_measure.cpp
   qureg_noisysimul.cpp
   qureg_permute.cpp
@@ -26,7 +27,7 @@ set(IQS_FILES
 
 add_library(iqs SHARED ${IQS_FILES})
 
-target_include_directories(iqs PUBLIC ../include)
+target_include_directories(iqs PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
 
