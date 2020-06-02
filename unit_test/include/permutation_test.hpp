@@ -1,3 +1,6 @@
+/// @file permutation_test.hpp
+/// @brief Unit test for the @c Permutation class.
+
 #ifndef	PERMUTATION_TEST_HPP
 #define	PERMUTATION_TEST_HPP
 
@@ -69,7 +72,7 @@ TEST_F(PermutationTest, BasicUse)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PermutationTest, Lin2Perm)
+TEST_F(PermutationTest, Data2Program)
 {
   num_bits_ = 3;
   Permutation permutation(num_bits_);
@@ -78,23 +81,40 @@ TEST_F(PermutationTest, Lin2Perm)
   std::size_t dim = (0x1 << num_bits_);
   ASSERT_EQ(dim, std::pow(2, num_bits_));
   for (std::size_t v=0; v<dim; ++v)
-      ASSERT_EQ(v, permutation.lin2perm_(v));
+      ASSERT_EQ(v, permutation.data2program_(v));
 
-  // When the permutation is only 1- and 2-cycles, map==imap.
+  // Basic permutation formed by a 2-cycle.
   map_ = {1, 0, 2};
+  std::vector<std::size_t> expected_map = {0,2,1,3, 4,6,5,7};	// hardcoded example
   permutation.SetNewPermutation(map_);
   for (std::size_t v=0; v<dim; ++v)
-      std::cout << "v=" << v << " --> " << permutation.lin2perm_(v) << "\n";
+  {
+      //std::cout << "v=" << v << " --> " << permutation.program2data_(v) << "\n";
+      ASSERT_EQ(permutation.program2data_(v), expected_map[v]);
+      // When the permutation is only 1- and 2-cycles, map==imap.
+      ASSERT_EQ(permutation.data2program_(v), permutation.program2data_(v));
+  }
 
   // Permutation with a 3-cycle.
   map_ = {1, 2, 0};
+  // Explicit computation:
+  //   program rep  ---->   data rep
+  //   '2' '1' '0'          '2' '1' '0'
+  //    0   0   0            0   0   0
+  //    0   0   1            0   1   0    (since program bit '0' is mapped to data bit '1')
+  //    0   1   0            1   0   0    (since program bit '1' is mapped to data bit '2')
+  //    0   1   1            1   1   0    (see above)
+  //       ...                  ...
+  expected_map = {0,2,4,6, 1,3,5,7};	// hardcoded example
   permutation.SetNewPermutation(map_);
   std::size_t u;
+  //std::cout << "program representation --> data representation\n";
   for (std::size_t v=0; v<dim; ++v)
   {
-      u = permutation.lin2perm_(v);
-      std::cout << "v="    << v << "=" << permutation.dec2bin(v, num_bits_)
-                << " --> " << u << "=" << permutation.dec2bin(u, num_bits_) << "\n";
+      u = permutation.program2data_(v);
+      //std::cout << "v="    << v << "=" << permutation.dec2bin(v, num_bits_)
+      //          << " --> " << u << "=" << permutation.dec2bin(u, num_bits_) << "\n";
+      ASSERT_EQ(u, expected_map[v]);
   }
 }
 
@@ -104,78 +124,95 @@ TEST_F(PermutationTest, Lin2Perm)
 
 namespace utest
 {
+  // Update decimal representation of v such that bit map[i] is moved to bit i.
+  inline std::size_t perm(std::size_t v, std::size_t *map, std::size_t num_qubits)
+  {
+    std::size_t v_ = 0;
+    for (std::size_t i = 0; i < num_qubits; i++)
+        v_ = v_ | (((v & (1 << map[i])) >> map[i]) << i);
+    return v_;
+  }
+
+
   class State
   {
    public:
+
     std::string name;
     Permutation p;
     std::vector<ComplexDP> state;
+    bool do_print;
   
     // Creator of the state.
-    State(Permutation p_, std::string name_) : p(p_), name(name_)
+    State(Permutation p_, std::string name_, bool do_print_=true)
+      : p(p_), name(name_), do_print(do_print_)
     {
-      state.resize(1 << p.num_qubits);
-      for (std::size_t i = 0; i < state.size(); i++)
-          state[i] = {D(i % 3), D(i % 16)};
+        state.resize(1 << p.num_qubits);
+        for (std::size_t i = 0; i < state.size(); i++)
+            state[i] = {D(i % 3), D(i % 16)};
     }
  
     // Permute the order of the entries according to the Permutation pnew.
     void permute(Permutation pnew)
     {
-      Permutation pold = p;
-      assert(pnew.num_qubits == pold.num_qubits);
-      std::vector<ComplexDP> state_new(state.size(), 0);
-  
-      // printf("map: %s imap: %s\n", pnew.GetMapStr().c_str(), pold.GetImapStr().c_str());
-      std::vector<std::size_t> map(pnew.num_qubits, 0);
-      for (std::size_t i = 0; i < pnew.num_qubits; i++) {
-        map[i] = pold.map[pnew.imap[i]];
-        // printf("%d ", map[i]);
-      }
-      // printf("\n");
-  
-      __int64 t0 = __rdtsc();
-      double s0 = sec();
-      for (std::size_t i = 0; i < state.size(); i++) {
-#if 0
-        std::size_t to1 = perm(i, &(map[0]), p.num_qubits);
-        std::size_t to2 = pnew.perm2lin_(pold.lin2perm_(i));
-        std::size_t to = pold.bin2dec(pnew.perm2lin(pold.lin2perm(i)));
-        assert(to == to1);
-        assert(to == to2);
-        state_new[to] = state[i];
-#else
-        std::size_t to_ = perm(i, &(map[0]), p.num_qubits);  // pnew.perm2lin_(pold.lin2perm_(i));
-        state_new[to_] = state[i];
-#endif
-      }
-      __int64 t1 = __rdtsc();
-      double s1 = sec();
-      double bw = D(state.size()) * D(sizeof(state[0])) * 2.0 / D(s1 - s0);
-      printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", D(t1 - t0) / D(state.size()), bw / 1e9);
-  
-      p = pnew;
-      state = state_new;
+        Permutation pold = p;
+        assert(pnew.num_qubits == pold.num_qubits);
+        std::vector<ComplexDP> state_new(state.size(), 0);
+    
+        // printf("map: %s imap: %s\n", pnew.GetMapStr().c_str(), pold.GetImapStr().c_str());
+        std::vector<std::size_t> map(pnew.num_qubits, 0);
+        for (std::size_t i = 0; i < pnew.num_qubits; i++)
+        {
+            //                   pnew.imap[i]   -->  program bit associated to new data bit 'i'
+            //          pold.map[pnew.imap[i]]  -->  old data bit associated to new data bit 'i'
+            // map[i] = pold.map[pnew.imap[i]]  -->  map['new data bit i'] --> associated old data bit
+            map[i] = pold.map[pnew.imap[i]];
+            // printf("%d ", map[i]);
+        }
+        // printf("\n");
+    
+        __int64 t0 = __rdtsc();
+        double s0 = sec();
+        for (std::size_t i = 0; i < state.size(); i++)
+        {
+            // 'i'  is the index in the old data representation.
+            // 'to' is the corresponding index in the new data representation
+            std::size_t to = perm(i, &(map[0]), p.num_qubits);
+            assert(to == pnew.program2data_(pold.data2program_(i)));
+            assert(to == pold.bin2dec(pnew.program2data(pold.data2program(i))));
+            assert(to == pnew.bin2dec(pnew.program2data(pold.data2program(i))));
+            state_new[to] = state[i];
+        }
+        __int64 t1 = __rdtsc();
+        double s1 = sec();
+        double bw = D(state.size()) * D(sizeof(state[0])) * 2.0 / D(s1 - s0);
+        if (do_print) printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", D(t1 - t0) / D(state.size()), bw / 1e9);
+    
+        p = pnew;
+        state = state_new;
     }
   
     // Print the state vector.
     void print()
     {
-      printf("name::%s %s\n", name.c_str(), p.GetMapStr().c_str());
-      for (std::size_t i = 0; i < state.size(); i++) {
-        printf("%s {%lf %lf}\n", p.lin2perm(i).c_str(), real(state[i]), imag(state[i]));
+        if (do_print==false) return;
+        printf("name::%s %s\n", name.c_str(), p.GetMapStr().c_str());
+        printf("data  program  state[data]\n");
+        for (std::size_t i = 0; i < state.size(); i++) {
+            printf("%i     %s      {%lf %lf}\n", i, p.data2program(i).c_str(), real(state[i]), imag(state[i]));
       }
     }
 
     // Comparison between state vectors.
     bool operator==(const State &rhs)
     {
-      assert((const std::size_t)state.size() == rhs.state.size());
-      for (std::size_t i = 0; i < state.size(); i++) {
-        if (state[i] != rhs.state[i]) return false;
-      }
-  
-      return true;
+        assert((const std::size_t)state.size() == rhs.state.size());
+        for (std::size_t i = 0; i < state.size(); i++)
+        {
+            if (state[i] != rhs.state[i])
+                return false;
+        }
+        return true;
     }
   };
 }
@@ -183,18 +220,45 @@ namespace utest
 //////////////////////////////////////////////////////////////////////////////
 // Unit test using the ad-hoc utest::State object.
 
-TEST_F(PermutationTest, PermutationOfAdHocState)
+TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
 {
   num_bits_ = 3;
+
+  utest::State s(Permutation({0, 1, 2}), "s", false);
+  s.print();
+  // Original order:
+  for (std::size_t i=0; i<(1<<num_bits_); ++i)
+      ASSERT_DOUBLE_EQ(s.state[i].imag(), double(i));
+
 #if 1
   Permutation p({2, 0, 1});
-  p.prange();
-  utest::State s(Permutation({0, 1, 2}), "s");
-  s.print();
+//  p.Print();
   s.permute(p);
   s.print();
+  // New order, explicit computation:
+  //   program rep  ---->   data rep
+  //   '2' '1' '0'          '2' '1' '0'
+  //    0   0   0            0   0   0
+  //    0   0   1            1   0   0    (since program bit '0' is mapped to data bit '2')
+  //    0   1   0            0   0   1    (since program bit '1' is mapped to data bit '0')
+  //    0   1   1            1   0   1    (see above)
+  //       ...                  ...
+  std::vector<std::size_t> expected_map  = {0,4,1,5, 2,6,3,7};	// hardcoded example
+  std::vector<std::size_t> expected_imap = {0,2,4,6, 1,3,5,7};	// hardcoded example
+  for (std::size_t i=0; i<(1<<num_bits_); ++i)
+  {
+      // From data to program.
+      ASSERT_DOUBLE_EQ(s.state[i].imag(), expected_imap[i]);
+      // From program to data.
+      ASSERT_DOUBLE_EQ(i, s.state[expected_map[i]].imag());
+  }
+
   s.permute(Permutation({0, 1, 2}));
   s.print();
+  // Back to original order:
+  for (std::size_t i=0; i<(1<<num_bits_); ++i)
+      ASSERT_DOUBLE_EQ(s.state[i].imag(), double(i));
+
 #else
 #if 0
    State s1(Permutation({2, 1, 0}), "s"), s2(s1);

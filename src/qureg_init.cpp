@@ -72,7 +72,6 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
   state = &state_storage[0];
 #endif
 
-  TODO(move permutation to WaveFunctionSimulator class)
   if (permutation) delete permutation;
   permutation = new Permutation(num_qubits);
 }

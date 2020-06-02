@@ -1,3 +1,6 @@
+/// @file qureg.hpp
+/// @brief Declare the @c QubitRegister class.
+
 #pragma once
 
 #include <algorithm>	// for std::swap
@@ -33,12 +36,6 @@
 #include "bitops.hpp"
 #include "conversion.hpp"
 #include "tinymatrix.hpp"
-
-/// \addtogroup qureg
-/// @{
-
-/// @file qureg.hpp
-/// @brief Declare the @c QubitRegister class.
 
 template<typename T>
 struct extract_value_type //lets call it extract_value_type
@@ -303,8 +300,6 @@ bool QubitRegister<Type>::do_print_extra_info = false;
 
 template <typename Type>
 using BaseType = typename QubitRegister<Type>::BaseType;
-
-/// @}
 
 //
 // Derived class of QubitRegister that allows measurement of qubit gate depth.

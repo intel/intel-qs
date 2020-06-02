@@ -370,7 +370,7 @@ std::string PrintVector(Type *state, std::size_t size, std::size_t num_qubits,
   int rank = 0;
   for (std::size_t i = 0; i < size; i++) {
     // std::string bin = dec2bin(rank * size + i, num_qubits, false);
-    std::string bin = permutation->lin2perm(rank * size + i);
+    std::string bin = permutation->data2program(rank * size + i);
     char s[4096];
     sprintf(s, "\t%-13.8lf + i * %-13.8lf   %% |%s> p=%lf\n",
             std::real(state[i]), std::imag(state[i]),
