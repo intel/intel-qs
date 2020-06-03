@@ -361,6 +361,8 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+// Unnecessary method, used only to debug the ApplySwap.
+// FIXME TODO: remove after distributed implementation of ApplySwap has been tested.
 template <class Type>
 void QubitRegister<Type>::Swap(unsigned b1, unsigned b2)
 {
