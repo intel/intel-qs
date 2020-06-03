@@ -10,10 +10,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Overload operator 'compare'.
+///
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 {
   assert(rhs.GlobalSize() == GlobalSize());
+  assert(rhs.permutation->map == permutation->map);
   for (std::size_t i = 0; i < rhs.LocalSize(); i++)
   {
       if (state[i] != rhs.state[i])
@@ -29,11 +32,14 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the L_infinity distance between two states, psi and x.
+///
 /// Before the comparison, x can be multiplied by a complex factor.
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegister &x, Type sfactor)
 {
   assert(LocalSize() == x.LocalSize());
+  assert(x.permutation->map == permutation->map);
   BaseType lcl_maxabsdiff = -1.0;
 
   std::size_t lcl = LocalSize();
@@ -95,12 +101,15 @@ Type QubitRegister<Type>::GetGlobalAmplitude
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the maximum L2 distance between the local parts of two states.
+///
 /// The L2 distance between the states would be not the 'max', but the 'sum' of all
 /// rank-local contributions.
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxL2NormDiff(QubitRegister &x)
 {
   assert(LocalSize() == x.LocalSize());
+  assert(x.permutation->map == permutation->map);
   BaseType lcl_diff = 0.0;
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
@@ -178,9 +187,12 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 /// The overlap between this state and another state |psi\>
 /// is define by:\n
 ///     \<psi|this state\>
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
 {
+  assert(LocalSize() == psi.LocalSize());
+  assert(psi.permutation->map == permutation->map);
   Type local_over = Type(0.,0.);
   BaseType local_over_re = 0.;
   BaseType local_over_im = 0.;

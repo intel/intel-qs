@@ -84,6 +84,14 @@ TEST_F(ExtraFeaturesTest, qaoa_maxcut)
   for (int j=0; j<histo.size(); ++j)
       average += double(j)*histo[j];
   ASSERT_DOUBLE_EQ(expectation, average);
+
+#if 0
+  // If the permutation of diag and psi is different, then functions should fail.
+  diag.EmulateSwap(0,1);
+  EXPECT_DEATH( qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
+  EXPECT_DEATH( qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
+  EXPECT_DEATH( qaoa::GetHistogramFromCostFunction(psi, diag, max_cut_value), "" );
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -161,6 +169,15 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
       average += double(j)*bin_width*histo2[j];
   // The expval will be within less than bin_width of the actual since the cutvals are rounded down to the bin_width.
   ASSERT_TRUE( (abs(expectation - average) )<=bin_width+1e-7);
+
+#if 0
+  // If the permutation of diag and psi is different, then functions should fail.
+  diag.EmulateSwap(0,1);
+  EXPECT_DEATH( qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
+  EXPECT_DEATH( qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
+  EXPECT_DEATH( qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value), "" );
+  EXPECT_DEATH( qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width), "" );
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
