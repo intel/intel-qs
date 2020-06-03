@@ -60,7 +60,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 
 // Noisy simulations and extra features.
 #include "include/noisy_simulation_test.hpp"
-#include "include/extra_features_test.hpp"
+#include "include/qaoa_features_test.hpp"
 
 // Pool functionality of MPI environment.
 #include "include/multiple_states_test.hpp"

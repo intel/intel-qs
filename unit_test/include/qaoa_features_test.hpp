@@ -1,5 +1,5 @@
-#ifndef EXTRA_FEATURES_TEST_HPP
-#define EXTRA_FEATURES_TEST_HPP
+#ifndef QAOA_FEATURES_TEST_HPP
+#define QAOA_FEATURES_TEST_HPP
 
 #include "../../include/qureg.hpp"
 #include "../../include/qaoa_features.hpp"
@@ -7,11 +7,11 @@
 //////////////////////////////////////////////////////////////////////////////
 // Test fixture class.
 
-class ExtraFeaturesTest : public ::testing::Test
+class QaoaFeaturestest : public ::testing::Test
 {
  protected:
 
-  ExtraFeaturesTest()
+  QaoaFeaturestest()
   { }
 
   // just after the 'constructor'
@@ -36,7 +36,7 @@ class ExtraFeaturesTest : public ::testing::Test
 // Functions developed to facilitate the simulation of QAOA circuits.
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(ExtraFeaturesTest, qaoa_maxcut)
+TEST_F(QaoaFeaturestest, qaoa_maxcut)
 {
   // Instance of the max-cut problem provided as adjacency matrix.
   // It is a ring of 6 vertices:
@@ -96,7 +96,7 @@ TEST_F(ExtraFeaturesTest, qaoa_maxcut)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
+TEST_F(QaoaFeaturestest, qaoa_weighted_maxcut)
 {
   // Instance of the max-cut problem provided as adjacency matrix.
   // It is a ring of 6 vertices:
@@ -182,4 +182,4 @@ TEST_F(ExtraFeaturesTest, qaoa_weighted_maxcut)
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif	// header guard EXTRA_FEATURES_TEST_HPP
+#endif	// header guard QAOA_FEATURES_TEST_HPP
