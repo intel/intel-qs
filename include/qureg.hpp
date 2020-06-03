@@ -59,7 +59,13 @@ template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// Qubitregister class declaration
+// QubitRegister class declaration
+/////////////////////////////////////////////////////////////////////////////////////////
+// General comment:
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type = ComplexDP>
@@ -253,8 +259,8 @@ class QubitRegister
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});
 
-  double HP_Distrpair(unsigned pos, TM2x2<Type> const&m);
-  double HP_Distrpair(unsigned control, unsigned qubit, TM2x2<Type> const&m);
+  double HP_Distrpair(unsigned position, TM2x2<Type> const&m);
+  double HP_Distrpair(unsigned control_position, unsigned target_position, TM2x2<Type> const&m);
 
   // related to the internal random number generator.
   qhipster::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
