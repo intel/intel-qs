@@ -8,6 +8,7 @@
 /// @brief Define the @c QubitRegister methods for the application of swap-related gates.
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
 /// @brief SWAP gate between two qubits.
 /// @param qubit1 index of the 1st qubit
 /// @param qubit2 index of the 2nd qubit

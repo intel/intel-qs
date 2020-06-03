@@ -95,10 +95,12 @@ class QubitRegister
   // - '++++': the balanced superposition of all computational basis states.
   void Initialize(std::string style, std::size_t base_index);
 
-  // overload [] operator to return the amplitude stored at the local index.
+  // Overload [] operator to return the amplitude stored at the local index.
+  // NOTE: the index is the local one!
   inline Type& operator[] (std::size_t index) { return state[index]; }
   inline Type& operator[] (std::size_t index) const { return state[index]; }
-  // get the amplitude corresponding to a global index (with MPI broadcast).
+  // Return the amplitude corresponding to a global index (with MPI broadcast).
+  // The index is expressed in terms of the program qubits.
   Type GetGlobalAmplitude(std::size_t index) const;
 
   std::size_t LocalSize() const { return local_size_; }
@@ -140,6 +142,7 @@ class QubitRegister
   void ResetStatistics();
 
   void Permute(std::vector<std::size_t> permutation_new_vec);
+  void EmulateSwap(unsigned qubit1, unsigned qubit2);
 
   // Generic gates
   // single qubit gates

@@ -100,5 +100,27 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
 #endif
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template <class Type>
+void QubitRegister<Type>::EmulateSwap(unsigned qubit_1, unsigned qubit_2)
+{
+  assert(qubit_1 < num_qubits);
+  assert(qubit_2 < num_qubits);
+
+  // Current position of program qubits 1,2.
+  unsigned position_1 = (*permutation)[qubit_1];
+  unsigned position_2 = (*permutation)[qubit_2];
+  assert(position_1 < num_qubits);
+  assert(position_2 < num_qubits);
+
+  // Their position are exchanged in the emulation of the SWAP.
+  permutation->ExchangeTwoElements(position_1, position_2);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+/////////////////////////////////////////////////////////////////////////////////////////

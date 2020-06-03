@@ -35,7 +35,7 @@ class PermutationTest : public ::testing::Test
 //////////////////////////////////////////////////////////////////////////////
 // Test macros:
 
-TEST_F(PermutationTest, InitializationToTrivialPermutation)
+TEST_F(PermutationTest, InitializationToIdentitylPermutation)
 {
   num_bits_ = 6;
   Permutation permutation(num_bits_);
@@ -68,6 +68,29 @@ TEST_F(PermutationTest, BasicUse)
   std::vector<std::size_t> imap = permutation.imap;
   for (unsigned i=0; i<num_bits_; ++i)
       ASSERT_EQ(imap[map_[i]], i);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PermutationTest, ExchangeTwoElements)
+{
+
+  num_bits_ = 6;
+  Permutation permutation(num_bits_);
+  map_ = {1, 2, 0, 3, 5, 4};
+  permutation.SetNewPermutation(map_);
+
+  // Emulate a SWAP between program qubits: 2,4
+  unsigned element_1 = 2;
+  unsigned element_2 = 4;
+  unsigned position_1 = permutation[element_1];
+  unsigned position_2 = permutation[element_2];
+  permutation.ExchangeTwoElements(element_1, element_2);
+  ASSERT_EQ(map_[element_1], position_1);
+  map_[element_1] = position_2;
+  map_[element_2] = position_1;
+  for (unsigned i=0; i<num_bits_; ++i)
+      ASSERT_EQ(permutation[i], map_[i]);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -119,6 +142,9 @@ TEST_F(PermutationTest, Data2Program)
 }
 
 //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 // Here we test the class Permutation using a vector state that is much simpler than
 // a QubitRegister state. For this reason, we define the simple class:
 

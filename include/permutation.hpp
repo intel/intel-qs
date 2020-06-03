@@ -53,24 +53,53 @@ class Permutation
 ///
 /// Map from program qubits (used in algorithm) and data qubits (used in state representation):
 ///   program qubit k --> data qubit map[k]
-  unsigned operator[](std::size_t i)
-  {
-    assert(i <= num_qubits);
-    return (unsigned) map[i];
-  }
 
-  unsigned operator[](unsigned i)
+#if 0
+  // Appropriate also for lvalue.
+  // This may be problematic since map and imap are not in sync anymore.
+
+  std::size_t& operator[](std::size_t i)
   {
-    assert(i <= num_qubits);
+    assert(i < num_qubits);
     return map[i];
   }
 
-  int operator[](int i)
+  std::size_t& operator[](unsigned i)
   {
-    assert(i <= num_qubits);
+    assert(i < num_qubits);
+    return map[i];
+  }
+
+  std::size_t& operator[](int i)
+  {
+    assert(i < num_qubits);
+    return map[i];
+  }
+#endif
+
+  // Appropriate only for rvalue.
+
+  unsigned operator[](std::size_t i) const
+  {
+    assert(i < num_qubits);
+    return (unsigned) map[i];
+  }
+
+  unsigned operator[](unsigned i) const
+  {
+    assert(i < num_qubits);
+    return map[i];
+  }
+
+  int operator[](int i) const
+  {
+    assert(i < num_qubits);
     return (int)map[i];
   }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// Method similar to the std::vector<>::size function.
   std::size_t size() {return map.size();}
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +145,7 @@ class Permutation
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Find the data qubit associated with a specific program qubit.
+/// Find the program qubit associated with a specific data qubit.
 ///
 /// If it exists, Find(position)=imap(position).
   std::size_t Find(std::size_t position)
@@ -153,6 +182,24 @@ class Permutation
     imap = map;
     for (std::size_t i = 0; i < map.size(); i++)
         imap[map[i]] = i;
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// Exchange two elements in the permutation (i.e. in map).
+///
+/// Explicitly:
+///    map[e1] = d1   ---->    map[e1] = d2
+///    map[e2] = d2   ---->    map[e2] = d1
+/// imap is updated to reflect the change in map.
+  void ExchangeTwoElements(std::size_t element_1, std::size_t element_2)
+  {
+    std::size_t position_1 = map[element_1];
+    std::size_t position_2 = map[element_2];
+    map[element_1] = position_2;
+    map[element_2] = position_1;
+    imap[position_1] = element_2;
+    imap[position_2] = element_1;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////

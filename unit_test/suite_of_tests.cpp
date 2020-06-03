@@ -30,25 +30,39 @@ ASSERT_NEAR(val1.real(),val2.real(),error);    \
 ASSERT_NEAR(val1.imag(),val2.imag(),error);
 
 // Headers with the implementation of the various tests.
+
 #include "include/compiler_flags_test.hpp"
+
+// Outside class QubitRegister.
 #include "include/conversion_test.hpp"
 #include "include/tinymatrix_test.hpp"
 #include "include/random_number_generator_test.hpp"
-#include "include/apply_1q_gate_test.hpp"
-#include "include/one_qubit_register_test.hpp"
-#include "include/two_qubit_register_test.hpp"
-#include "include/state_initialization_test.hpp"
-#include "include/single_qubit_gates_test.hpp"
-#include "include/measure_test.hpp"
-#include "include/expectation_values_test.hpp"
-#include "include/utility_methods_test.hpp"
 #include "include/gate_counter_test.hpp"
-#include "include/noisy_simulation_test.hpp"
-#include "include/extra_features_test.hpp"
-#include "include/chunking_communication_test.hpp"
 #include "include/permutation_test.hpp"
 
-// These tests make sense only when MPI is enabled.
+// Small registers.
+#include "include/one_qubit_register_test.hpp"
+#include "include/two_qubit_register_test.hpp"
+
+// State initialization and one-qubit gates.
+#include "include/apply_1q_gate_test.hpp"
+#include "include/single_qubit_gates_test.hpp"
+#include "include/apply_swap_gate_test.hpp"
+
+// State Initialization and Measurement (SPAM) operations.
+#include "include/state_initialization_test.hpp"
+#include "include/measure_test.hpp"
+#include "include/expectation_values_test.hpp"
+
+// Utility methods and distributed implementation.
+#include "include/utility_methods_test.hpp"
+#include "include/chunking_communication_test.hpp"
+
+// Noisy simulations and extra features.
+#include "include/noisy_simulation_test.hpp"
+#include "include/extra_features_test.hpp"
+
+// Pool functionality of MPI environment.
 #include "include/multiple_states_test.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

@@ -61,12 +61,20 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegi
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the amplitude given its global index.
+///
+/// The global index is expressed in terms of the program qubits:
+///   index = pq0 * 2^0 + pq1 * 2^1 + pq2 * 2^2 + ...
+/// where pqk indicates the bit {0,1} corresponding to the computational
+/// basis state {|0>, |1>} of program qubit k.
 
 template <class Type>
 Type QubitRegister<Type>::GetGlobalAmplitude
   (std::size_t global_index) const
 {
   assert(global_index < global_size_);
+  // Transform the global_index w.r.t. the data qubit order.
+  global_index = permutation->program2data_(global_index);
+
   // Determine in what (state) rank is the amplidute and what is its local index.
   Type amplitude;
 #ifdef INTELQS_HAS_MPI
