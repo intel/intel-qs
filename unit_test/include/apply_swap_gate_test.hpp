@@ -58,4 +58,41 @@ TEST_F(ApplySwapGateTest, Emulation)
 
 //////////////////////////////////////////////////////////////////////////////
 
+// Emulation of SWAP by update the permutation.
+TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
+{
+  std::size_t rng_seed = 7777;
+  qhipster::RandomNumberGenerator<double> rnd_generator;
+  rnd_generator.SetSeedStreamPtrs(rng_seed);
+  // The "rand" style cannot be used directly in the creation of the state.
+  QubitRegister<ComplexDP> psi_1(num_qubits_, "base", 0);
+  psi_1.SetRngPtr(&rnd_generator);
+  // |psi_1> = |random>
+  psi_1.Initialize("rand", 1);
+
+  // |psi_2> = |psi_1> = |random>
+  QubitRegister<ComplexDP> psi_2(psi_1);
+
+  // Compare two implementations of the SWAP gate.
+  unsigned qubit1 = 2, qubit2 = num_qubits_-1;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = 4;
+  qubit2 = num_qubits_-2;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #endif	// header guard APPLY_SWAP_GATE_TEST_HPP

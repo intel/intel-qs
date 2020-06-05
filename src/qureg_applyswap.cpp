@@ -9,9 +9,15 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// @brief SWAP gate between two qubits.
-/// @param qubit1 index of the 1st qubit
-/// @param qubit2 index of the 2nd qubit
+/// @brief SWAP gate
+/// @param qubit1 index of the first qubit
+/// @param qubit2 index of the second qubit
+///
+/// Explicitely, the gate corresponds to the matrix:\n
+///           | 1  0  0  0 |\n
+///    SWAP = | 0  0  1  0 |\n
+///           | 0  1  0  0 |\n
+///           | 0  0  0  1 |\n
 template <class Type>
 void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 {
@@ -31,32 +37,16 @@ void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 #endif
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
-template <class Type>
-void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
-{
-  BaseType f0 = std::sqrt(.5);
-  Type f1(0., f0);
-
-  qhipster::TinyMatrix<Type, 2, 2, 32> g;
-  g(0, 0) = f0;
-  g(0, 1) = f1;
-  g(1, 0) = f1;
-  g(1, 1) = f0;
-  ApplySwap_helper(qubit1, qubit2, g);
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
-template <class Type>
-void QubitRegister<Type>::ApplyISwapRotation(unsigned qubit1, unsigned qubit2, TM2x2<Type> const& m)
-{
-  ApplySwap_helper(qubit1, qubit2, m);
-}
-
-
-/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief iSWAP gate
+/// @param qubit1 index of the first qubit
+/// @param qubit2 index of the second qubit
+///
+/// Explicitely, the gate corresponds to the matrix:\n
+///            | 1  0  0  0 |\n
+///    iSWAP = | 0  0  i  0 |\n
+///            | 0  i  0  0 |\n
+///            | 0  0  0  1 |\n
 template <class Type>
 void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
 {
@@ -66,8 +56,46 @@ void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
   ApplySwap_helper(qubit1, qubit2, g);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief sqrt(iSWAP) gate
+/// @param qubit1 index of the first qubit
+/// @param qubit2 index of the second qubit
+///
+/// Explicitely, the gate corresponds to the matrix:\n
+///                            | 1  0  0  0 |\n
+///    sqrt(iSWAP) = 1/sqrt(2) | 0  1  i  0 |\n
+///                            | 0  i  1  0 |\n
+///                            | 0  0  0  1 |\n
+template <class Type>
+void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
+{
+  qhipster::TinyMatrix<Type, 2, 2, 32> g;
+  BaseType f = 1. / std::sqrt(2.);
+  g(0, 0) = g(1, 1) = Type(f, 0);
+  g(0, 1) = g(1, 0) = Type(0, f);
+  ApplySwap_helper(qubit1, qubit2, g);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Gate of the 'iSWAP' form.
+/// @param qubit1 index of the first qubit
+/// @param qubit2 index of the second qubit
+///
+/// Explicitely, the gate corresponds to the matrix:\n
+///               | 1   0   0  0 |\n
+///    iSWAP(m) = | 0  m00 m01 0 |\n
+///               | 0  m10 m11 0 |\n
+///               | 0   0   0  1 |\n
+template <class Type>
+void QubitRegister<Type>::ApplyISwapRotation(unsigned qubit1, unsigned qubit2, TM2x2<Type> const& m)
+{
+  ApplySwap_helper(qubit1, qubit2, m);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief sqrt(sqrt(iSWAP)) gate
+/// @param qubit1 index of the first qubit
+/// @param qubit2 index of the second qubit
 template <class Type>
 void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
 {
@@ -85,9 +113,10 @@ void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
   ApplySwap_helper(qubit1, qubit2, g);
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
 bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, TM2x2<Type> const&m)
 {
@@ -364,18 +393,14 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 // Unnecessary method, used only to debug the ApplySwap.
 // FIXME TODO: remove after distributed implementation of ApplySwap has been tested.
 template <class Type>
-void QubitRegister<Type>::Swap(unsigned b1, unsigned b2)
+void QubitRegister<Type>::DebugSwap(unsigned b1, unsigned b2)
 {
   assert(b1 < num_qubits);
   assert(b2 < num_qubits);
 
-  assert(0);
-#if 0
   ApplyCPauliX(b1, b2);
   ApplyCPauliX(b2, b1);
-  ApplyCpauliX(b1, b2);
-#endif
-
+  ApplyCPauliX(b1, b2);
 }
 
 template class QubitRegister<ComplexSP>;
