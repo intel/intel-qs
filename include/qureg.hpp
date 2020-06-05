@@ -141,7 +141,8 @@ class QubitRegister
   void DisableStatistics();
   void ResetStatistics();
 
-  void Permute(std::vector<std::size_t> permutation_new_vec);
+  void Permute(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteLocal(std::vector<std::size_t> new_map, std::string style_of_map="direct");
   void EmulateSwap(unsigned qubit1, unsigned qubit2);
 
   // Generic gates

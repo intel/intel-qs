@@ -30,6 +30,7 @@ class PermutationTest : public ::testing::Test
 
   std::size_t num_bits_;
   std::vector<std::size_t> map_;
+  std::vector<std::size_t> imap_;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -60,14 +61,26 @@ TEST_F(PermutationTest, BasicUse)
   ASSERT_EQ(permutation.num_qubits, num_bits_);
 
   // Map from program qubits to data qubits.
-  map_ = {1, 2, 0, 3, 5, 4};
-  permutation.SetNewPermutationFromMap(map_);
+  map_  = {1, 2, 0, 3, 5, 4};
+  imap_ = {2, 0, 1, 3, 5, 4}; // hard-coded inverse of above map_
+  permutation.SetNewPermutationFromMap(map_, "direct");
   for (unsigned i=0; i<num_bits_; ++i)
       ASSERT_EQ(permutation[i], map_[i]);
   // Inverse map.
   std::vector<std::size_t> imap = permutation.imap;
   for (unsigned i=0; i<num_bits_; ++i)
-      ASSERT_EQ(imap[map_[i]], i);
+  {
+      ASSERT_EQ(imap[map_[i]], i       );
+      ASSERT_EQ(imap[i]      , imap_[i]);
+  }
+
+  // Update the permutation using map_ as the inverse map.
+  permutation.SetNewPermutationFromMap(map_, "inverse");
+  for (unsigned i=0; i<num_bits_; ++i)
+  {
+      ASSERT_EQ(permutation.imap[i],  map_[i] );
+      ASSERT_EQ(permutation.map[i] , imap_[i] );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -78,7 +91,7 @@ TEST_F(PermutationTest, ExchangeTwoElements)
   num_bits_ = 6;
   Permutation permutation(num_bits_);
   map_ = {1, 2, 0, 3, 5, 4};
-  permutation.SetNewPermutationFromMap(map_);
+  permutation.SetNewPermutationFromMap(map_, "direct");
 
   // Emulate a SWAP between program qubits: 2,4
   unsigned element_1 = 2;
@@ -100,7 +113,7 @@ TEST_F(PermutationTest, Data2Program)
   num_bits_ = 3;
   Permutation permutation(num_bits_);
   map_ = {0, 1, 2};
-  permutation.SetNewPermutationFromMap(map_);
+  permutation.SetNewPermutationFromMap(map_, "direct");
   std::size_t dim = (0x1 << num_bits_);
   ASSERT_EQ(dim, std::pow(2, num_bits_));
   for (std::size_t v=0; v<dim; ++v)
@@ -109,7 +122,7 @@ TEST_F(PermutationTest, Data2Program)
   // Basic permutation formed by a 2-cycle.
   map_ = {1, 0, 2};
   std::vector<std::size_t> expected_map = {0,2,1,3, 4,6,5,7};	// hardcoded example
-  permutation.SetNewPermutationFromMap(map_);
+  permutation.SetNewPermutationFromMap(map_, "direct");
   for (std::size_t v=0; v<dim; ++v)
   {
       //std::cout << "v=" << v << " --> " << permutation.program2data_(v) << "\n";
@@ -129,7 +142,7 @@ TEST_F(PermutationTest, Data2Program)
   //    0   1   1            1   1   0    (see above)
   //       ...                  ...
   expected_map = {0,2,4,6, 1,3,5,7};	// hardcoded example
-  permutation.SetNewPermutationFromMap(map_);
+  permutation.SetNewPermutationFromMap(map_, "direct");
   std::size_t u;
   //std::cout << "program representation --> data representation\n";
   for (std::size_t v=0; v<dim; ++v)
@@ -138,6 +151,56 @@ TEST_F(PermutationTest, Data2Program)
       //std::cout << "v="    << v << "=" << permutation.dec2bin(v, num_bits_)
       //          << " --> " << u << "=" << permutation.dec2bin(u, num_bits_) << "\n";
       ASSERT_EQ(u, expected_map[v]);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PermutationTest, ObtainIntemediateInverseMaps)
+{
+  // Hard-coded example, thought for N=8 qubits of which M=5 are local.
+  //
+  //  map: {0,1,2,3,4,5,6,7} --> {1,5,2,3,6,0,7,4}
+  // imap: {0,1,2,3,4,5,6,7} --> {5,0,2,3,7,1,4,6}
+  //
+  // Adding intermediate maps:
+  // imap: {0,1,2,3,4,5,6,7} --> {1,0,2,3,4,5,6,7} --> {1,0,2,3,4,5,7,6} --> {5,0,2,3,7,1,4,6}
+  //           original         only-local updates    only-global updates         target
+  num_bits_ = 8;
+  std::size_t M=5;
+  map_ = {0, 1, 2, 3, 4, 5, 6, 7};
+  Permutation permutation(map_, "direct");
+  std::vector<std::size_t> target_map = {1, 5, 2, 3, 6, 0, 7, 4};
+  std::vector<std::size_t> expected_int_1_imap = {1, 0, 2, 3, 4, 5, 6, 7};
+  std::vector<std::size_t> expected_int_2_imap = {1, 0, 2, 3, 4, 5, 7, 6};
+
+  std::vector<std::size_t> int_1_imap, int_2_imap;
+  permutation.ObtainIntemediateInverseMaps(target_map, M, int_1_imap, int_2_imap);
+  for (std::size_t pos=0; pos<num_bits_; ++pos)
+  {
+      ASSERT_EQ(int_1_imap[pos], expected_int_1_imap[pos]);
+      ASSERT_EQ(int_2_imap[pos], expected_int_2_imap[pos]);
+  }
+
+  // Hard-coded example, thought for N=8 qubits of which M=5 are local.
+  //
+  //  map: {1,5,2,3,6,0,7,4} --> {1,6,7,4,3,2,0,5}
+  // imap: {5,0,2,3,7,1,4,6} --> {6,0,5,4,3,7,1,2}
+  //
+  // Adding intermediate maps:
+  // imap: {5,0,2,3,7,1,4,6} --> {2,0,5,7,3,1,4,6} --> {2,0,5,7,3,4,1,6} --> {6,0,5,4,3,7,1,2}
+  //           original         only-local updates    only-global updates         target
+  map_ = {1, 5, 2, 3, 6, 0, 7, 4};
+  permutation.SetNewPermutationFromMap(map_, "direct");
+  target_map = {1, 6, 7, 4, 3, 2, 0, 5};
+  expected_int_1_imap = {2,0,5,7,3,1,4,6};
+  expected_int_2_imap = {2,0,5,7,3,4,1,6};
+
+  permutation.ObtainIntemediateInverseMaps(target_map, M, int_1_imap, int_2_imap);
+  for (std::size_t pos=0; pos<num_bits_; ++pos)
+  {
+      ASSERT_EQ(int_1_imap[pos], expected_int_1_imap[pos]);
+      ASSERT_EQ(int_2_imap[pos], expected_int_2_imap[pos]);
   }
 }
 

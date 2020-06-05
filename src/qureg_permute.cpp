@@ -6,36 +6,27 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vector)
+void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
+                                  std::string style_of_map)
 {
-  assert(num_qubits == permutation_new_vector.size());
+  assert(num_qubits == new_map.size());
 
-  Permutation &permutation_old = *permutation;
-  Permutation permutation_new(permutation_new_vector);
-
-  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
   unsigned nprocs = qhipster::mpi::Environment::GetStateSize();
-
   if (nprocs==1)
   // Single-node implementation.
   {
-      // state_old = state;
-      std::vector<Type> state_old(LocalSize(), 0);
-      for (std::size_t i = 0; i < LocalSize(); i++)
-          state_old[i] = state[i];
-    
-      for (std::size_t i = 0; i < LocalSize(); i++)
-      {
-          std::size_t to = permutation_new.program2data_(permutation_old.data2program_(i));
-          state[to] = state_old[i];
-      }
+      this->PermuteLocal(new_map, style_of_map);
   }
   else
   // Multi-node implementation.
   {
+      Permutation &permutation_old = *permutation;
+      Permutation permutation_new(new_map, style_of_map);
+
 #ifndef INTELQS_HAS_MPI
       assert(0);
 #else
+      unsigned myrank = qhipster::mpi::Environment::GetStateRank();
       MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
     
       // FIXME: This is the dummy multi-node permutation code.
@@ -66,10 +57,10 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> permutation_new_vecto
           }
       }
 #endif
+      // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
+      permutation_old = permutation_new;
   }
 
-  // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
-  permutation_old = permutation_new;
 
 #if 0
   // do it multinode
@@ -116,6 +107,49 @@ void QubitRegister<Type>::EmulateSwap(unsigned qubit_1, unsigned qubit_2)
 
   // Their position are exchanged in the emulation of the SWAP.
   permutation->ExchangeTwoElements(position_1, position_2);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template <class Type>
+void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::string style_of_map)
+{
+  // Determine the inverse map.
+  assert(new_map.size() == this->num_qubits);
+  std::vector<std::size_t> new_inverse_map = new_map;
+  if (style_of_map=="direct")
+      for (std::size_t qubit = 0; qubit < new_map.size(); qubit++)
+          new_inverse_map[new_map[qubit]] = qubit;
+  else if (style_of_map!="inverse")
+      assert(0);
+
+  // Verify that new map mantains the current distinction between local and global qubits.
+  std::vector<std::size_t> & old_inverse_map = permutation->imap;
+  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::vector<bool> local(new_inverse_map.size(), 0);
+  for (unsigned j=0; j<M; ++j)
+      local[new_inverse_map[j]] = 1;
+  for (unsigned j=0; j<M; ++j)
+      assert( local[old_inverse_map[j]] > 0 );
+  
+  // Initialize the utility vector: state_old = state;
+  Permutation &permutation_old = *permutation;
+  Permutation permutation_new(new_inverse_map, "inverse");
+  std::vector<Type> state_old(LocalSize(), 0);
+#pragma omp parallel for
+  for (std::size_t i = 0; i < LocalSize(); i++)
+      state_old[i] = state[i];
+  
+#pragma omp parallel for
+  for (std::size_t i = 0; i < LocalSize(); i++)
+  {
+      std::size_t to = permutation_new.program2data_(permutation_old.data2program_(i));
+      state[to] = state_old[i];
+  }
+
+  // Update permutation:
+  // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
+  permutation_old = permutation_new;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -133,14 +133,14 @@ class Permutation
     iota(m.begin(), m.end(), 0);
     // for(auto i:m) printf("%d ", i); printf("\n");
     // exit(0);
-    SetNewPermutationFromMap(m);
+    SetNewPermutationFromMap(m, "direct");
   }
 
 /// Create and initialize the permutation from a vector.
-  Permutation(std::vector<std::size_t> m)
+  Permutation(std::vector<std::size_t> m, std::string style_of_map="direct")
   {
     num_qubits = m.size();
-    SetNewPermutationFromMap(m);
+    SetNewPermutationFromMap(m, style_of_map);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -166,42 +166,33 @@ class Permutation
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Set new permutation after validating the input vector as a valid permutation.
-  void SetNewPermutationFromMap(std::vector<std::size_t> m)
+/// Set new permutation from direct or inverse map after validating the input as a valid permutation.
+  void SetNewPermutationFromMap(std::vector<std::size_t> m, std::string style_of_map="direct")
   {
-    map = m;
-    // Check consistency of map.
-    assert (map.size() == this->num_qubits);
-    std::vector<bool> exist(map.size(), 0);
-    for (auto &m : map)
-        exist[m] = 1;
-    for (auto e : exist)
-        assert(e > 0);
-
-    // Compute inverse map.
-    imap = map;
-    for (std::size_t q = 0; q < map.size(); q++)
-        imap[map[q]] = q;
-  }
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-/// Set new permutation from inverse map after validating the input as a valid permutation.
-  void SetNewPermutationFromInverseMap(std::vector<std::size_t> im)
-  {
-    imap = im;
-    // Check consistency of imap.
-    assert (imap.size() == this->num_qubits);
-    std::vector<bool> exist(imap.size(), 0);
-    for (auto &j : imap)
+    // Check consistency of m.
+    assert (m.size() == this->num_qubits);
+    std::vector<bool> exist(m.size(), 0);
+    for (auto &j : m)
         exist[j] = 1;
     for (auto e : exist)
         assert(e > 0);
 
     // Compute direct map from inverse map.
-    map = imap;
-    for (std::size_t pos = 0; pos < imap.size(); pos++)
-        map[imap[pos]] = pos;
+    if (style_of_map=="direct")
+    {
+        map = m;
+        imap.resize(num_qubits);
+        for (std::size_t q = 0; q < map.size(); q++)
+            imap[map[q]] = q;
+    }
+    else if (style_of_map=="inverse")
+    {
+        imap = m;
+        map.resize(num_qubits);
+        for (std::size_t pos = 0; pos < imap.size(); pos++)
+            map[imap[pos]] = pos;
+    }
+    else assert(0);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
