@@ -124,13 +124,16 @@ void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::st
       assert(0);
 
   // Verify that new map mantains the current distinction between local and global qubits.
+  // and that only the local qubits are (eventually) updated.
   std::vector<std::size_t> & old_inverse_map = permutation->imap;
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   std::vector<bool> local(new_inverse_map.size(), 0);
-  for (unsigned j=0; j<M; ++j)
-      local[new_inverse_map[j]] = 1;
-  for (unsigned j=0; j<M; ++j)
-      assert( local[old_inverse_map[j]] > 0 );
+  for (unsigned pos=0; pos<M; ++pos)
+      local[new_inverse_map[pos]] = 1;
+  for (unsigned pos=0; pos<M; ++pos)
+      assert( local[old_inverse_map[pos]] > 0 );
+  for (unsigned pos=M; pos<num_qubits; ++pos)
+      assert( old_inverse_map[pos] == new_inverse_map[pos] );
   
   // Initialize the utility vector: state_old = state;
   Permutation &permutation_old = *permutation;
@@ -150,6 +153,71 @@ void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::st
   // Update permutation:
   // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
   permutation_old = permutation_new;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template <class Type>
+void QubitRegister<Type>::PermuteGlobal(std::vector<std::size_t> new_map, std::string style_of_map)
+{
+  // Determine the inverse map.
+  assert(new_map.size() == this->num_qubits);
+  std::vector<std::size_t> new_inverse_map = new_map;
+  if (style_of_map=="direct")
+      for (std::size_t qubit = 0; qubit < new_map.size(); qubit++)
+          new_inverse_map[new_map[qubit]] = qubit;
+  else if (style_of_map!="inverse")
+      assert(0);
+
+  // Verify that new map mantains the current distinction between local and global qubits
+  // and that only the global qubits are (eventually) updated.
+  std::vector<std::size_t> & old_inverse_map = permutation->imap;
+  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::vector<bool> global(new_inverse_map.size(), 0);
+  for (unsigned pos=M; pos<num_qubits; ++pos)
+      global[new_inverse_map[pos]] = 1;
+  for (unsigned pos=M; pos<num_qubits; ++pos)
+      assert( global[old_inverse_map[pos]] > 0 );
+  for (unsigned pos=0; pos<M; ++pos)
+      assert( old_inverse_map[pos] == new_inverse_map[pos] );
+  
+  // FIXME: At the moment, enforce that also the global qubits are not re-ordered.
+  // TODO: non-identity reordering of the global qubits may be implemented by reindexing MPI processes.
+  for (unsigned pos=M; pos<num_qubits; ++pos)
+      assert( old_inverse_map[pos] == new_inverse_map[pos] );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+template <class Type>
+void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfSinglePair(std::vector<std::size_t> new_map,
+                                                                   std::string style_of_map)
+{
+  // Confirm that only two qubits changed position.
+  Permutation new_permutation(new_map, style_of_map);
+  std::vector<unsigned> exchanged_qubits;
+  for (unsigned j=0; j<num_qubits; ++j)
+      if ( new_permutation[j] != (*permutation)[j] )
+          exchanged_qubits.push_back(j);
+  assert(exchanged_qubits.size()==2);
+  // Confirm that one qubit is local and the other global.
+  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  unsigned  local_qubit, global_qubit;
+  if (exchanged_qubits[0]<M)
+  {
+      local_qubit  = exchanged_qubits[0];
+      global_qubit = exchanged_qubits[1];
+      assert(global_qubit>=M);
+  }
+  else
+  {
+      local_qubit  = exchanged_qubits[1];
+      global_qubit = exchanged_qubits[0];
+      assert(local_qubit<M);
+  }
+
+  ApplySwap(local_qubit, global_qubit);   // move/update the data
+  EmulateSwap(local_qubit, global_qubit); // update the permutation
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
