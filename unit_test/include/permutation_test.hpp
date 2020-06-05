@@ -61,7 +61,7 @@ TEST_F(PermutationTest, BasicUse)
 
   // Map from program qubits to data qubits.
   map_ = {1, 2, 0, 3, 5, 4};
-  permutation.SetNewPermutation(map_);
+  permutation.SetNewPermutationFromMap(map_);
   for (unsigned i=0; i<num_bits_; ++i)
       ASSERT_EQ(permutation[i], map_[i]);
   // Inverse map.
@@ -78,7 +78,7 @@ TEST_F(PermutationTest, ExchangeTwoElements)
   num_bits_ = 6;
   Permutation permutation(num_bits_);
   map_ = {1, 2, 0, 3, 5, 4};
-  permutation.SetNewPermutation(map_);
+  permutation.SetNewPermutationFromMap(map_);
 
   // Emulate a SWAP between program qubits: 2,4
   unsigned element_1 = 2;
@@ -100,7 +100,7 @@ TEST_F(PermutationTest, Data2Program)
   num_bits_ = 3;
   Permutation permutation(num_bits_);
   map_ = {0, 1, 2};
-  permutation.SetNewPermutation(map_);
+  permutation.SetNewPermutationFromMap(map_);
   std::size_t dim = (0x1 << num_bits_);
   ASSERT_EQ(dim, std::pow(2, num_bits_));
   for (std::size_t v=0; v<dim; ++v)
@@ -109,7 +109,7 @@ TEST_F(PermutationTest, Data2Program)
   // Basic permutation formed by a 2-cycle.
   map_ = {1, 0, 2};
   std::vector<std::size_t> expected_map = {0,2,1,3, 4,6,5,7};	// hardcoded example
-  permutation.SetNewPermutation(map_);
+  permutation.SetNewPermutationFromMap(map_);
   for (std::size_t v=0; v<dim; ++v)
   {
       //std::cout << "v=" << v << " --> " << permutation.program2data_(v) << "\n";
@@ -129,7 +129,7 @@ TEST_F(PermutationTest, Data2Program)
   //    0   1   1            1   1   0    (see above)
   //       ...                  ...
   expected_map = {0,2,4,6, 1,3,5,7};	// hardcoded example
-  permutation.SetNewPermutation(map_);
+  permutation.SetNewPermutationFromMap(map_);
   std::size_t u;
   //std::cout << "program representation --> data representation\n";
   for (std::size_t v=0; v<dim; ++v)

@@ -133,14 +133,14 @@ class Permutation
     iota(m.begin(), m.end(), 0);
     // for(auto i:m) printf("%d ", i); printf("\n");
     // exit(0);
-    SetNewPermutation(m);
+    SetNewPermutationFromMap(m);
   }
 
 /// Create and initialize the permutation from a vector.
   Permutation(std::vector<std::size_t> m)
   {
     num_qubits = m.size();
-    SetNewPermutation(m);
+    SetNewPermutationFromMap(m);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ class Permutation
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// Set new permutation after validating the input vector as a valid permutation.
-  void SetNewPermutation(std::vector<std::size_t> m)
+  void SetNewPermutationFromMap(std::vector<std::size_t> m)
   {
     map = m;
     // Check consistency of map.
@@ -180,8 +180,28 @@ class Permutation
 
     // Compute inverse map.
     imap = map;
-    for (std::size_t i = 0; i < map.size(); i++)
-        imap[map[i]] = i;
+    for (std::size_t q = 0; q < map.size(); q++)
+        imap[map[q]] = q;
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// Set new permutation from inverse map after validating the input as a valid permutation.
+  void SetNewPermutationFromInverseMap(std::vector<std::size_t> im)
+  {
+    imap = im;
+    // Check consistency of imap.
+    assert (imap.size() == this->num_qubits);
+    std::vector<bool> exist(imap.size(), 0);
+    for (auto &j : imap)
+        exist[j] = 1;
+    for (auto e : exist)
+        assert(e > 0);
+
+    // Compute direct map from inverse map.
+    map = imap;
+    for (std::size_t pos = 0; pos < imap.size(); pos++)
+        map[imap[pos]] = pos;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -342,6 +362,54 @@ class Permutation
 #endif
     }
   }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Intermediate imaps dividing the elements in two groups: those with position < or >= M.
+  ///
+  /// Given the current Permutation and a new target map, find two intermediate inverse maps
+  /// such that:
+  /// * intermediate_imap_1 is obtained from old_imap by changing only the first M values
+  /// * intermediate_imap_2 is obtained from intermediate_imap_1 by changing only the last
+  ///   num_qubits-M elements and can be transformed in new_imap by changing only the last
+  ///   num_qubits-M elements.
+  void ObtainIntemediateInverseMaps(std::vector<std::size_t> target_map,  size_t M,
+                                    std::vector<std::size_t> & int_1_imap,
+                                    std::vector<std::size_t> & int_2_imap)
+  {
+    // Check the validity of inputs.
+    assert(M <= this->num_qubits);
+    assert (target_map.size() == this->num_qubits);
+    std::vector<bool> exist(target_map.size(), 0);
+    for (auto &j : target_map)
+        exist[j] = 1;
+    for (auto e : exist)
+        assert(e > 0);
+
+    // Intermediate map updating the first M elements of the inverse map.
+    std::size_t pos_try;
+    int_1_imap = imap;
+    for (std::size_t pos = 0; pos<M; pos++)
+    {
+        pos_try = target_map[ imap[pos] ];
+        while (pos_try >= M)
+            pos_try = target_map[ imap[pos_try] ];
+        int_1_imap[pos_try] = imap[pos];
+    }
+
+    // Intermediate map updating the last num_qubits-M elements of the inverse map.
+    int_2_imap = int_1_imap;
+    for (std::size_t pos = M; pos<this->num_qubits; pos++)
+    {
+        pos_try = target_map[ int_1_imap[pos] ];
+        while (pos_try < M)
+            pos_try = target_map[ int_1_imap[pos_try] ];
+        int_2_imap[pos_try] = int_1_imap[pos];
+    }
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
