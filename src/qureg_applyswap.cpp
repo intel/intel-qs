@@ -24,7 +24,7 @@ void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
   qhipster::TinyMatrix<Type, 2, 2, 32> notg;
   notg(0, 0) = notg(1, 1) = {0, 0};
   notg(0, 1) = notg(1, 0) = {1, 0};
-#if 10
+#if 0
   TODO(Use this implementation of swap till we fix tmp buffer size issue with code below) 
   TODO(    namely need to be able to use Send and Recv properly)
   TODO(    The same problem with controlled gates was already solved. Import solution.)
@@ -86,9 +86,11 @@ void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
 ///    iSWAP(m) = | 0  m00 m01 0 |\n
 ///               | 0  m10 m11 0 |\n
 ///               | 0   0   0  1 |\n
+/// with m01=m10.
 template <class Type>
 void QubitRegister<Type>::ApplyISwapRotation(unsigned qubit1, unsigned qubit2, TM2x2<Type> const& m)
 {
+  assert(m(0,1)==m(1,0));
   ApplySwap_helper(qubit1, qubit2, m);
 }
 
@@ -118,29 +120,16 @@ void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, TM2x2<Type> const&m)
+bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, TM2x2<Type> const&m)
 {
-#if 0
-  TODO(Use this implementation of swap till we fix tmp buffer size issue with code below) 
-  TODO(    namely need to be able to use Send and Recv properly)
-  TODO(    The same problem with controlled gates was already solved. Import solution.)
-  unsigned b1 = qubit1_, b2 = qubit2_;
-  ApplyCPauliX(b1, b2);
-  ApplyCPauliX(b2, b1);
-  ApplyCPauliX(b1, b2);
-
-  return true;
-#endif
-
+  TODO(Error with the tmp buffer size. The code  needs to be able to use Send and Recv properly.)
+  TODO(The same problem with controlled gates was already solved. Import solution.)
 
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
-      // Verify that permutation is identity.
-      assert(qubit1_ == (*permutation)[qubit1_]);
-      assert(qubit2_ == (*permutation)[qubit2_]);
-      // Otherwise find better location that is compatible with the permutation.
-      gate_counter->TwoQubitIncrement(qubit1_, qubit2_);
+      // IQS count the gates acting on specific program qubits.
+      gate_counter->TwoQubitIncrement(qubit_1, qubit_2);
   }
 
   // flush fusion buffers
@@ -149,60 +138,88 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
       ApplyFusedGates();
   }
 
-  assert(qubit1_ < num_qubits);
-  unsigned qubit1 = (*permutation)[qubit1_];
-  assert(qubit1 < num_qubits);
-  assert(qubit2_ < num_qubits);
-  unsigned qubit2 = (*permutation)[qubit2_];
-  assert(qubit2 < num_qubits);
+  assert(qubit_1 < num_qubits);
+  assert(qubit_2 < num_qubits);
+  unsigned position_1 = (*permutation)[qubit_1];
+  assert(position_1 < num_qubits);
+  unsigned position_2 = (*permutation)[qubit_2];
+  assert(position_2 < num_qubits);
+
+  // For simplicity, we choose position_1 s.t. position_1 < position_2
+  // All SWAP-type gates are symmetric and therefore there is no change to the matrix m.
+  if (position_1 > position_2) std::swap(position_1, position_2);
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
   myrank = qhipster::mpi::Environment::GetStateRank();
   nprocs = qhipster::mpi::Environment::GetStateSize();
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
+
+  // Consider the size of the local part of the state and of temporary buffers.
   std::size_t lcl_size_half = LocalSize() / 2UL;
   std::size_t lcl_size_quarter = lcl_size_half / 2UL;
+  // At least 4 amplitudes per MPI process. Corresponding to assert(M<num_qubits-2).
   assert(lcl_size_quarter >= 1);
+  // The buffer size is given by TmpSize(). It is unnecessary to use more then half the LocalSize().
+  size_t lcl_chunk = TmpSize();
+  if (lcl_chunk > lcl_size_half) 
+      lcl_chunk = lcl_size_half;
+  else
+      assert((lcl_size_half % lcl_chunk) == 0);
 
   Type m00 = m(0, 0),
        m01 = m(0, 1),
        m10 = m(1, 0),
        m11 = m(1, 1);
 
-#if 0
-  assert(isPowerOf2(n));
-  assert(qubit1 < highestBit(n));
-  assert(qubit2 < highestBit(n));
-  assert(qubit1 != qubit2);
-#else
-#endif
-
   int tag1 = 1,tag2 = 2;
   int itask, jtask;
 
-  // since the SWAP operation is symmetric, we choose qubit1 s.t. qubit1 < qubit2
-  if (qubit1 > qubit2) std::swap(qubit1, qubit2);
+  std::size_t delta_1 = 1 << position_1 ;
+  std::size_t delta_2 = 1 << position_2;
 
-  std::size_t delta1 = 1 << qubit1;
-  std::size_t delta2 = 1 << qubit2;
+  //FIXME delete next 4 lines
+  unsigned &qubit1 = position_1;
+  unsigned &qubit2 = position_2;
+  std::size_t &delta1 = delta_1;
+  std::size_t &delta2 = delta_2;
 
-  if (qubit1 < M && qubit2 < M)
+  std::string gate_name = "TQG("+qhipster::toString(position_1)+","+qhipster::toString(position_2)+")::"+m.name;
+
+  if (timer)
+      timer->Start(gate_name, position_1, position_2);
+
+  if (position_1 < M && position_2 < M)
   {
-    for (std::size_t i = 0; i < LocalSize(); i += 2 * delta2)
-      for (std::size_t j = 0; j < delta2; j += 2 * delta1)
-        for (std::size_t k = 0; k < delta1; ++k)
-        {
 #if 0
-          std::swap(state[i + j + k + delta1], state[i + j + k + delta2]);
+    // Original summation
+    for (std::size_t i = 0; i < LocalSize(); i += 2 * delta_2)
+        for (std::size_t j = 0; j < delta_2; j += 2 * delta_1)
+            for (std::size_t k = 0; k < delta_1; ++k)
+            {
+                std::size_t i0 = i + j + k + delta_1;
+                std::size_t i1 = i + j + k + delta_2;
+                Type in0 = state[i0], in1 = state[i1];
+                state[i0] = m00 * in0 + m01 * in1;
+                state[i1] = m10 * in0 + m11 * in1;
+            }
+#elif 0
+    // Modified summation to be substituted by Loop_TN
+    for (std::size_t i = 0; i < LocalSize(); i += 2 * delta_2)
+        for (std::size_t j = i+0; j < i+delta_2; j += 2 * delta_1)
+            for (std::size_t i0 = j+delta_1; i0 < j+2*delta_1; ++i0)
+            {
+                std::size_t i1 = i0 + (delta_2-delta_1);
+                Type in0 = state[i0], in1 = state[i1];
+                state[i0] = m00 * in0 + m01 * in1;
+                state[i1] = m10 * in0 + m11 * in1;
+            }
 #else
-          std::size_t i0 = i + j + k + delta1;
-          std::size_t i1 = i + j + k + delta2;
-          Type in0 = state[i0], in1 = state[i1];
-          state[i0] = m00 * in0 + m01 * in1;
-          state[i1] = m10 * in0 + m11 * in1;
+    Loop_TN(state, 0UL, LocalSize(), 2*delta_2,
+                   0UL, delta_2, 2*delta_1,
+                   delta_1, 2*delta_1,
+            delta_2-delta_1,  m, specialize, timer);
 #endif
-        }
   }
   else
   {
@@ -361,8 +378,8 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
 #endif
   }
 
-
-
+  if (timer)
+      timer->Stop();
 
 #if 0
     int itask, jtask;
@@ -379,9 +396,6 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit1_, unsigned qubit2_, T
     }
     printf("here2\n");
 #endif
-
-
-
 
 
 

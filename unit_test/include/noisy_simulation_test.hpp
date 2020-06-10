@@ -23,6 +23,8 @@ class NoisySimulationTest : public ::testing::Test
     num_ranks_ = 1;
     pool_rank_id_ = 0;
 #endif
+std::cout << "pool_rank_id = " << pool_rank_id_ << "\n";//FIXME
+qhipster::mpi::PoolBarrier();
     // To ensure that each of two states has at least 2 amplitude per rank.
     int min_num_qubits = qhipster::floor_power_of_two( num_ranks_) + 1;
     if (num_qubits_ < min_num_qubits)
@@ -50,7 +52,7 @@ class NoisySimulationTest : public ::testing::Test
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
-  bool do_print_info_ = false;	// Whether printing info when the PoolComm is restructured.
+  bool do_print_info_ = true;	// Whether printing info when the PoolComm is restructured.
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,7 +64,7 @@ TEST_F(NoisySimulationTest, OneStateAtATime)
   // Currently pool=state, but not always pool=MPI_COMM_WORLD since pool is
   // defined only for the useful ranks.
 
-  if ( qhipster::mpi::Environment::IsUsefulRank() == false )
+  if (qhipster::mpi::Environment::IsUsefulRank() == false)
       return;
 
   QubitRegister<ComplexDP> psi (num_qubits_,"base",1+8+16+32);
@@ -94,7 +96,7 @@ TEST_F(NoisySimulationTest, TwoStates)
   ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = 2;
-  qhipster::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
+  qhipster::mpi::Environment::UpdateStateComm(num_states, do_print_info_);
   ASSERT_EQ( num_states, qhipster::mpi::Environment::GetNumStates() );
   if (qhipster::mpi::Environment::IsUsefulRank() == false)
       return;

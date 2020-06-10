@@ -467,7 +467,8 @@ void Loop_TN(Type *state,
   assert(((c12 - c11) % c13) == 0);
   assert(((c22 - c21) % c23) == 0);
 
-  if (timer) {
+  if (timer)
+  {
     ttot = sec() - ttmp1;
     double datab =
       4.0 * sizeof(state[0]) * D((c12 - c11) / c13) * D((c22 - c21) / c23) * D(c32 - c31);
@@ -478,6 +479,7 @@ void Loop_TN(Type *state,
     timer->record_tn(ttot, datab / ttot);
   }
 }
+
 template
 __attribute__((noinline))
 void Loop_TN(ComplexSP *state, std::size_t c11, std::size_t c12,
