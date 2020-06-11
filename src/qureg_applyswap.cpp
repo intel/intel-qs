@@ -172,9 +172,6 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
        m10 = m(1, 0),
        m11 = m(1, 1);
 
-  int tag1 = 1,tag2 = 2;
-  int itask, jtask;
-
   std::size_t delta_1 = 1 << position_1 ;
   std::size_t delta_2 = 1 << position_2;
 
@@ -223,72 +220,104 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   }
   else
   {
-#ifdef INTELQS_HAS_MPI
+
+// This is the new implementation using DistrSwap()
+// FIXME TODO: remove the else part of the #if
+#if 1
+    if (position_1 < M)
+    {
+std::cout << "call to HP_DistrSwap(" << position_1 << ", " << position_2 << ", m); \n"; // FIXME delete
+        HP_DistrSwap(position_1, position_2, m);
+    }
+    else
+    {
+std::cout << "call to ApplySwap before two global qubits, namely those at position: "
+          << position_1 << ", " << position_2 << "\n"; // FIXME delete
+        assert(0); // FIXME TODO exchange of the MPI process id
+    }
+// This is the old implementation by Misha. Remove it one the last case (global-global) has been tested.
+#else
+
+
+#ifndef INTELQS_HAS_MPI
+    assert(0);
+#else
     MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
     MPI_Status status;
     // HP_Distrpair(qubit1, qubit2);
+
+  //  Steps:     1.         2.           3.              4.
+  //          i    j   | i    j   |  i      j     |  i       j
+  //          s1   d1  | s1   d1  |  s1     d1&s1 |  s1&d1   d1&s1
+  //          s2   d2  | s2   d2  |  s2&d2  d2    |  s2&d2   d2&s2
+  //          T    T   | d2   s1  |  d2&s2  s1&d1 |  T       T
+
     std::size_t src_glb_start = UL(myrank) * LocalSize();
-    if (qubit1 < M)
+    if (position_1 < M) // position_2 >= M
     {
         // printf("here1\n");
-        if (check_bit(src_glb_start, qubit2) == 0)
+        if (check_bit(src_glb_start, position_2) == 0)
         {
-            std::size_t dst_glb_start = set_bit(src_glb_start, qubit2);
+            std::size_t dst_glb_start = set_bit(src_glb_start, position_2);
             // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
             assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
             jtask = dst_glb_start / LocalSize();
             assert(jtask > myrank);
+            assert(jtask == myrank + (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
-        } else if (check_bit(src_glb_start, qubit2) == 1) {
+        } else if (check_bit(src_glb_start, position_2) == 1) {
             std::size_t dst_glb_start = clear_bit(src_glb_start, qubit2);
             // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
             assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
             itask = dst_glb_start / LocalSize();
             assert(itask < myrank);
+            assert(jtask == myrank - (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
         }
     }
-    else
+    else // position_1, position_2 >= M
     {
         // printf("here2\n");
-        if (check_bit(src_glb_start, qubit1) == 1 &&
-            check_bit(src_glb_start, qubit2) == 0)
+        if (check_bit(src_glb_start, positiopn_1) == 1 &&
+            check_bit(src_glb_start, position_2) == 0)
         {
-            std::size_t dst_glb_start = set_bit(clear_bit(src_glb_start, qubit1), qubit2);
+            std::size_t dst_glb_start = set_bit(clear_bit(src_glb_start, position_1), positiion_2);
             // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
             assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
             jtask = dst_glb_start / LocalSize();
             // qhipster::mpi::Environment::RemapStateRank(jtask);
             assert(jtask > myrank);
+            assert(jtask == myrank - (1UL << (position_1-M)) + (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
         }
-        else if (check_bit(src_glb_start, qubit1) == 0 &&
-                 check_bit(src_glb_start, qubit2) == 1)
+        else if (check_bit(src_glb_start, position_1) == 0 &&
+                 check_bit(src_glb_start, position_2) == 1)
         {
-            std::size_t dst_glb_start = clear_bit(set_bit(src_glb_start, qubit1), qubit2);
+            std::size_t dst_glb_start = clear_bit(set_bit(src_glb_start, position_1), position_2);
             // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
             assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
             itask = dst_glb_start / LocalSize();
             // qhipster::mpi::Environment::RemapStateRank(itask);
             assert(itask < myrank);
+            assert(jtask == myrank + (1UL << (position_1-M)) - (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
         }
         else
         {
             // early return if no rank permutation
             return true;
-            qhipster::mpi::Environment::RemapStateRank(myrank);
+            //qhipster::mpi::Environment::RemapStateRank(myrank);
         }
     }
 
     // 1. allocate temp buffer
     Type *tmp_state = TmpSpace();
 
-    Type *state0=NULL, *state1=NULL;
+    Type *state0=nullptr, *state1=nullptr;
     double t, tnet = 0;
     if(itask == myrank)
     {  // this is itask
@@ -330,6 +359,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
                                        &(state[0])    , lcl_size_half, jtask, tag2,
                                        comm, &status);
        }
+       // what if qubit+1 == M ?? No second communication loop?
        tnet += sec() - t;
 
     }
@@ -372,10 +402,10 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
        }
        tnet += sec() - t;
     }
-     
-#else
-    assert(0);
 #endif
+
+#endif
+//FIXME TODO delete until here
   }
 
   if (timer)
@@ -397,11 +427,190 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
     printf("here2\n");
 #endif
 
-
-
   return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Arbitrary controlled two-qubit gate.
+/// @param control_position position of the control qubit in the current permutation
+/// @param target_position position of the target qubit in the current permutation
+/// @param m 2x2 matrix corresponding to the quantum gate
+template <class Type>
+double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_position,
+                                         TM2x2<Type> const&m)
+{
+  assert(LocalSize() > 1);
+#ifndef INTELQS_HAS_MPI
+  assert(0);
+#else
+  MPI_Status status;
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+
+  std::size_t M = num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t L = UL(low_position), H = UL(high_position);
+  // Used when L < H and H >= M, while L may be < or >= M.
+
+  //  Steps:     1.         2.           3.              4.
+  //          i    j   | i    j   |  i      j     |  i       j
+  //          s1   d1  | s1   d1  |  s1     d1&s1 |  s1&d1   d1&s1
+  //          s2   d2  | s2   d2  |  s2&d2  d2    |  s2&d2   d2&s2
+  //          T    T   | d2   s1  |  d2&s2  s1&d1 |  T       T
+
+  // Special case when L=M-1
+  //  Steps:     1.         2.           3.              4.
+  //          i    j   | i    j   |  i      j     |  i       j
+  //          s1   d1  | s1   d1  |  s1     d1&s2 |  s1      d1&s1
+  //          s2   d2  | s2   d2  |  s2&d1  d2    |  s2&d2   d2
+  //          T    T   | d1   s2  |  d1&s2  s2&d1 |  T       T
+  // 2. i sends s2 (instead of s1) and j sends d1 (instead of d2)
+  // 4. the temporary storage does not need to be communicated, it can be erased
+
+  unsigned itask, jtask;
+  int tag1 = 1, tag2 = 2, tag3 = 3, tag4 = 4;
+  std::size_t src_glb_start = UL(myrank) * LocalSize();
+
+  if (L < M) // H >= M
+  {
+      if (check_bit(src_glb_start, H) == 0)
+      {
+          itask = myrank;
+          jtask = itask + (1UL << (H-M));
+      }
+      else
+      {
+          jtask = myrank;
+          itask = jtask - (1UL << (H-M));
+      }
+  }
+  else // L, H >= M
+  {
+      if (check_bit(src_glb_start, L) == 1 &&
+          check_bit(src_glb_start, H) == 0)
+      {
+          itask = myrank;
+          jtask = itask - (1UL << (L-M)) + (1UL << (H-M));
+      }
+      else if (check_bit(src_glb_start, L) == 0 &&
+               check_bit(src_glb_start, H) == 1)
+      {
+          jtask = myrank;
+          jtask = jtask + (1UL << (L-M)) - (1UL << (H-M));
+      }
+      else
+      {
+          // early return if no rank permutation
+          return true;
+      }
+  }
+
+  // 1. allocate temp buffer
+  Type *tmp_state = TmpSpace();
+  std::size_t lcl_size_half = LocalSize() / 2L;
+  assert(lcl_size_half <= std::numeric_limits<int>::max());
+
+  size_t lcl_chunk = TmpSize();
+  if (lcl_chunk > lcl_size_half) 
+      lcl_chunk = lcl_size_half;
+  else
+      assert((lcl_size_half % lcl_chunk) == 0);
+
+  double t, tnet = 0;
+  Type *state0=nullptr, *state1=nullptr;
+  // Which chunk do we have to Send/Recv?
+  // If chunk == lcl_size_half, then all chunks are needed, and if chunk=2^L it means
+  // that M=L+1 and there is a special case hardcoded.
+  // If chunk >= 2^(L+1), then all chunks are needed since every chunk include
+  // global indices with L-bit=0,1
+  // If chunk < 2^(L+1), then chunks only include global indices with either L-bit=0
+  // or L-bit=1
+std::cout << "DistrSwap:  lcl_chunk = " << lcl_chunk << " , lcl_size_half = " << lcl_size_half << "\n"; // FIXME delete
+  if ( lcl_chunk == lcl_size_half
+       || lcl_chunk >= (1UL<<(L+1)) )
+  {
+    for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
+    {
+      if(itask == myrank)  // this is itask
+      {
+          // 2. src sends s1 to dst into dT
+          //    dst sends d2 to src into dT
+          t = sec();
+  
+          // When L+1=M we can avoid a cycle of communication.
+          // In this special case, irank exchanges the second half (L=1, H=0) and jrank the first half (L=0, H=1).
+          std::size_t start_ind = (L != M-1) ? c : lcl_size_half+c;
+          qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_chunk, jtask, tag1,
+                                        &(tmp_state[0])    , lcl_chunk, jtask, tag2,
+                                        comm, &status);
+          tnet += sec() - t;
+
+          // 3. src and dst compute
+          if (L == M-1) {
+              Loop_SN(0UL, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0UL,
+                      m, specialize, timer);
+          } else {
+              Loop_DN(0UL, lcl_chunk, L, &(state[c]), tmp_state, lcl_size_half+(1UL<<L), 0UL,
+                      m, specialize, timer);
+          }
+
+          t = sec();
+          if (L != M-1)
+          {
+              qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])    , lcl_chunk, jtask, tag3,
+                                            &(state[start_ind]), lcl_chunk, jtask, tag4,
+                                            comm, &status);
+          }
+          tnet += sec() - t;
+      }
+      else  // this is jtask
+      {
+          // 2. src sends s1 to dst into dT
+          //    dst sends d2 to src into dT
+          t = sec();
+
+          // When L+1=M we can avoid a cycle of communication.
+          // In this special case, irank exchanges the second half (L=1, H=0) and jrank the first half (L=0, H=1).
+          std::size_t start_ind = (L != M-1) ? lcl_size_half+c : c;
+          qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
+                                        &(tmp_state[0])    , lcl_size_half, itask, tag1,
+                                        comm, &status);
+          tnet += sec() - t;
+
+          // 3. src and dst compute
+          if (L == M-1) {
+              Loop_SN(0UL, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0UL,
+                      m, specialize, timer);
+          } else {
+              Loop_DN(0UL, lcl_chunk, L, tmp_state, &(state[c]), (1UL<<L), 0UL,
+                      m, specialize, timer);
+          }
+
+          t = sec();
+          if (L != M-1)
+          {
+              qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])        , lcl_size_half, itask, tag4,
+                                            &(state[lcl_size_half]), lcl_size_half, itask, tag3,
+                                            comm, &status);
+          }
+          tnet += sec() - t;
+      }
+    }
+  }
+  else
+  {
+      // case: lcl_chunk < lcl_size_half && lcl_chunk <= 2^L
+      // should not happen when temporary size is lcl_size_half 
+      assert(0);
+      // TODO: need to be implemented
+  }
+
+  double netsize = 2.0 * sizeof(Type) * 2.0 * D(lcl_size_half), netbw = netsize / tnet;
+  if (timer) timer->record_cm(tnet, netbw);
+#endif
+
+  return 0.0;
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 
 // Unnecessary method, used only to debug the ApplySwap.

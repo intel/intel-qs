@@ -91,6 +91,105 @@ TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
   psi_2.ApplyCPauliX(qubit1, qubit2);
   // Check that the max abs difference amplitude by amplitude.
   ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // TODO: add the SWAP between (probably) distributed qubits, like n-1 and n-2.
+  // Compare two implementations of the SWAP gate.
+  qubit1 = num_qubits_-1;
+  qubit2 = num_qubits_-2;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Extra unit test for distributed implementation of the SWAP gate.
+TEST_F(ApplySwapGateTest, TestForDistributedImplementation)
+{
+  unsigned num_qubits = 20;
+  std::size_t rng_seed = 12345;
+  qhipster::RandomNumberGenerator<double> rnd_generator;
+  rnd_generator.SetSeedStreamPtrs(rng_seed);
+  // The "rand" style cannot be used directly in the creation of the state.
+  QubitRegister<ComplexDP> psi_1(num_qubits, "base", 0);
+  psi_1.SetRngPtr(&rnd_generator);
+  // |psi_1> = |random>
+  psi_1.Initialize("rand", 1);
+
+  // |psi_2> = |psi_1> = |random>
+  QubitRegister<ComplexDP> psi_2(psi_1);
+
+  // Compare two implementations of the SWAP gate.
+  unsigned qubit1 = 2, qubit2 = num_qubits-1;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = 14;
+  qubit2 = num_qubits-2;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+//  qubit1 = num_qubits-1; // FIXME: uncomment when global-global SWAP is available
+  qubit2 = num_qubits-2;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = num_qubits-3;
+  qubit2 = num_qubits-2;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = num_qubits-3;
+  qubit2 = num_qubits-1;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = num_qubits-3;
+  qubit2 = 7;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
+
+  // Compare two implementations of the SWAP gate.
+  qubit1 = 8;
+  qubit2 = 13;
+  psi_1.ApplySwap(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  psi_2.ApplyCPauliX(qubit2, qubit1);
+  psi_2.ApplyCPauliX(qubit1, qubit2);
+  // Check that the max abs difference amplitude by amplitude.
+  ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

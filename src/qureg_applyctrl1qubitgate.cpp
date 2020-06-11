@@ -12,10 +12,10 @@
 // - 'qubit' ro refer to program qubits
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Arbitrary two-qubit gate.
-/// @param qubit_high index of the first qubit
-/// @param qubit_low index of the second qubit
-/// @param m 4x4 matrix corresponding to the quantum gate
+/// @brief Arbitrary controlled two-qubit gate.
+/// @param control_position position of the control qubit in the current permutation
+/// @param target_position position of the target qubit in the current permutation
+/// @param m 2x2 matrix corresponding to the quantum gate
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned target_position,
                                          TM2x2<Type> const&m)
@@ -47,12 +47,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   if (check_bit(glb_start, T) == 0)
   {
       itask = myrank;
-      jtask = itask + (1 << (T - M));
+      jtask = itask + (1UL << (T - M));
   }
   else
   {
       jtask = myrank;
-      itask = jtask - (1 << (T - M));
+      itask = jtask - (1UL << (T - M));
   }
 
   // 1. allocate temp buffer
@@ -73,12 +73,6 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
       lcl_chunk = lcl_size_half;
   else
       assert((lcl_size_half % lcl_chunk) == 0);
-
-  if (lcl_chunk != lcl_size_half)
-  {
-//      fprintf(stderr, "GG tried to fix the chunking\n");
-//      assert(0);
-  }
 #endif
 
   double t, tnet = 0;

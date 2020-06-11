@@ -268,6 +268,7 @@ class QubitRegister
 
   double HP_Distrpair(unsigned position, TM2x2<Type> const&m);
   double HP_Distrpair(unsigned control_position, unsigned target_position, TM2x2<Type> const&m);
+  double HP_DistrSwap(unsigned low_position, unsigned high_position, TM2x2<Type> const&m);
 
   // related to the internal random number generator.
   qhipster::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
