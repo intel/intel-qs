@@ -58,7 +58,55 @@ TEST_F(ApplySwapGateTest, Emulation)
 
 //////////////////////////////////////////////////////////////////////////////
 
-// Emulation of SWAP by update the permutation.
+// Explicit test for 3 qubits
+TEST_F(ApplySwapGateTest, Explicit3QubitExample)
+{
+  // At most 4 MPI processes, or skip the test.
+  if (qhipster::mpi::Environment::GetStateSize() > 4)
+      GTEST_SKIP();
+
+  // Print explit state to screen?
+  bool print_state = true;
+
+  unsigned num_qubits = 3;
+  QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
+  // |psi> = {1,0,0,0,0,0,0,0}
+  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t glb_index;
+  std::size_t lcl_start_index = myrank * psi.LocalSize();
+  for (std::size_t j=0; j<psi.LocalSize(); ++j)
+  {
+      glb_index = j + lcl_start_index;
+      psi[j] = ComplexDP(glb_index, 0);
+  }
+  // |psi> = {0,1,2,3,4,5,6,7}
+  if (print_state) psi.Print("state should have amplitudes from 0 to 7");
+  for (std::size_t j=0; j<psi.GlobalSize(); ++j)
+      ASSERT_DOUBLE_EQ( psi.GetGlobalAmplitude(j).real(), j);
+
+  psi.ApplySwap(0, 1);
+  // |psi> = {0,2,1,3,4,6,5,7}
+  std::vector<double> expected_state = {0,2,1,3,4,6,5,7};
+  if (print_state) psi.Print("SWAP qubit 0 and 1");
+  for (std::size_t j=0; j<psi.GlobalSize(); ++j)
+      ASSERT_DOUBLE_EQ( psi.GetGlobalAmplitude(j).real(), expected_state[j]);
+  psi.ApplySwap(0, 1);
+  // |psi> = {0,1,2,3,4,5,6,7}
+
+// TODO: to enable the test below, Loop_DN needs to be enabled for "not-aligned" states
+#if 0
+  psi.ApplySwap(0, 2);
+  // |psi> = {0,4,2,6,1,5,3,7}
+  expected_state = {0,4,2,6,1,5,3,7};
+  if (print_state) psi.Print("SWAP qubit 0 and 2 (from trivial)");
+  for (std::size_t j=0; j<psi.GlobalSize(); ++j)
+      ASSERT_DOUBLE_EQ( psi.GetGlobalAmplitude(j).real(), expected_state[j]);
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// SWAP gate compared with the application of 3 CNOTs
 TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
 {
   std::size_t rng_seed = 7777;
