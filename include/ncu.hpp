@@ -30,7 +30,7 @@ template <class Type>
 class NCU {
     private:
     using Matrix2x2Type = TM2x2<Type>;
-    GateCache<Matrix2x2Type> gate_cache;
+    GateCache<Type> gate_cache;
 
     protected:
     static std::size_t num_gate_ops;
@@ -41,7 +41,7 @@ class NCU {
      * 
      */
     NCU() {
-        gate_cache = GateCache<Matrix2x2Type>();
+        gate_cache = GateCache<Type>();
     };
 
     /**
@@ -76,7 +76,7 @@ class NCU {
      * 
      * @return GateCache<SimulatorType> type 
      */
-    GateCache<Matrix2x2Type>& getGateCache(){
+    GateCache<Type>& getGateCache(){
         return gate_cache;
     }
 

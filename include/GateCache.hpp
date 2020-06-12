@@ -55,10 +55,9 @@ class GateCache {
     /**
      * @brief Initialise the gate cache with PauliX,Y,Z and H up to a given sqrt depth
      * 
-     * @param qReg The QubitRegister object
      * @param sqrt_depth The depth to which calculate sqrt matrices and their respective adjoints
      */
-    void initCache(QubitRegister<Type>& qReg, const std::size_t sqrt_depth){
+    void initCache(const std::size_t sqrt_depth){
         // If we do not have a sufficient circuit depth, clear and rebuild up to given depth.
 
         if(cache_depth < sqrt_depth ){
@@ -90,12 +89,12 @@ class GateCache {
      * @param gate Gate matrix
      * @param max_depth Depth of calculations for sqrt and associate adjoints
      */
-    void addToCache(QubitRegister<Type>& qReg, const std::string gateLabel, const GateType& gate, std::size_t max_depth){
+    void addToCache(const std::string gateLabel, const GateType& gate, std::size_t max_depth){
         if(max_depth <= cache_depth && gateCacheMap.find(gateLabel) != gateCacheMap.end() ){
             return;
         }
         else if(max_depth > cache_depth){
-            initCache(qReg, max_depth);
+            initCache(max_depth);
         }
 
         std::vector< std::pair<GateType, GateType> > v;
@@ -135,13 +134,14 @@ class GateCache {
     }
     constexpr GateType construct_hadamard(){
         GateType h;
-        decltype(std::declval<Type>(real(h(0,0)))) f = 1. / std::sqrt(2.);
-        h(0, 0) = h(0, 1) = h(1, 0) = Type(f, 0.);
-        h(1, 1) = Type(-f, 0.);
+        auto f = Type(1. / std::sqrt(2.), 0.0);
+        h(0, 0) = h(0, 1) = h(1, 0) = f;
+        h(1, 1) = -f;
         return h;
     }
 };
+
+template class GateCache<ComplexDP>;
+template class GateCache<ComplexSP>;
+
 #endif
-
-
-

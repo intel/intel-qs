@@ -45,6 +45,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 #include "include/gate_counter_test.hpp"
 #include "include/noisy_simulation_test.hpp"
 #include "include/extra_features_test.hpp"
+#include "include/apply_ncu_test.hpp"
 
 // These tests make sense only when MPI is enabled.
 #include "include/multiple_states_test.hpp"

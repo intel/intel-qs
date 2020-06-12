@@ -4,9 +4,6 @@
 #include "mat_ops.hpp"
 #include <iostream>
 
-//template class QubitRegister<ComplexSP>;
-//template class QubitRegister<ComplexDP>;
-
 template <class Type>
 void QubitRegister<Type>::ApplyNCU(
                 TM2x2<Type> gate,
@@ -37,3 +34,13 @@ void QubitRegister<Type>::ApplyNCU(
     ncu.applyNQubitControl(*this, ctrl_indices, aux_indices, target, gate_label, gate, 0);
 }
 
+template void QubitRegister<ComplexDP>::ApplyNCU(
+                TM2x2<ComplexDP> gate,
+                const std::vector<std::size_t>& ctrl_indices, 
+                const std::vector<std::size_t>& aux_indices, 
+                unsigned const target);
+template void QubitRegister<ComplexSP>::ApplyNCU(
+                TM2x2<ComplexSP> gate,
+                const std::vector<std::size_t>& ctrl_indices, 
+                const std::vector<std::size_t>& aux_indices, 
+                unsigned const target);

@@ -18,6 +18,10 @@ target_link_libraries(noisy_circuit_test.exe iqs)
 add_executable(test_of_custom_gates.exe test_of_custom_gates.cpp)
 target_link_libraries(test_of_custom_gates.exe iqs)
 
+add_executable(test_of_ncu_gates.exe test_of_ncu_gates.cpp)
+target_link_libraries(test_of_ncu_gates.exe iqs)
+
+
 ################################################################################
 
 set_target_properties( benchgates.exe
@@ -26,6 +30,7 @@ set_target_properties( benchgates.exe
                        heisenberg_dynamics.exe
                        noisy_circuit_test.exe
                        test_of_custom_gates.exe
+                       test_of_ncu_gates.exe
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin"
 )
