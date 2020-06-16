@@ -141,6 +141,13 @@ endif()
 
 
 ################################################################################
+# Enable compiler optimizations to fix GCC performance.
+################################################################################
+if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+   add_compile_options(-O3)
+endif()
+
+################################################################################
 # Locate MKL if it is already configured through Intel (mklvars.sh) scripts.
 # - Follow the Intel compiler documentation to ensure that all of the
 #   appropriate variables are set correctly in the environment.
