@@ -39,6 +39,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
+# Set some compiler options related to C++.
+################################################################################
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+################################################################################
 # Options for the build.
 ################################################################################
 
@@ -139,6 +147,13 @@ if (IqsNative)
     endif()
 endif()
 
+
+################################################################################
+# Enable compiler optimizations to fix GCC performance.
+################################################################################
+if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+   add_compile_options(-O3)
+endif()
 
 ################################################################################
 # Locate MKL if it is already configured through Intel (mklvars.sh) scripts.
