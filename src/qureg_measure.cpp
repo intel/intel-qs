@@ -24,7 +24,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
-  unsigned position = (*permutation)[qubit];
+  unsigned position = (*qubit_permutation)[qubit];
   assert(position<num_qubits);
 
   std::size_t delta = 1UL << position;
@@ -97,7 +97,7 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
-  unsigned position = (*permutation)[qubit];
+  unsigned position = (*qubit_permutation)[qubit];
   assert(position<num_qubits);
 
   std::size_t delta = 1UL << position;
@@ -140,7 +140,7 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
-  unsigned position = (*permutation)[qubit];
+  unsigned position = (*qubit_permutation)[qubit];
   assert(position<num_qubits);
 
   std::size_t delta = 1UL << position;
@@ -188,7 +188,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
-  unsigned position = (*permutation)[qubit];
+  unsigned position = (*qubit_permutation)[qubit];
   assert(position<num_qubits);
 
   std::size_t delta = 1UL << position;

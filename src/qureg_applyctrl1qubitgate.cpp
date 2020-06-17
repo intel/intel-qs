@@ -207,14 +207,9 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
   assert(control_qubit != target_qubit);
   assert(control_qubit < num_qubits);
   assert(target_qubit < num_qubits);
-#if 0
-  printf("New permutation: ");
-  for(unsigned i = 0; i < permutation->size(); i++) printf("%u ", (*permutation)[i]);
-  printf("\n");
-#endif
-  unsigned control_position = (*permutation)[control_qubit];
+  unsigned control_position = (*qubit_permutation)[control_qubit];
   assert(control_position < num_qubits);
-  unsigned target_position = (*permutation)[target_qubit];
+  unsigned target_position = (*qubit_permutation)[target_qubit];
   assert(target_position < num_qubits);
 
   std::size_t C = control_position, T = target_position;
@@ -378,7 +373,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control_qubit, unsi
 
   if (fusion == true)
   {
-      unsigned target_position =(*permutation)[target_qubit];
+      unsigned target_position =(*qubit_permutation)[target_qubit];
       assert(target_position < num_qubits);
       if (target_position < log2llc)
       {

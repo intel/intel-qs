@@ -26,7 +26,8 @@ QubitRegister<Type>::QubitRegister()
 
   timer = nullptr;
   gate_counter = nullptr;
-  permutation = nullptr;
+  qubit_permutation = nullptr;
+  state_rank_permutation = nullptr;
   imported_state = false;
   specialize = false;
   num_qubits = 1;
@@ -72,8 +73,11 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
   state = &state_storage[0];
 #endif
 
-  if (permutation) delete permutation;
-  permutation = new Permutation(num_qubits);
+  if (qubit_permutation) delete qubit_permutation;
+  qubit_permutation = new Permutation(num_qubits);
+
+  if (state_rank_permutation) delete state_rank_permutation;
+  state_rank_permutation = new Permutation(num_qubits);
 }
 
 
@@ -132,8 +136,9 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   this->num_qubits = new_num_qubits;
   assert(LocalSize() >= 1L);
 
-  // set-up initial permutation
-  permutation = new Permutation(new_num_qubits);
+  // Set-up initial qubit permutation and state_rank permutation.
+  qubit_permutation = new Permutation(new_num_qubits);
+  state_rank_permutation = new Permutation(nprocs);
 
   if ( do_print_extra_info && !myrank)
       printf("Specialization is off\n");
@@ -362,8 +367,11 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
   TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
 #endif
 
-  for (std::size_t i = 0; i < lcl; i++) state[i] = in.state[i];
-  *permutation = *(in.permutation);
+  for (std::size_t i = 0; i < lcl; i++)
+      state[i] = in.state[i];
+ 
+  *qubit_permutation = *(in.qubitpermutation);
+  *state_rank_permutation = *(in.state_rank_permutation);
 }
 
 
@@ -400,7 +408,8 @@ QubitRegister<Type>::~QubitRegister()
 #endif
   if (timer != nullptr) delete timer;
   if (gate_counter != nullptr) delete gate_counter;
-  if (permutation != nullptr) delete permutation;
+  if (qubit_permutation != nullptr) delete qubit_permutation;
+  if (state_rank_permutation != nullptr) delete state_rank_permutation;
 }
 
 template class QubitRegister<ComplexSP>;

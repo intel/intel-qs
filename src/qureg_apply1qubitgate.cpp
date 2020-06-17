@@ -167,7 +167,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
                                                  std::size_t sind, std::size_t eind)
 {
   assert(qubit_ < num_qubits);
-  unsigned position = (*permutation)[qubit_]; 
+  unsigned position = (*qubit_permutation)[qubit_]; 
   assert(position < num_qubits);
 
   TODO(Add diagonal special case)
@@ -228,10 +228,10 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
       gate_counter->OneQubitIncrement(qubit);
   }
 
-  unsigned position = (*permutation)[qubit];
+  unsigned position = (*qubit_permutation)[qubit];
   assert(position < num_qubits);
 
-  // FIXME verify that fusion is properly working even with non-identity permutation.
+  // FIXME verify that fusion is properly working even with non-identity qubit permutation.
   if (fusion == true)
   {
       if (position < log2llc)

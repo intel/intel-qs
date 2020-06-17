@@ -324,7 +324,8 @@ class QubitRegister
   std::size_t num_qubits;
   std::vector<Type, qhipster::AlignedAllocator<Type, 256>> state_storage;
   Type *state;
-  Permutation *permutation;
+  Permutation *qubit_permutation;
+  Permutation *state_rank_permutation;
   Timer *timer;
   GateCounter *gate_counter;	// Count how many gates acted on given program qubits.
   std::size_t llc_watermarkbit;

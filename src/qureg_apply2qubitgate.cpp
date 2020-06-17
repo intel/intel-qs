@@ -26,8 +26,8 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
   assert(qubit_high < qhipster::highestBit(n));
   assert(qubit_low != qubit_high);
 
-  unsigned position_high = (*permutation)[qubit_high];
-  unsigned position_low  = (*permutation)[qubit_low ];
+  unsigned position_high = (*qubit_permutation)[qubit_high];
+  unsigned position_low  = (*qubit_permutation)[qubit_low ];
   assert(position_high < num_qubits);
   assert(position_low  < num_qubits);
   assert(position_low != position_high);

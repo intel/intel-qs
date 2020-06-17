@@ -164,7 +164,7 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
   std::size_t position;
   for (std::size_t i=0; i<qubits.size(); i++)
   {
-      position = (*permutation)[qubits[i]];
+      position = (*qubit_permutation)[qubits[i]];
       y += 1 << position;
   }
 

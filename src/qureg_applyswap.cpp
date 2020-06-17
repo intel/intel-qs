@@ -140,9 +140,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
 
   assert(qubit_1 < num_qubits);
   assert(qubit_2 < num_qubits);
-  unsigned position_1 = (*permutation)[qubit_1];
+  unsigned position_1 = (*qubit_permutation)[qubit_1];
   assert(position_1 < num_qubits);
-  unsigned position_2 = (*permutation)[qubit_2];
+  unsigned position_2 = (*qubit_permutation)[qubit_2];
   assert(position_2 < num_qubits);
 
   // For simplicity, we choose position_1 s.t. position_1 < position_2

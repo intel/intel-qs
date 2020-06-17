@@ -113,7 +113,7 @@ int InitializeVectorAsMaxCutCostFunction(QubitRegister<Type> & diag,
          x = glb_start + i;
          // x is the global index according to the data qubits
          // Transform the global_index w.r.t. the program qubit order.
-         x = diag.permutation->data2program_(x);
+         x = diag.qubit_permutation->data2program_(x);
 
          // From decimal to binary vector of {0,1}.
          utility::ConvertToBinary(x,xbin);
@@ -206,7 +206,7 @@ InitializeVectorAsWeightedMaxCutCostFunction(QubitRegister<Type> & diag,
          x = glb_start + i;
          // x is the global index according to the data qubits
          // Transform the global_index w.r.t. the program qubit order.
-         x = diag.permutation->data2program_(x);
+         x = diag.qubit_permutation->data2program_(x);
 
          // From decimal to binary vector of {0,1}.
          utility::ConvertToBinary(x,xbin);
@@ -254,7 +254,8 @@ void ImplementQaoaLayerBasedOnCostFunction(QubitRegister<Type> & psi,
 {
   assert( psi.LocalSize( ) == diag.LocalSize( ) );
   assert( psi.GlobalSize() == diag.GlobalSize() );
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
 
   // NOTE: cosine and sine for all values of the cost function could be computed once
   //       and stored in a vector.
@@ -277,7 +278,8 @@ typename QubitRegister<Type>::BaseType
 GetExpectationValueFromCostFunction(const QubitRegister<Type> & psi,
                                     const QubitRegister<Type> & diag)
 {
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
   // Extract basic type from IQS objects.
   typename QubitRegister<Type>::BaseType global_expectation, local_expectation = 0.;
 
@@ -308,7 +310,8 @@ typename QubitRegister<Type>::BaseType
 GetExpectationValueSquaredFromCostFunction(const QubitRegister<Type> & psi,
                                            const QubitRegister<Type> & diag)
 {
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
   // Extract basic type from IQS objects.
   typename QubitRegister<Type>::BaseType global_expectation, local_expectation = 0.;
 
@@ -345,7 +348,8 @@ GetHistogramFromCostFunction( const QubitRegister<Type> & psi,
   // A few preliminary checks:
   assert( psi.LocalSize( ) == diag.LocalSize( ) );	// Vectors with equal local size.
   assert( psi.GlobalSize() == diag.GlobalSize() );	// Vectors with equal global size.
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
   int my_rank = qhipster::mpi::Environment::GetStateRank();
@@ -413,7 +417,8 @@ GetHistogramFromCostFunctionWithWeightsRounded( const QubitRegister<Type> & psi,
   // A few preliminary checks:
   assert( psi.LocalSize( ) == diag.LocalSize( ) );	// Vectors with equal local size.
   assert( psi.GlobalSize() == diag.GlobalSize() );	// Vectors with equal global size.
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
   int my_rank = qhipster::mpi::Environment::GetStateRank();
@@ -482,7 +487,8 @@ GetHistogramFromCostFunctionWithWeightsBinned( const QubitRegister<Type> & psi,
   // A few preliminary checks:
   assert( psi.LocalSize( ) == diag.LocalSize( ) );	// Vectors with equal local size.
   assert( psi.GlobalSize() == diag.GlobalSize() );	// Vectors with equal global size.
-  assert( psi.permutation->map == diag.permutation->map);
+  assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
+  assert( psi.state_rank_permutation->map == diag.state_rank_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
   int my_rank = qhipster::mpi::Environment::GetStateRank();

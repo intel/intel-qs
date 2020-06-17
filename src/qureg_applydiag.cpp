@@ -26,8 +26,8 @@ void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit_1, unsigned qubit_2,  TM4
        d22 = m[2][2],
        d33 = m[3][3];
 
-  unsigned position_1 = (*permutation)[qubit_1];
-  unsigned position_2 = (*permutation)[qubit_2];
+  unsigned position_1 = (*qubit_permutation)[qubit_1];
+  unsigned position_2 = (*qubit_permutation)[qubit_2];
   assert(position_1 < num_qubits);
   assert(position_2 < num_qubits);
 
@@ -68,8 +68,8 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit_1, unsigned qubit_2,  TM4x4<T
       ApplyFusedGates();
   }
 
-  unsigned position_1 = (*permutation)[qubit_1];
-  unsigned position_2 = (*permutation)[qubit_2];
+  unsigned position_1 = (*qubit_permutation)[qubit_1];
+  unsigned position_2 = (*qubit_permutation)[qubit_2];
   assert(position_1 < num_qubits);
   assert(position_2 < num_qubits);
 
