@@ -40,7 +40,7 @@ TEST_F(PermutationTest, InitializationToIdentitylPermutation)
 {
   num_bits_ = 6;
   Permutation permutation(num_bits_);
-  ASSERT_EQ(permutation.num_qubits, num_bits_);
+  ASSERT_EQ(permutation.num_elements, num_bits_);
 
   // The permutation is initialized to the trivial one.
   map_ = {0, 1, 2, 3, 4, 5};
@@ -58,7 +58,7 @@ TEST_F(PermutationTest, BasicUse)
 {
   num_bits_ = 6;
   Permutation permutation(num_bits_);
-  ASSERT_EQ(permutation.num_qubits, num_bits_);
+  ASSERT_EQ(permutation.num_elements, num_bits_);
 
   // Map from program qubits to data qubits.
   map_  = {1, 2, 0, 3, 5, 4};
@@ -236,7 +236,7 @@ namespace utest
     State(Permutation p_, std::string name_, bool do_print_=true)
       : p(p_), name(name_), do_print(do_print_)
     {
-        state.resize(1 << p.num_qubits);
+        state.resize(1 << p.num_elements);
         for (std::size_t i = 0; i < state.size(); i++)
             state[i] = {D(i % 3), D(i % 16)};
     }
@@ -245,12 +245,12 @@ namespace utest
     void permute(Permutation pnew)
     {
         Permutation pold = p;
-        assert(pnew.num_qubits == pold.num_qubits);
+        assert(pnew.num_elements == pold.num_elements);
         std::vector<ComplexDP> state_new(state.size(), 0);
     
         // printf("map: %s imap: %s\n", pnew.GetMapStr().c_str(), pold.GetImapStr().c_str());
-        std::vector<std::size_t> map(pnew.num_qubits, 0);
-        for (std::size_t i = 0; i < pnew.num_qubits; i++)
+        std::vector<std::size_t> map(pnew.num_elements, 0);
+        for (std::size_t i = 0; i < pnew.num_elements; i++)
         {
             //                   pnew.imap[i]   -->  program bit associated to new data bit 'i'
             //          pold.map[pnew.imap[i]]  -->  old data bit associated to new data bit 'i'
@@ -266,7 +266,7 @@ namespace utest
         {
             // 'i'  is the index in the old data representation.
             // 'to' is the corresponding index in the new data representation
-            std::size_t to = perm(i, &(map[0]), p.num_qubits);
+            std::size_t to = perm(i, &(map[0]), p.num_elements);
             assert(to == pnew.program2data_(pold.data2program_(i)));
             assert(to == pold.bin2dec(pnew.program2data(pold.data2program(i))));
             assert(to == pnew.bin2dec(pnew.program2data(pold.data2program(i))));
@@ -319,7 +319,6 @@ TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
   for (std::size_t i=0; i<(1<<num_bits_); ++i)
       ASSERT_DOUBLE_EQ(s.state[i].imag(), double(i));
 
-#if 1
   Permutation p({2, 0, 1});
 //  p.Print();
   s.permute(p);
@@ -347,23 +346,6 @@ TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
   // Back to original order:
   for (std::size_t i=0; i<(1<<num_bits_); ++i)
       ASSERT_DOUBLE_EQ(s.state[i].imag(), double(i));
-
-#else
-#if 0
-   State s1(Permutation({2, 1, 0}), "s"), s2(s1);
-   s1.permute(Permutation({2,0,1}));
-   s2.permute(Permutation({2,0,1}));
-   assert(s1 == s2);
-   printf("SUCCESS!\n");
-#else
-  std::vector<std::size_t> map(num_qubits, 0);
-  iota(map.begin(), map.end(), 0);
-  State s1(Permutation(map), "s1"), s2(s1);
-  s2.permute(Permutation(map));
-  s2.permute(Permutation(map));
-  s2.permute(Permutation(map));
-#endif
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

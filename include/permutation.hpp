@@ -16,27 +16,32 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// @class Permutation (described in the context of IQS).
-/// Define the order of the qubits in the representation of the quantum state.
+/// Define the order of N objects
+/// (often, the N qubits in the representation of the quantum state).
 ///
-/// The N-qubit quantum state |psi> is stored as a 2^N complex vector.
-/// The global index i corresponds to the entry:
-///   state[i] = |i0>_dq0 * |i1>_dq1 * |i2>_dq2 * ...
-/// where ik is the k-th bit of i in its N-bit representation (with i0 being the
-/// least significant bit) and dqk corresponds to the k-th data qubit.
+/// For the identity permutation, elements and their position correspond trivially:
+///   element  -->  position
+///      0              0
+///      1              1
+///      2              2
+///     ...            ...
+///     N-1            N-1
 ///
-/// The quantum algorithm is written in terms of gates (or other quantum operations)
-/// acting on 'program qubits'. Instead, the way IQS represents a quantum register state
-/// is based on 'data qubits', which are in 1:1 correspondence with program qubits
-/// but may be in a different order. The order of data qubits determine which qubit
-/// is 'local' and which is 'global' from the point of view of teh MPI communication.
+/// However this can be changed by using a Permutation object. Specifically one has:
+///   element  -->  position
+///      0            map(0)
+///      1            map(1)
+///      2            map(2)
+///     ...            ...
+///     N-1           map(N-1)
 ///
-/// When a QubitRegister is initialized, data qubits and program qubits correspond trivially:
-///   pq(0) --> dq(0)      ,  pq(1) --> dq(1)      ,  ...
-/// However this can be changed by using Permutations. Specifically one has:
-///   pq(0) --> dq(map[0]) ,  pq(1) --> dq(map[1]) ,  ...
 /// and its inverse:
-///   dq(0) --> pq(imap[0]),  dq(1) --> pq(imap[1]),  ...
-/// 
+///   position -->  element 
+///      0           imap(0)
+///      1           imap(1)
+///      2           imap(2)
+///     ...            ...
+///     N-1          imap(N-1)
 ///
 /// @var map: map
 /// @var imap: inverse map
@@ -45,61 +50,41 @@ class Permutation
 {
  public:
   std::vector<std::size_t> map, imap;
-  std::size_t num_qubits;
+  std::size_t num_elements;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// Overload operator [] to address single entries of the permutation map.
 ///
-/// Map from program qubits (used in algorithm) and data qubits (used in state representation):
+/// Map from elements to their positions.
+/// When elements are qubits, they represent program qubits while their positions correspond
+/// to data qubits. One has the correspondence:
+///         element k --> position map[k]
 ///   program qubit k --> data qubit map[k]
-
-#if 0
-  // Appropriate also for lvalue.
-  // This may be problematic since map and imap are not in sync anymore.
-
-  std::size_t& operator[](std::size_t i)
-  {
-    assert(i < num_qubits);
-    return map[i];
-  }
-
-  std::size_t& operator[](unsigned i)
-  {
-    assert(i < num_qubits);
-    return map[i];
-  }
-
-  std::size_t& operator[](int i)
-  {
-    assert(i < num_qubits);
-    return map[i];
-  }
-#endif
 
   // Appropriate only for rvalue.
 
   unsigned operator[](std::size_t i) const
   {
-    assert(i < num_qubits);
+    assert(i < num_elements);
     return (unsigned) map[i];
   }
 
   unsigned operator[](unsigned i) const
   {
-    assert(i < num_qubits);
+    assert(i < num_elements);
     return map[i];
   }
 
   int operator[](int i) const
   {
-    assert(i < num_qubits);
+    assert(i < num_elements);
     return (int)map[i];
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Method similar to the std::vector<>::size function.
+/// Return the number of elements.
   std::size_t size() {return map.size();}
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -125,11 +110,11 @@ class Permutation
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// Create the identity Permutation.
-  Permutation(std::size_t num_qubits)
+  Permutation(std::size_t num_elements)
   {
-    this->num_qubits = num_qubits;
-    std::vector<std::size_t> m(num_qubits);
-    // Initialize the trivial permutation: {0,1,2,... num_qubits-1}
+    this->num_elements = num_elements;
+    std::vector<std::size_t> m(num_elements);
+    // Initialize the trivial permutation: {0,1,2,... num_elements-1}
     iota(m.begin(), m.end(), 0);
     // for(auto i:m) printf("%d ", i); printf("\n");
     // exit(0);
@@ -139,13 +124,13 @@ class Permutation
 /// Create and initialize the permutation from a vector.
   Permutation(std::vector<std::size_t> m, std::string style_of_map="direct")
   {
-    num_qubits = m.size();
+    num_elements = m.size();
     SetNewPermutationFromMap(m, style_of_map);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/// Find the program qubit associated with a specific data qubit.
+/// Find the element associated with a specific position.
 ///
 /// If it exists, Find(position)=imap(position).
   std::size_t Find(std::size_t position)
@@ -170,7 +155,7 @@ class Permutation
   void SetNewPermutationFromMap(std::vector<std::size_t> m, std::string style_of_map="direct")
   {
     // Check consistency of m.
-    assert (m.size() == this->num_qubits);
+    assert (m.size() == this->num_elements);
     std::vector<bool> exist(m.size(), 0);
     for (auto &j : m)
         exist[j] = 1;
@@ -181,14 +166,14 @@ class Permutation
     if (style_of_map=="direct")
     {
         map = m;
-        imap.resize(num_qubits);
+        imap.resize(num_elements);
         for (std::size_t q = 0; q < map.size(); q++)
             imap[map[q]] = q;
     }
     else if (style_of_map=="inverse")
     {
         imap = m;
-        map.resize(num_qubits);
+        map.resize(num_elements);
         for (std::size_t pos = 0; pos < imap.size(); pos++)
             map[imap[pos]] = pos;
     }
@@ -200,8 +185,8 @@ class Permutation
 /// Exchange two elements in the permutation (i.e. in map).
 ///
 /// Explicitly:
-///    map[e1] = d1   ---->    map[e1] = d2
-///    map[e2] = d2   ---->    map[e2] = d1
+///    map[e1] = p1   ---->    map[e1] = p2
+///    map[e2] = p2   ---->    map[e2] = p1
 /// imap is updated to reflect the change in map.
   void ExchangeTwoElements(std::size_t element_1, std::size_t element_2)
   {
@@ -242,9 +227,13 @@ class Permutation
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// Consider the case when the elements represent the bits of a base-2 number.
+// Reorder the bits according to their position in the Permutation.
+// What is the new number?
+/////////////////////////////////////////////////////////////////////////////////////////
 // Understanding bitwise operations:
 //   v & (1 << map[i]))   ---->   zero bitstring, apart from the bit value corresponding
-//                                to the data qubit associated with program qubit i
+//                                to the position associated with element i
 //                                the bit value is in position map[i]
 //
 //   [ans] >> map[i]      ---->   the above bit is moved to position 0
@@ -258,7 +247,7 @@ class Permutation
   inline std::size_t data2program_(std::size_t v)
   {
     std::size_t v_ = 0;
-    for (std::size_t i = 0; i < num_qubits; i++)
+    for (std::size_t i = 0; i < num_elements; i++)
         v_ = v_ | (((v & (((std::size_t) 1) << map[i])) >> map[i]) << i);
     return v_;
   }
@@ -267,7 +256,7 @@ class Permutation
   inline std::size_t program2data_(std::size_t v)
   {
     std::size_t v_ = 0;
-    for (std::size_t i = 0; i < num_qubits; i++)
+    for (std::size_t i = 0; i < num_elements; i++)
         v_ = v_ | (((v & (((std::size_t)1) << imap[i])) >> imap[i]) << i);
     return v_;
   }
@@ -275,16 +264,16 @@ class Permutation
   /// Transform index v in [0,2^N[ from data decimal index to program string representation.
   std::string data2program(std::size_t v)
   {
-    std::string s = dec2bin(v, num_qubits), sp(s);
+    std::string s = dec2bin(v, num_elements), sp(s);
     for (std::size_t i = 0; i < s.size(); i++)
         sp[i] = s[map[i]];
 
     if (0)
     {
         std::size_t v_ = 0;
-        for (std::size_t i = 0; i < num_qubits; i++)
+        for (std::size_t i = 0; i < num_elements; i++)
             v_ = v_ | (((v & (((std::size_t)1) << map[i])) >> map[i]) << i);
-        printf("sp=%s new:%s\n", sp.c_str(), dec2bin(v_, num_qubits).c_str());
+        printf("sp=%s new:%s\n", sp.c_str(), dec2bin(v_, num_elements).c_str());
     }
     return sp;
   }
@@ -301,7 +290,7 @@ class Permutation
   /// Transform index v in [0,2^N[ from program decimal index to data string representation.
   std::string program2data(std::size_t v)
   {
-    std::string s = dec2bin(v, num_qubits), sp(s);
+    std::string s = dec2bin(v, num_elements), sp(s);
     for (std::size_t i = 0; i < s.size(); i++)
         sp[i] = s[imap[i]];
     return sp;
@@ -329,13 +318,13 @@ class Permutation
     printf("imap: ");
     for(auto & i : imap) printf("%d", i);
     printf("\n");
-    for(std::size_t i = 0; i < (1 << num_qubits); i++)
+    for(std::size_t i = 0; i < (1 << num_elements); i++)
     {
-       printf("%s(%lld)\n", dec2bin(i, num_qubits).c_str(), i);
+       printf("%s(%lld)\n", dec2bin(i, num_elements).c_str(), i);
     }
 
     printf("\n");
-    for(std::size_t i = 0; i < (1 << num_qubits); i++)
+    for(std::size_t i = 0; i < (1 << num_elements); i++)
     {
        printf("%s(%lld)\n", date2program(i).c_str(), bin2dec(data2program(i)));
     }
@@ -343,7 +332,7 @@ class Permutation
     printf("\n");
 #endif
 
-    for (std::size_t i = 0; i < (UL(1) << num_qubits); i++)
+    for (std::size_t i = 0; i < (UL(1) << num_elements); i++)
     {
 #if 0
        printf("%s ==> %s\n", data2program(i).c_str(), 
@@ -362,15 +351,14 @@ class Permutation
   /// such that:
   /// * intermediate_imap_1 is obtained from old_imap by changing only the first M values
   /// * intermediate_imap_2 is obtained from intermediate_imap_1 by changing only the last
-  ///   num_qubits-M elements and can be transformed in new_imap by changing only the last
-  ///   num_qubits-M elements.
+  ///   N-M values and can be transformed in new_imap by exchanging pairs (i,j) with i<M, j>=M.
   void ObtainIntemediateInverseMaps(std::vector<std::size_t> target_map,  size_t M,
                                     std::vector<std::size_t> & int_1_imap,
                                     std::vector<std::size_t> & int_2_imap)
   {
     // Check the validity of inputs.
-    assert(M <= this->num_qubits);
-    assert (target_map.size() == this->num_qubits);
+    assert(M <= this->num_elements);
+    assert (target_map.size() == this->num_elements);
     std::vector<bool> exist(target_map.size(), 0);
     for (auto &j : target_map)
         exist[j] = 1;
@@ -388,9 +376,9 @@ class Permutation
         int_1_imap[pos_try] = imap[pos];
     }
 
-    // Intermediate map updating the last num_qubits-M elements of the inverse map.
+    // Intermediate map updating the last num_elements-M elements of the inverse map.
     int_2_imap = int_1_imap;
-    for (std::size_t pos = M; pos<this->num_qubits; pos++)
+    for (std::size_t pos = M; pos<this->num_elements; pos++)
     {
         pos_try = target_map[ int_1_imap[pos] ];
         while (pos_try < M)

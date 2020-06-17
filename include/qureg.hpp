@@ -58,6 +58,49 @@ using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 
+/// @class QubitRegister represents the state of N qubits and update it due to quantum operations.
+///
+/// The N-qubit quantum state |psi> is stored as a 2^N complex vector.
+/// The global index i corresponds to the entry:
+///   state[i] = |i0>_pos0 * |i1>_pos1 * |i2>_pos2 * ...
+/// where ik is the k-th bit of i in its N-bit representation (with i0 being the
+/// least significant bit) and posk corresponds to the k-th qubit according to the
+/// order in which they are stored.
+///
+/// The quantum algorithm is written in terms of gates (or other quantum operations)
+/// acting on 'program qubits'. Instead, the way IQS represents a quantum register state
+/// is based on 'qubit positions', which are in 1:1 correspondence with program qubits
+/// but may be in a different order. The qubit positions determine which qubit
+/// is 'local' and which is 'global' from the point of view of teh MPI communication.
+///
+/// When a QubitRegister is initialized, data qubits and program qubits correspond trivially:
+///    qubit  -->  position
+///      0            0
+///      1            1
+///      2            2
+///     ...          ...
+///     N-1          N-1
+///
+/// This can be changed by using Permutations. Specifically one has:
+///    qubit  -->  position
+///      0          map(0)
+///      1          map(1)
+///      2          map(2)
+///     ...          ...
+///     N-1         map(N-1)
+///
+/// and its inverse:
+///   position -->  qubit
+///      0         imap(0)
+///      1         imap(1)
+///      2         imap(2)
+///     ...          ...
+///     N-1        imap(N-1)
+///
+/// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
+/// This is also done recording their order in a Permutation object.
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // QubitRegister class declaration
 /////////////////////////////////////////////////////////////////////////////////////////
