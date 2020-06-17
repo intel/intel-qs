@@ -6,8 +6,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
-                                  std::string style_of_map)
+void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map,
+                                        std::string style_of_map)
 {
   assert(num_qubits == new_map.size());
 
@@ -15,13 +15,13 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
   if (nprocs==1)
   // Single-node implementation.
   {
-      this->PermuteLocal(new_map, style_of_map);
+      this->PermuteLocalQubits(new_map, style_of_map);
   }
   else
   // Multi-node implementation.
   {
-      Permutation &permutation_old = *permutation;
-      Permutation permutation_new(new_map, style_of_map);
+      Permutation &qubit_permutation_old = *qubit_permutation;
+      Permutation qubit_permutation_new(new_map, style_of_map);
 
 #ifndef INTELQS_HAS_MPI
       assert(0);
@@ -47,7 +47,7 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
       std::size_t to_lclind;
       for (std::size_t i = 0; i < glb_state.size(); i++)
       {
-          std::size_t to_glbind = permutation_new.program2data_(permutation_old.data2program_(i));
+          std::size_t to_glbind = qubit_permutation_new.program2data_(qubit_permutation_old.data2program_(i));
           std::size_t to_rank = to_glbind / LocalSize();
           if (to_rank == myrank)
           {
@@ -57,8 +57,8 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
           }
       }
 #endif
-      // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
-      permutation_old = permutation_new;
+      // permutation_old is a reference to the permutation pointed by the class variable 'qubit_permutation'.
+      qubit_permutation_old = qubit_permutation_new;
   }
 
 
@@ -69,7 +69,7 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
   for(std::size_t i = 0; i < LocalSize(); i++)
   {
       std::size_t glbind =
-          permutation_old.bin2dec(permutation_new.program2data(permutation_old.data2program(i)));
+          qubit_permutation_old.bin2dec(qubit_permutation_new.program2data(qubit_permutation_old.data2program(i)));
     std::size_t rank = glbind / LocalSize(); 
     assert(rank < nprocs);
     counts[rank]++;
@@ -83,7 +83,7 @@ void QubitRegister<Type>::Permute(std::vector<std::size_t> new_map,
   for(std::size_t i = 0; i < LocalSize(); i++)
   {
       std::size_t glbind =
-          permutation_old.bin2dec(permutation_new.program2data(permutation_old.data2program(i)));
+          qubit_permutation_old.bin2dec(qubit_permutation_new.program2data(qubit_permutation_old.data2program(i)));
       std::size_t rank = glbind / LocalSize();
       std::size_t lclind = glbind - rank * nprocs;
       tmp[displs[rank]
@@ -99,20 +99,14 @@ void QubitRegister<Type>::EmulateSwap(unsigned qubit_1, unsigned qubit_2)
   assert(qubit_1 < num_qubits);
   assert(qubit_2 < num_qubits);
 
-  // Current position of program qubits 1,2.
-  unsigned position_1 = (*permutation)[qubit_1];
-  unsigned position_2 = (*permutation)[qubit_2];
-  assert(position_1 < num_qubits);
-  assert(position_2 < num_qubits);
-
   // Their position are exchanged in the emulation of the SWAP.
-  permutation->ExchangeTwoElements(position_1, position_2);
+  qubit_permutation->ExchangeTwoElements(qubit_1, qubit_2);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::string style_of_map)
+void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, std::string style_of_map)
 {
   // Determine the inverse map.
   assert(new_map.size() == this->num_qubits);
@@ -125,7 +119,7 @@ void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::st
 
   // Verify that new map mantains the current distinction between local and global qubits.
   // and that only the local qubits are (eventually) updated.
-  std::vector<std::size_t> & old_inverse_map = permutation->imap;
+  std::vector<std::size_t> & old_inverse_map = qubit_permutation->imap;
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   std::vector<bool> local(new_inverse_map.size(), 0);
   for (unsigned pos=0; pos<M; ++pos)
@@ -136,8 +130,8 @@ void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::st
       assert( old_inverse_map[pos] == new_inverse_map[pos] );
   
   // Initialize the utility vector: state_old = state;
-  Permutation &permutation_old = *permutation;
-  Permutation permutation_new(new_inverse_map, "inverse");
+  Permutation &qubit_permutation_old = *qubit_permutation;
+  Permutation qubit_permutation_new(new_inverse_map, "inverse");
   std::vector<Type> state_old(LocalSize(), 0);
 #pragma omp parallel for
   for (std::size_t i = 0; i < LocalSize(); i++)
@@ -146,19 +140,19 @@ void QubitRegister<Type>::PermuteLocal(std::vector<std::size_t> new_map, std::st
 #pragma omp parallel for
   for (std::size_t i = 0; i < LocalSize(); i++)
   {
-      std::size_t to = permutation_new.program2data_(permutation_old.data2program_(i));
+      std::size_t to = qubit_permutation_new.program2data_(qubit_permutation_old.data2program_(i));
       state[to] = state_old[i];
   }
 
   // Update permutation:
-  // permutation_old is a reference to the permutation pointed by the class variable 'permutation'.
-  permutation_old = permutation_new;
+  // permutation_old is a reference to the permutation pointed by the class variable 'qubit_permutation'.
+  qubit_permutation_old = qubit_permutation_new;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::PermuteGlobal(std::vector<std::size_t> new_map, std::string style_of_map)
+void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, std::string style_of_map)
 {
   // Determine the inverse map.
   assert(new_map.size() == this->num_qubits);
@@ -171,7 +165,7 @@ void QubitRegister<Type>::PermuteGlobal(std::vector<std::size_t> new_map, std::s
 
   // Verify that new map mantains the current distinction between local and global qubits
   // and that only the global qubits are (eventually) updated.
-  std::vector<std::size_t> & old_inverse_map = permutation->imap;
+  std::vector<std::size_t> & old_inverse_map = qubit_permutation->imap;
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   std::vector<bool> global(new_inverse_map.size(), 0);
   for (unsigned pos=M; pos<num_qubits; ++pos)
@@ -190,16 +184,17 @@ void QubitRegister<Type>::PermuteGlobal(std::vector<std::size_t> new_map, std::s
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfSinglePair(std::vector<std::size_t> new_map,
-                                                                   std::string style_of_map)
+void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfQubitPair(std::vector<std::size_t> new_map,
+                                                                  std::string style_of_map)
 {
   // Confirm that only two qubits changed position.
-  Permutation new_permutation(new_map, style_of_map);
+  Permutation new_qubit_permutation(new_map, style_of_map);
   std::vector<unsigned> exchanged_qubits;
   for (unsigned j=0; j<num_qubits; ++j)
-      if ( new_permutation[j] != (*permutation)[j] )
+      if ( new_qubit_permutation[j] != (*qubit_permutation)[j] )
           exchanged_qubits.push_back(j);
   assert(exchanged_qubits.size()==2);
+
   // Confirm that one qubit is local and the other global.
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   unsigned  local_qubit, global_qubit;
@@ -216,8 +211,9 @@ void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfSinglePair(std::vector<s
       assert(local_qubit<M);
   }
 
+  // Actual implementation
   ApplySwap(local_qubit, global_qubit);   // move/update the data
-  EmulateSwap(local_qubit, global_qubit); // update the permutation
+  qubit_permutation->ExchangeTwoElements(local_qubit, global_qubit);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

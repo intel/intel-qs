@@ -45,11 +45,15 @@ TEST_F(ApplySwapGateTest, Emulation)
   QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
   ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index), amplitude_1, accepted_error_);
 
-  ASSERT_EQ( (*psi.permutation)[1], 1);
-  ASSERT_EQ( (*psi.permutation)[2], 2);
+  ASSERT_EQ( (*psi.qubit_permutation)[1], 1);
+  ASSERT_EQ( (*psi.qubit_permutation)[2], 2);
   psi.EmulateSwap(1, 2);
-  ASSERT_EQ( (*psi.permutation)[1], 2);
-  ASSERT_EQ( (*psi.permutation)[2], 1);
+  ASSERT_EQ( (*psi.qubit_permutation)[1], 2);
+  ASSERT_EQ( (*psi.qubit_permutation)[2], 1);
+  psi.EmulateSwap(2, 3);
+  ASSERT_EQ( (*psi.qubit_permutation)[1], 2);
+  ASSERT_EQ( (*psi.qubit_permutation)[2], 3);
+  ASSERT_EQ( (*psi.qubit_permutation)[3], 1);
   // Initial state |0100000000>
   std::size_t index_after = 2;
   ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index      ), amplitude_0, accepted_error_);

@@ -99,6 +99,15 @@ using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 ///
 /// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
 /// This is also done recording their order in a Permutation object.
+///
+///    rank_id from COMM  -->  rank_id for data storage
+///           0                        map(0)
+///           1                        map(1)
+///           2                        map(2)
+///          ...                        ...
+///       num_ranks                    map(num_ranks-1)
+///
+/// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -184,12 +193,21 @@ class QubitRegister
   void DisableStatistics();
   void ResetStatistics();
 
-  void Permute(std::vector<std::size_t> new_map, std::string style_of_map="direct");
-  void PermuteLocal(std::vector<std::size_t> new_map, std::string style_of_map="direct");
-  void PermuteGlobal(std::vector<std::size_t> new_map, std::string style_of_map="direct");
-  void PermuteByLocalGlobalExchangeOfSinglePair(std::vector<std::size_t> new_map,
-                                                std::string style_of_map="direct");
+  // Permutation of the qubit order
+  void PermuteQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteLocalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteGlobalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteByLocalGlobalExchangeOfQubitPair(std::vector<std::size_t> new_map,
+                                               std::string style_of_map="direct");
   void EmulateSwap(unsigned qubit1, unsigned qubit2);
+
+  // Permutation of the state_rank order
+  int GetDataRank (int comm_rank) const
+    { return (*state_rank_permutation)[comm_rank]; }
+  int GetMyDataRank () const
+    { return this->GetDataRank(qhipster::mpi::Environment::GetStateRank()); }
+  int GetCommRank (int data_rank) const
+    { return state_rank_permutation->Find(data_rank); }
 
   // Generic gates
   // single qubit gates

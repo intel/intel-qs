@@ -370,7 +370,7 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
   for (std::size_t i = 0; i < lcl; i++)
       state[i] = in.state[i];
  
-  *qubit_permutation = *(in.qubitpermutation);
+  *qubit_permutation = *(in.qubit_permutation);
   *state_rank_permutation = *(in.state_rank_permutation);
 }
 
