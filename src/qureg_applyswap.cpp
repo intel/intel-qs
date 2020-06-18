@@ -159,7 +159,8 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   std::size_t lcl_size_half = LocalSize() / 2UL;
   std::size_t lcl_size_quarter = lcl_size_half / 2UL;
   // At least 4 amplitudes per MPI process. Corresponding to assert(M<num_qubits-2).
-  assert(lcl_size_quarter >= 1);
+//FIXME  assert(lcl_size_quarter >= 1);
+  assert(lcl_size_half >= 1);
   // The buffer size is given by TmpSize(). It is unnecessary to use more then half the LocalSize().
   size_t lcl_chunk = TmpSize();
   if (lcl_chunk > lcl_size_half) 
@@ -231,7 +232,7 @@ std::cout << "call to HP_DistrSwap(" << position_1 << ", " << position_2 << ", m
     }
     else
     {
-std::cout << "call to ApplySwap before two global qubits, namely those at position: "
+std::cout << "call to ApplySwap on two global qubits, namely those at position: "
           << position_1 << ", " << position_2 << "\n"; // FIXME delete
         assert(0); // FIXME TODO exchange of the MPI process id
     }
@@ -547,7 +548,7 @@ std::cout << "DistrSwap:  lcl_chunk = " << lcl_chunk << " , lcl_size_half = " <<
 
           // 3. src and dst compute
           if (L == M-1) {
-              Loop_SN(0UL, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0UL,
+              Loop_SN(0UL, lcl_chunk, &(state[start_ind]), tmp_state, 0UL, 0UL,
                       m, specialize, timer);
           } else {
               Loop_DN(0UL, lcl_chunk, L, &(state[c]), tmp_state, lcl_size_half+(1UL<<L), 0UL,
@@ -579,7 +580,7 @@ std::cout << "DistrSwap:  lcl_chunk = " << lcl_chunk << " , lcl_size_half = " <<
 
           // 3. src and dst compute
           if (L == M-1) {
-              Loop_SN(0UL, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0UL,
+              Loop_SN(0UL, lcl_chunk, &(state[start_ind]), tmp_state, 0UL, 0UL,
                       m, specialize, timer);
           } else {
               Loop_DN(0UL, lcl_chunk, L, tmp_state, &(state[c]), (1UL<<L), 0UL,

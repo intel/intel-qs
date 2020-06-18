@@ -291,8 +291,11 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              bool specialize, Timer *timer)
 {
   TODO(Allow for case where state is not aligned: need SIMD ISA for un-aligned access);
-  assert((UL(state0) % 256) == 0);
-  assert((UL(state1) % 256) == 0);
+  if (specialize) // FIXME: this condition on the assertions was added later. Need to be validated.
+  {
+      assert((UL(state0) % 256) == 0);
+      assert((UL(state1) % 256) == 0);
+  }
 #if defined(__ICC) || defined(__INTEL_COMPILER)
   __assume_aligned(state0, 256);
   __assume_aligned(state1, 256);

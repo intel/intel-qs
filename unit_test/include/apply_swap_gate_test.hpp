@@ -97,15 +97,12 @@ TEST_F(ApplySwapGateTest, Explicit3QubitExample)
   psi.ApplySwap(0, 1);
   // |psi> = {0,1,2,3,4,5,6,7}
 
-// TODO: to enable the test below, Loop_DN needs to be enabled for "not-aligned" states
-#if 0
   psi.ApplySwap(0, 2);
   // |psi> = {0,4,2,6,1,5,3,7}
   expected_state = {0,4,2,6,1,5,3,7};
   if (print_state) psi.Print("SWAP qubit 0 and 2 (from trivial)");
   for (std::size_t j=0; j<psi.GlobalSize(); ++j)
       ASSERT_DOUBLE_EQ( psi.GetGlobalAmplitude(j).real(), expected_state[j]);
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -147,7 +144,8 @@ TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
   // TODO: add the SWAP between (probably) distributed qubits, like n-1 and n-2.
   // Compare two implementations of the SWAP gate.
   qubit1 = num_qubits_-1;
-  qubit2 = num_qubits_-2;
+  qubit1 = num_qubits_-2;
+  qubit2 = num_qubits_-3;
   psi_1.ApplySwap(qubit1, qubit2);
   psi_2.ApplyCPauliX(qubit1, qubit2);
   psi_2.ApplyCPauliX(qubit2, qubit1);
