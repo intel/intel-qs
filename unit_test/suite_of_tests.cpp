@@ -59,6 +59,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 #include "include/chunking_communication_test.hpp"
 
 // Noisy simulations and extra features.
+#include "include/qureg_permute_test.hpp"
 #include "include/noisy_simulation_test.hpp"
 #include "include/qaoa_features_test.hpp"
 

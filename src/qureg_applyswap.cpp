@@ -219,7 +219,8 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   }
   else
   {
-#if 1
+// FIXME FIXME TODO TODO
+#if 10
         HP_DistrSwap(position_1, position_2, m);
 // This is the old implementation by Misha. Remove it one the last case (global-global) has been tested.
 #else

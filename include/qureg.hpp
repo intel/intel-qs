@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <algorithm>	// for std::swap
+#include <algorithm>	// for std::swap, std::iota
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -154,6 +154,7 @@ class QubitRegister
   // Return the amplitude corresponding to a global index (with MPI broadcast).
   // The index is expressed in terms of the program qubits.
   Type GetGlobalAmplitude(std::size_t index) const;
+  void SetGlobalAmplitude(std::size_t index, Type value);
 
   std::size_t LocalSize() const { return local_size_; }
   std::size_t GlobalSize() const { return global_size_; }

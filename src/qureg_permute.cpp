@@ -154,18 +154,18 @@ void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, s
 template <class Type>
 void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, std::string style_of_map)
 {
-  // Determine the inverse map.
+#ifndef INTELQS_HAS_MPI
+  assert(0);
+#else
   assert(new_map.size() == this->num_qubits);
-  std::vector<std::size_t> new_inverse_map = new_map;
-  if (style_of_map=="direct")
-      for (std::size_t qubit = 0; qubit < new_map.size(); qubit++)
-          new_inverse_map[new_map[qubit]] = qubit;
-  else if (style_of_map!="inverse")
-      assert(0);
+  Permutation qubit_permutation_new(new_map, style_of_map);
+  std::vector<std::size_t> new_direct_map = qubit_permutation_new.map;
+  std::vector<std::size_t> new_inverse_map = qubit_permutation_new.imap;
 
   // Verify that new map mantains the current distinction between local and global qubits
   // and that only the global qubits are (eventually) updated.
-  std::vector<std::size_t> & old_inverse_map = qubit_permutation->imap;
+  std::vector<std::size_t> old_direct_map = qubit_permutation->map;
+  std::vector<std::size_t> old_inverse_map = qubit_permutation->imap;
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
   std::vector<bool> global(new_inverse_map.size(), 0);
   for (unsigned pos=M; pos<num_qubits; ++pos)
@@ -175,10 +175,47 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   for (unsigned pos=0; pos<M; ++pos)
       assert( old_inverse_map[pos] == new_inverse_map[pos] );
   
-  // FIXME: At the moment, enforce that also the global qubits are not re-ordered.
   // TODO: non-identity reordering of the global qubits may be implemented by reindexing MPI processes.
+
+  // When more than two qubits change position, the content of MPI ranks are not simply
+  // exchanged in paris, but one may have longer cycles like A-->B-->C-->D-->A
+  // myrank sends to destination and receives from source
+  int myrank = qhipster::mpi::Environment::GetStateRank();
+  int source(0), destination(0);
+  std::size_t glb_start = UL(myrank) * LocalSize(); // based on the position
+  
+  unsigned qubit;
+  unsigned position;
   for (unsigned pos=M; pos<num_qubits; ++pos)
-      assert( old_inverse_map[pos] == new_inverse_map[pos] );
+  {
+      qubit = old_inverse_map[pos];
+      position = new_direct_map[qubit];
+      if (check_bit(glb_start, pos) == 1)
+          destination += (1UL << position);
+      //
+      qubit = new_inverse_map[pos];
+      position = old_direct_map[qubit];
+      if (check_bit(glb_start, pos) == 1)
+          source += (1UL << position);
+  }
+  
+  MPI_Status status;
+  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+
+  Type *tmp_state = TmpSpace();
+  std::size_t lcl_size_half = LocalSize() / 2L;
+  size_t lcl_chunk = TmpSize();
+  if (lcl_chunk > lcl_size_half) 
+      lcl_chunk = lcl_size_half;
+  for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
+  {
+      // As tag, we use the source of the corresponding communication.
+      qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, myrank,
+                                    &(tmp_state[0]), lcl_chunk, source, source,
+                                    comm, &status);
+  }
+  qubit_permutation->SetNewPermutationFromMap(new_map, style_of_map);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

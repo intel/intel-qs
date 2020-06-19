@@ -101,6 +101,29 @@ Type QubitRegister<Type>::GetGlobalAmplitude
   return amplitude;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Return the maximum L2 distance between the local parts of two states.
+
+template <class Type>
+void QubitRegister<Type>::SetGlobalAmplitude(std::size_t global_index, Type value)
+{
+  assert(global_index < global_size_);
+  // Transform the global_index w.r.t. the data qubit order.
+  global_index = qubit_permutation->program2data_(global_index);
+
+  // Determine in what (state) rank is the amplidute and what is its local index.
+  Type amplitude;
+#ifdef INTELQS_HAS_MPI
+  std::size_t local_index, hosting_data_rank;
+  hosting_data_rank = global_index/local_size_;
+  local_index = global_index % local_size_;
+  int hosting_comm_rank = this->GetCommRank((int)hosting_data_rank);
+  if (hosting_comm_rank == qhipster::mpi::Environment::GetStateRank())
+      state[local_index] = value;
+#else
+  state[global_index] = value;
+#endif
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the maximum L2 distance between the local parts of two states.
