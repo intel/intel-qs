@@ -27,7 +27,6 @@ QubitRegister<Type>::QubitRegister()
   timer = nullptr;
   gate_counter = nullptr;
   qubit_permutation = nullptr;
-  state_rank_permutation = nullptr;
   imported_state = false;
   specialize = false;
   num_qubits = 1;
@@ -75,9 +74,6 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 
   if (qubit_permutation) delete qubit_permutation;
   qubit_permutation = new Permutation(num_qubits);
-
-  if (state_rank_permutation) delete state_rank_permutation;
-  state_rank_permutation = new Permutation(num_qubits);
 }
 
 
@@ -138,7 +134,6 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
 
   // Set-up initial qubit permutation and state_rank permutation.
   qubit_permutation = new Permutation(new_num_qubits);
-  state_rank_permutation = new Permutation(nprocs);
 
   if ( do_print_extra_info && !myrank)
       printf("Specialization is off\n");
@@ -371,7 +366,6 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
       state[i] = in.state[i];
  
   *qubit_permutation = *(in.qubit_permutation);
-  *state_rank_permutation = *(in.state_rank_permutation);
 }
 
 
@@ -409,7 +403,6 @@ QubitRegister<Type>::~QubitRegister()
   if (timer != nullptr) delete timer;
   if (gate_counter != nullptr) delete gate_counter;
   if (qubit_permutation != nullptr) delete qubit_permutation;
-  if (state_rank_permutation != nullptr) delete state_rank_permutation;
 }
 
 template class QubitRegister<ComplexSP>;

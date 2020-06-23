@@ -17,7 +17,6 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 {
   assert(rhs.GlobalSize() == GlobalSize());
   assert(rhs.qubit_permutation->map == qubit_permutation->map);
-  assert(rhs.state_rank_permutation->map == state_rank_permutation->map);
   for (std::size_t i = 0; i < rhs.LocalSize(); i++)
   {
       if (state[i] != rhs.state[i])
@@ -41,7 +40,6 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegi
 {
   assert(LocalSize() == x.LocalSize());
   assert(x.qubit_permutation->map == qubit_permutation->map);
-  assert(x.state_rank_permutation->map == state_rank_permutation->map);
   BaseType lcl_maxabsdiff = -1.0;
 
   std::size_t lcl = LocalSize();
@@ -86,15 +84,12 @@ Type QubitRegister<Type>::GetGlobalAmplitude
   // Determine in what (state) rank is the amplidute and what is its local index.
   Type amplitude;
 #ifdef INTELQS_HAS_MPI
-  std::size_t local_index, hosting_data_rank;
-  hosting_data_rank = global_index/local_size_;
-  int hosting_comm_rank = this->GetCommRank((int)hosting_data_rank);
-  assert(hosting_comm_rank < qhipster::mpi::Environment::GetStateSize());
+  std::size_t local_index, hosting_rank;
+  hosting_rank = global_index/local_size_;
   local_index = global_index % local_size_;
   // Broadcast the value to all ranks.
   amplitude = state[local_index];
-  qhipster::mpi::MPI_Bcast_x(&amplitude, hosting_comm_rank,
-                             qhipster::mpi::Environment::GetStateComm());
+  qhipster::mpi::MPI_Bcast_x(&amplitude, hosting_rank, qhipster::mpi::Environment::GetStateComm());
 #else
   amplitude = state[global_index];
 #endif
@@ -114,11 +109,10 @@ void QubitRegister<Type>::SetGlobalAmplitude(std::size_t global_index, Type valu
   // Determine in what (state) rank is the amplidute and what is its local index.
   Type amplitude;
 #ifdef INTELQS_HAS_MPI
-  std::size_t local_index, hosting_data_rank;
-  hosting_data_rank = global_index/local_size_;
+  std::size_t local_index, hosting_rank;
+  hosting_rank = global_index/local_size_;
   local_index = global_index % local_size_;
-  int hosting_comm_rank = this->GetCommRank((int)hosting_data_rank);
-  if (hosting_comm_rank == qhipster::mpi::Environment::GetStateRank())
+  if (hosting_rank == qhipster::mpi::Environment::GetStateRank())
       state[local_index] = value;
 #else
   state[global_index] = value;
@@ -136,7 +130,6 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxL2NormDiff(QubitR
 {
   assert(LocalSize() == x.LocalSize());
   assert(x.qubit_permutation->map == qubit_permutation->map);
-  assert(x.state_rank_permutation->map == state_rank_permutation->map);
   BaseType lcl_diff = 0.0;
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
@@ -220,7 +213,6 @@ Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
 {
   assert(LocalSize() == psi.LocalSize());
   assert(psi.qubit_permutation->map == qubit_permutation->map);
-  assert(psi.state_rank_permutation->map == state_rank_permutation->map);
   Type local_over = Type(0.,0.);
   BaseType local_over_re = 0.;
   BaseType local_over_im = 0.;
@@ -445,43 +437,39 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   TODO(Second argument of Print() is not used!)
   BaseType cumulative_probability = 0;
 
-  int my_comm_rank = qhipster::mpi::Environment::GetStateRank();
-  int my_data_rank = this->GetMyDataRank();
+  int my_rank = qhipster::mpi::Environment::GetStateRank();
   int nprocs = qhipster::mpi::Environment::GetStateSize();
 #ifdef INTELQS_HAS_MPI
   MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
 #endif
   qhipster::mpi::StateBarrier();
 
-  int root_comm_rank = this->GetCommRank(0);
-  int comm_rank;
   int tag;
-  if (my_data_rank == 0)
+  if (my_rank == 0)
   {
       // print permutation
       assert(qubit_permutation);
       printf("qubit permutation: %s\n", qubit_permutation->GetMapStr().c_str());
       std::string s = PrintVector<Type, BaseType>(state, LocalSize(), num_qubits,
-                                                  cumulative_probability, qubit_permutation, my_data_rank);
+                                                  cumulative_probability, qubit_permutation, my_rank);
       printf("%s=[\n", (const char *)x.c_str());
       printf("%s", (const char *)s.c_str());
 #ifdef INTELQS_HAS_MPI
       for (std::size_t i = 1; i < nprocs; i++)
       {
-          comm_rank = this->GetCommRank(i);
           std::size_t len;
           tag = 1000+i;
 #ifdef BIGMPI
-          MPIX_Recv_x(&len, 1, MPI_LONG, comm_rank, tag, comm, MPI_STATUS_IGNORE);
+          MPIX_Recv_x(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
 #else
-          MPI_Recv(&len, 1, MPI_LONG, comm_rank, tag, comm, MPI_STATUS_IGNORE);
+          MPI_Recv(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
 #endif //BIGMPI
           s.resize(len);
           tag = i;
 #ifdef BIGMPI
-          MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, comm_rank, tag, comm, MPI_STATUS_IGNORE);
+          MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
 #else
-          MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, comm_rank, tag, comm, MPI_STATUS_IGNORE);
+          MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
 #endif //BIGMPI
           printf("%s", (const char *)s.c_str());
       }
@@ -490,28 +478,28 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   else
   {
 #ifdef INTELQS_HAS_MPI
-      std::string s = PrintVector(state, LocalSize(), num_qubits, cumulative_probability, qubit_permutation, my_data_rank);
+      std::string s = PrintVector(state, LocalSize(), num_qubits, cumulative_probability, qubit_permutation, my_rank);
       std::size_t len = s.length() + 1;
-      tag = 1000 + my_data_rank;
+      tag = 1000 + my_rank;
 #ifdef BIGMPI
-      MPIX_Send_x(&len, 1, MPI_LONG, root_comm_rank, tag, comm);
-      MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, root_comm_rank, my_data_rank, comm);
+      MPIX_Send_x(&len, 1, MPI_LONG, 0, tag, comm);
+      MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
 #else
-      MPI_Send(&len, 1, MPI_LONG, root_comm_rank, tag, comm);
-      MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, root_comm_rank, my_data_rank, comm);
+      MPI_Send(&len, 1, MPI_LONG, 0, tag, comm);
+      MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
 #endif //BIGMPI
 #endif
   }
 
   BaseType glb_cumulative_probability;
 #ifdef INTELQS_HAS_MPI
-  MPI_Reduce(&cumulative_probability, &glb_cumulative_probability, 1, MPI_DOUBLE, MPI_SUM, root_comm_rank, comm);
+  MPI_Reduce(&cumulative_probability, &glb_cumulative_probability, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
 #else
   glb_cumulative_probability = cumulative_probability;
 #endif
-  if (my_comm_rank == root_comm_rank)
+  if (my_rank == 0)
   {
-      assert(my_data_rank==0);
+      assert(my_rank==0);
       printf("]; %% cumulative probability = %lf\n", (double)glb_cumulative_probability);
   }
 

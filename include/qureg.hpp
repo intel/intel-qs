@@ -97,6 +97,9 @@ using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 ///     ...          ...
 ///     N-1        imap(N-1)
 ///
+
+// Preparation for MPI-related performance improvement
+#if 0
 /// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
 /// This is also done recording their order in a Permutation object.
 ///
@@ -108,6 +111,7 @@ using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 ///       num_ranks                    map(num_ranks-1)
 ///
 /// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +206,8 @@ class QubitRegister
                                                std::string style_of_map="direct");
   void EmulateSwap(unsigned qubit1, unsigned qubit2);
 
+#if 0
+  Permutation *state_rank_permutation;
   // Permutation of the state_rank order
   int GetDataRank (int comm_rank) const
     { return (*state_rank_permutation)[comm_rank]; }
@@ -209,6 +215,7 @@ class QubitRegister
     { return this->GetDataRank(qhipster::mpi::Environment::GetStateRank()); }
   int GetCommRank (int data_rank) const
     { return state_rank_permutation->Find(data_rank); }
+#endif
 
   // Generic gates
   // single qubit gates
@@ -344,7 +351,6 @@ class QubitRegister
   std::vector<Type, qhipster::AlignedAllocator<Type, 256>> state_storage;
   Type *state;
   Permutation *qubit_permutation;
-  Permutation *state_rank_permutation;
   Timer *timer;
   GateCounter *gate_counter;	// Count how many gates acted on given program qubits.
   std::size_t llc_watermarkbit;
