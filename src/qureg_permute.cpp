@@ -6,12 +6,12 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map,
-                                        std::string style_of_map)
+void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map, std::string style_of_map)
 {
   assert(num_qubits == new_map.size());
 
   unsigned nprocs = qhipster::mpi::Environment::GetStateSize();
+
   if (nprocs==1)
   // Single-node implementation.
   {
@@ -23,9 +23,22 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map,
       Permutation &qubit_permutation_old = *qubit_permutation;
       Permutation qubit_permutation_new(new_map, style_of_map);
 
+      std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+      std::vector<std::size_t> int_1_imap, int_2_imap;
+      qubit_permutation_old.ObtainIntemediateInverseMaps(qubit_permutation_new.map, M, int_1_imap, int_2_imap);
+
+      // The overall permutation is divided in three parts:
+      // - permutation between local qubits
+      // - permutation between global qubits
+      // - pairwise exchange of local-global qubits
+      this->PermuteLocalQubits(int_1_imap, "inverse");
+      this->PermuteGlobalQubits(int_2_imap, "inverse");
+      this->PermuteByLocalGlobalExchangeOfQubitPairs(new_map, style_of_map);
+      // This functions already update qubit_permutation.
+
 #ifndef INTELQS_HAS_MPI
       assert(0);
-#else
+#elif 0
       unsigned myrank = qhipster::mpi::Environment::GetStateRank();
       MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
     
@@ -57,10 +70,7 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map,
           }
       }
 #endif
-      // permutation_old is a reference to the permutation pointed by the class variable 'qubit_permutation'.
-      qubit_permutation_old = qubit_permutation_new;
   }
-
 
 #if 0
   // do it multinode
@@ -89,6 +99,7 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map,
       tmp[displs[rank]
   }
 #endif
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -203,11 +214,9 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
 
   Type *tmp_state = TmpSpace();
-  std::size_t lcl_size_half = LocalSize() / 2L;
+  std::size_t lcl_size = LocalSize();
   size_t lcl_chunk = TmpSize();
-  if (lcl_chunk > lcl_size_half) 
-      lcl_chunk = lcl_size_half;
-  for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
+  for(size_t c = 0; c < lcl_size; c += lcl_chunk)
   {
       // As tag, we use the source of the corresponding communication.
       std::size_t sendtag(myrank), recvtag(source);
@@ -215,6 +224,9 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
       qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, sendtag,
                                     &(tmp_state[0]), lcl_chunk, source, recvtag,
                                     comm, &status);
+      #pragma omp parallel for 
+      for (std::size_t i = 0; i < lcl_chunk; i++)
+          state[c+i] = tmp_state[i];
   }
   qubit_permutation->SetNewPermutationFromMap(new_map, style_of_map);
 #endif
@@ -223,36 +235,42 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfQubitPair(std::vector<std::size_t> new_map,
-                                                                  std::string style_of_map)
+void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfQubitPairs(std::vector<std::size_t> new_map,
+                                                                   std::string style_of_map)
 {
-  // Confirm that only two qubits changed position.
+  // More than one qubit pair may be exchanged.
   Permutation new_qubit_permutation(new_map, style_of_map);
-  std::vector<unsigned> exchanged_qubits;
-  for (unsigned j=0; j<num_qubits; ++j)
-      if ( new_qubit_permutation[j] != (*qubit_permutation)[j] )
-          exchanged_qubits.push_back(j);
-  assert(exchanged_qubits.size()==2);
-
-  // Confirm that one qubit is local and the other global.
+  // Record if qubits has already been updated: 0 if not seen, 1 if updated.
+  std::vector<unsigned> exchanged_qubits(num_qubits);
+  unsigned num_pairs = 0;
+  unsigned old_position, new_position, partner_qubit;
   std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
-  unsigned  local_qubit, global_qubit;
-  if (exchanged_qubits[0]<M)
+  for (unsigned qubit=0; qubit<num_qubits; ++qubit)
   {
-      local_qubit  = exchanged_qubits[0];
-      global_qubit = exchanged_qubits[1];
-      assert(global_qubit>=M);
-  }
-  else
-  {
-      local_qubit  = exchanged_qubits[1];
-      global_qubit = exchanged_qubits[0];
-      assert(local_qubit<M);
-  }
+      if (exchanged_qubits[qubit]!=0)
+          continue;
+      old_position = (*qubit_permutation)[qubit];
+      new_position = new_qubit_permutation[qubit];
+      if ( new_position != old_position )
+      {
+          // Find its partner and verify that 1) it was not yet exchanged, 2) they form a 2-cycle
+          partner_qubit = qubit_permutation->Find(new_position);
+          assert(exchanged_qubits[partner_qubit]==0);
+          assert(new_qubit_permutation[partner_qubit]==old_position);
+          // Verify that one is local and the other global
+          if (old_position<M)
+              assert(new_position>=M);
+          else
+              assert(new_position<M);
 
-  // Actual implementation
-  ApplySwap(local_qubit, global_qubit);   // move/update the data
-  qubit_permutation->ExchangeTwoElements(local_qubit, global_qubit);
+          // Actual implementation
+          ApplySwap(qubit, partner_qubit);   // move/update the data
+          qubit_permutation->ExchangeTwoElements(qubit, partner_qubit);
+          ++num_pairs;
+          exchanged_qubits[qubit]=num_pairs;
+          exchanged_qubits[partner_qubit]=num_pairs;
+      }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

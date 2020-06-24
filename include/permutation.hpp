@@ -344,7 +344,7 @@ class Permutation
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-
+;;
   /// Intermediate imaps dividing the elements in two groups: those with position < or >= M.
   ///
   /// Given the current Permutation and a new target map, find two intermediate inverse maps

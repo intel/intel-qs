@@ -172,7 +172,6 @@ class QubitRegister
   // Useful for python/numpy bindings and other buffer protocols
   Type *RawState() { return state; }
 
-
   // bit manipulation
   inline bool check_bit(std::size_t variable, std::size_t position) const
   {
@@ -202,8 +201,8 @@ class QubitRegister
   void PermuteQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
   void PermuteLocalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
   void PermuteGlobalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
-  void PermuteByLocalGlobalExchangeOfQubitPair(std::vector<std::size_t> new_map,
-                                               std::string style_of_map="direct");
+  void PermuteByLocalGlobalExchangeOfQubitPairs(std::vector<std::size_t> new_map,
+                                                std::string style_of_map="direct");
   void EmulateSwap(unsigned qubit1, unsigned qubit2);
 
 #if 0
