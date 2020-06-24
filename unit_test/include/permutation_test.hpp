@@ -104,6 +104,16 @@ TEST_F(PermutationTest, ExchangeTwoElements)
   map_[element_2] = position_1;
   for (unsigned i=0; i<num_bits_; ++i)
       ASSERT_EQ(permutation[i], map_[i]);
+  //
+  element_1 = 4;
+  element_2 = 0;
+  position_1 = map_[element_1];
+  position_2 = map_[element_2];
+  map_[element_1] = position_2;
+  map_[element_2] = position_1;
+  permutation.ExchangeTwoElements(element_1, element_2);
+  for (unsigned i=0; i<num_bits_; ++i)
+      ASSERT_EQ(permutation[i], map_[i]);
 }
 
 //////////////////////////////////////////////////////////////////////////////

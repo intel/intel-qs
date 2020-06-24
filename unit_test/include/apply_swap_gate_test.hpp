@@ -70,7 +70,7 @@ TEST_F(ApplySwapGateTest, Explicit3QubitExample)
       GTEST_SKIP();
 
   // Print explit state to screen?
-  bool print_state = true;
+  bool print_state = false;
 
   unsigned num_qubits = 3;
   QubitRegister<ComplexDP> psi(num_qubits, "base", 0);

@@ -180,8 +180,8 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   // When more than two qubits change position, the content of MPI ranks are not simply
   // exchanged in paris, but one may have longer cycles like A-->B-->C-->D-->A
   // myrank sends to destination and receives from source
-  int myrank = qhipster::mpi::Environment::GetStateRank();
-  int source(0), destination(0);
+  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t source(0), destination(0);
   std::size_t glb_start = UL(myrank) * LocalSize(); // based on the position
   
   unsigned qubit;
@@ -191,12 +191,12 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
       qubit = old_inverse_map[pos];
       position = new_direct_map[qubit];
       if (check_bit(glb_start, pos) == 1)
-          destination += (1UL << position);
+          destination += 1UL << (position-M);
       //
       qubit = new_inverse_map[pos];
       position = old_direct_map[qubit];
       if (check_bit(glb_start, pos) == 1)
-          source += (1UL << position);
+          source += 1UL << (position-M);
   }
   
   MPI_Status status;
@@ -210,8 +210,10 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
   {
       // As tag, we use the source of the corresponding communication.
-      qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, myrank,
-                                    &(tmp_state[0]), lcl_chunk, source, source,
+      std::size_t sendtag(myrank), recvtag(source);
+      //printf("%d --> myrank = %d --> %d\n", destination, myrank, source);
+      qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, sendtag,
+                                    &(tmp_state[0]), lcl_chunk, source, recvtag,
                                     comm, &status);
   }
   qubit_permutation->SetNewPermutationFromMap(new_map, style_of_map);
