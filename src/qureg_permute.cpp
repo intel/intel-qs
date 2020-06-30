@@ -34,72 +34,8 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map, std::s
       this->PermuteLocalQubits(int_1_imap, "inverse");
       this->PermuteGlobalQubits(int_2_imap, "inverse");
       this->PermuteByLocalGlobalExchangeOfQubitPairs(new_map, style_of_map);
-      // This functions already update qubit_permutation.
-
-#ifndef INTELQS_HAS_MPI
-      assert(0);
-#elif 0
-      unsigned myrank = qhipster::mpi::Environment::GetStateRank();
-      MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-    
-      // FIXME: This is the dummy multi-node permutation code.
-      //        It builds the full state locally!
-      // TODO : Write the actual distributed implementation.
-
-      // Create a global state locally, then initialize it to the current global state.
-      std::vector<Type> glb_state(GlobalSize(), 0);
-#ifdef BIGMPI
-      MPIX_Allgather_x(&(state[0]), LocalSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), LocalSize(),
-                    MPI_DOUBLE_COMPLEX, comm);
-#else
-      MPI_Allgather(&(state[0]), LocalSize(), MPI_DOUBLE_COMPLEX, &(glb_state[0]), LocalSize(),
-                    MPI_DOUBLE_COMPLEX, comm);
-#endif //BIGMPI
-
-      // Update the original state from its record in 'glb_state'.
-      std::size_t to_lclind;
-      for (std::size_t i = 0; i < glb_state.size(); i++)
-      {
-          std::size_t to_glbind = qubit_permutation_new.program2data_(qubit_permutation_old.data2program_(i));
-          std::size_t to_rank = to_glbind / LocalSize();
-          if (to_rank == myrank)
-          {
-              to_lclind = to_glbind - to_rank * LocalSize();
-              assert(to_lclind < LocalSize());
-              state[to_lclind] = glb_state[i];
-          }
-      }
-#endif
+      // These functions already update qubit_permutation.
   }
-
-#if 0
-  // do it multinode
-  // calculate displacements for other nodes
-  std::vector <std::size_t> counts(nprocs, 0), displs(nprocs, 0);
-  for(std::size_t i = 0; i < LocalSize(); i++)
-  {
-      std::size_t glbind =
-          qubit_permutation_old.bin2dec(qubit_permutation_new.program2data(qubit_permutation_old.data2program(i)));
-    std::size_t rank = glbind / LocalSize(); 
-    assert(rank < nprocs);
-    counts[rank]++;
-  }
-  // compute displacements for each rank
-  for(std::size_t i = 1; i < nprocs; i++)
-      displs[i] = displs[i-1] + counts[i-1]; 
- 
-  // fill in outgoing buffer as key value std::pairs
-  std::vector<std::pair<std::size_t, Type>> tmp(LocalSize());
-  for(std::size_t i = 0; i < LocalSize(); i++)
-  {
-      std::size_t glbind =
-          qubit_permutation_old.bin2dec(qubit_permutation_new.program2data(qubit_permutation_old.data2program(i)));
-      std::size_t rank = glbind / LocalSize();
-      std::size_t lclind = glbind - rank * nprocs;
-      tmp[displs[rank]
-  }
-#endif
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
