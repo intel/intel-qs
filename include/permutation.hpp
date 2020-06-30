@@ -307,9 +307,17 @@ class Permutation
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// Print permutation.
-  // Previously called 'prange()'
+  /// Print permutation effect on indices.
   void Print()
+  {
+      printf("qubit permutation: %s\n", this->GetMapStr().c_str());
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Print permutation effect on indices.
+  // Previously called 'prange()'
+  void PrintRange()
   {
 #if 0
     printf("map:  ");

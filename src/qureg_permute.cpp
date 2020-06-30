@@ -55,14 +55,11 @@ void QubitRegister<Type>::EmulateSwap(unsigned qubit_1, unsigned qubit_2)
 template <class Type>
 void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, std::string style_of_map)
 {
-  // Determine the inverse map.
   assert(new_map.size() == this->num_qubits);
-  std::vector<std::size_t> new_inverse_map = new_map;
-  if (style_of_map=="direct")
-      for (std::size_t qubit = 0; qubit < new_map.size(); qubit++)
-          new_inverse_map[new_map[qubit]] = qubit;
-  else if (style_of_map!="inverse")
-      assert(0);
+  // Determine the inverse map.
+  Permutation &old_qubit_permutation = *qubit_permutation;
+  Permutation new_qubit_permutation(new_map, style_of_map);
+  std::vector<std::size_t> & new_inverse_map = new_qubit_permutation.imap;
 
   // Verify that new map mantains the current distinction between local and global qubits.
   // and that only the local qubits are (eventually) updated.
@@ -75,10 +72,19 @@ void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, s
       assert( local[old_inverse_map[pos]] > 0 );
   for (unsigned pos=M; pos<num_qubits; ++pos)
       assert( old_inverse_map[pos] == new_inverse_map[pos] );
-  
+ 
+  // If new permutation is same as old one, return immediately.
+  bool is_same_map = true;
+  for (unsigned pos=0; pos<num_qubits; ++pos)
+      if (old_inverse_map[pos] != new_inverse_map[pos] )
+      {
+          is_same_map = false;
+          break;
+      }
+  if (is_same_map)
+      return;
+ 
   // Initialize the utility vector: state_old = state;
-  Permutation &qubit_permutation_old = *qubit_permutation;
-  Permutation qubit_permutation_new(new_inverse_map, "inverse");
   std::vector<Type> state_old(LocalSize(), 0);
 #pragma omp parallel for
   for (std::size_t i = 0; i < LocalSize(); i++)
@@ -87,13 +93,13 @@ void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, s
 #pragma omp parallel for
   for (std::size_t i = 0; i < LocalSize(); i++)
   {
-      std::size_t to = qubit_permutation_new.program2data_(qubit_permutation_old.data2program_(i));
+      std::size_t to = new_qubit_permutation.program2data_(old_qubit_permutation.data2program_(i));
       state[to] = state_old[i];
   }
 
   // Update permutation:
   // permutation_old is a reference to the permutation pointed by the class variable 'qubit_permutation'.
-  qubit_permutation_old = qubit_permutation_new;
+  old_qubit_permutation = new_qubit_permutation;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -105,9 +111,9 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   assert(0);
 #else
   assert(new_map.size() == this->num_qubits);
-  Permutation qubit_permutation_new(new_map, style_of_map);
-  std::vector<std::size_t> new_direct_map = qubit_permutation_new.map;
-  std::vector<std::size_t> new_inverse_map = qubit_permutation_new.imap;
+  Permutation new_qubit_permutation(new_map, style_of_map);
+  std::vector<std::size_t> new_direct_map = new_qubit_permutation.map;
+  std::vector<std::size_t> new_inverse_map = new_qubit_permutation.imap;
 
   // Verify that new map mantains the current distinction between local and global qubits
   // and that only the global qubits are (eventually) updated.
@@ -122,6 +128,17 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   for (unsigned pos=0; pos<M; ++pos)
       assert( old_inverse_map[pos] == new_inverse_map[pos] );
   
+  // If new permutation is same as old one, return immediately.
+  bool is_same_map = true;
+  for (unsigned pos=0; pos<num_qubits; ++pos)
+      if (old_inverse_map[pos] != new_inverse_map[pos] )
+      {
+          is_same_map = false;
+          break;
+      }
+  if (is_same_map)
+      return;
+
   // TODO: non-identity reordering of the global qubits may be implemented by reindexing MPI processes.
 
   // When more than two qubits change position, the content of MPI ranks are not simply
