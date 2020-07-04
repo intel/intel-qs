@@ -2,38 +2,38 @@
 
 // Declare loops
 #define PARALLEL_FOR_2D                                   \
-  _Pragma("omp parallel for collapse(2)")				          \
-  for(std::size_t group = gstart; group < gend;				    \
-      group += (1L << pos + 1L))					                \
+  _Pragma("omp parallel for collapse(2)")                 \
+  for(std::size_t group = gstart; group < gend;           \
+      group += (1L << pos + 1L))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
 #define SERIAL_FOR_2D                                     \
-  for(std::size_t group = gstart; group < gend;				    \
-      group += (1L << pos + 1L))					                \
+  for(std::size_t group = gstart; group < gend;           \
+      group += (1L << pos + 1L))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
-#define PARALLEL_FOR_3D						                      \
-  _Pragma("omp parallel for collapse(3)")			          \
-  for (std::size_t l1 = c11; l1 < c12; l1 += c13)		    \
-    for (std::size_t l2 = c21; l2 < c22; l2 += c23)		  \
+#define PARALLEL_FOR_3D                             \
+  _Pragma("omp parallel for collapse(3)")           \
+  for (std::size_t l1 = c11; l1 < c12; l1 += c13)   \
+    for (std::size_t l2 = c21; l2 < c22; l2 += c23) \
       for (std::size_t l3 = c31; l3 < c32; l3++)		
 
-#define SERIAL_FOR_3D						                        \
-  for (std::size_t l1 = c11; l1 < c12; l1 += c13)		    \
-    for (std::size_t l2 = c21; l2 < c22; l2 += c23)		  \
-      for (std::size_t l3 = c31; l3 < c32; l3++)		
+#define SERIAL_FOR_3D                               \
+  for (std::size_t l1 = c11; l1 < c12; l1 += c13)   \
+    for (std::size_t l2 = c21; l2 < c22; l2 += c23) \
+      for (std::size_t l3 = c31; l3 < c32; l3++)
 
 // Declare gate bodies
-#define HADAMARD_BODY_2D {                          \
-    std::size_t i0 = ind0 + indsht0 + group;				\
-    std::size_t i1 = ind0 + indsht1 + group;				\
-    Type in0 = state0[i0], in1 = state1[i1];				\
-    state0[i0] = (in0 + in1) * isqrt2;					    \
-    state1[i1] = (in0 - in1) * isqrt2;					    \
+#define HADAMARD_BODY_2D {                    \
+    std::size_t i0 = ind0 + indsht0 + group;  \
+    std::size_t i1 = ind0 + indsht1 + group;  \
+    Type in0 = state0[i0], in1 = state1[i1];  \
+    state0[i0] = (in0 + in1) * isqrt2;        \
+    state1[i1] = (in0 - in1) * isqrt2;        \
 }
 
-#define RX_BODY_2D {							                                            \
-    std::size_t i0 = ind0 + indsht0 + group;				                          \
+#define RX_BODY_2D {                                                          \
+    std::size_t i0 = ind0 + indsht0 + group;                                  \
     std::size_t i1 = ind0 + indsht1 + group;                                  \
     Type in0 = state0[i0], in1 = state1[i1];                                  \
     state0[i0] = cos_2 * in0 + Type(sin_2 * in1.imag(), msin_2 * in1.real()); \
@@ -52,7 +52,7 @@
     std::size_t i0 = ind0 + indsht0 + group;        \
     std::size_t i1 = ind0 + indsht1 + group;        \
     Type in0 = state0[i0], in1 = state1[i1];        \
-    state0[i0] = Type(cos_2, msin_2) * in0;	        \
+    state0[i0] = Type(cos_2, msin_2) * in0;         \
     state1[i1] = Type(cos_2, sin_2) * in1;          \
 }
 
@@ -76,7 +76,7 @@
 // 1q pauli z gate body
 #define PZ_BODY_2D {                          \
     std::size_t i1 = ind0 + indsht1 + group;  \
-    state1[i1] = -state1[i1];                  \
+    state1[i1] = -state1[i1];                 \
 }
 
 #define T_BODY_2D {                           \
@@ -101,12 +101,12 @@
     state[ind1] = sin_2 * in0 + cos_2 * in1;       \
 }
 
-#define RZ_BODY_3D {                                \
-    std::size_t ind0 = l1 + l2 + l3;                \
-    std::size_t ind1 = ind0 + index_shift;          \
-    Type in0 = state[ind0], in1 = state[ind1];      \
-    state[ind0] = cos_2 * in0 + msin_2 * in1;       \
-    state[ind1] = sin_2 * in0 + cos_2 * in1;        \
+#define RZ_BODY_3D {                              \
+    std::size_t ind0 = l1 + l2 + l3;              \
+    std::size_t ind1 = ind0 + index_shift;        \
+    Type in0 = state[ind0], in1 = state[ind1];    \
+    state[ind0] = cos_2 * in0 + msin_2 * in1;     \
+    state[ind1] = sin_2 * in0 + cos_2 * in1;      \
 }
 
 #define PX_BODY_3D {                        \
