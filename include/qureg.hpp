@@ -33,6 +33,7 @@
 #include "bitops.hpp"
 #include "conversion.hpp"
 #include "tinymatrix.hpp"
+#include "gate_spec.hpp"
 
 /// \addtogroup qureg
 /// @{
@@ -60,6 +61,7 @@ using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 
 template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Qubitregister class declaration
@@ -138,14 +140,27 @@ class QubitRegister
   // Generic gates
   // single qubit gates
   bool Apply1QubitGate_helper(unsigned qubit,  TM2x2<Type> const&m,
-                              std::size_t sstate_ind, std::size_t estate_ind);
-  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m);
+                              std::size_t sstate_ind, std::size_t estate_ind,
+                              // Spec parameters
+			                        qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                              BaseType angle=0);
+
+  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m,
+                       // Spec parameters 
+		                   qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                       BaseType angle=0);
+
   // constrolled gates
   bool ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                         TM2x2<Type> const&m,
-                                        std::size_t sind, std::size_t eind);
+                                        std::size_t sind, std::size_t eind,
+					                              qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                        BaseType angle=0);
+         
   void ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
-                                 TM2x2<Type> const&m);
+                                 TM2x2<Type> const&m, 
+				                         qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                 BaseType angle=0);
   // swap gates
   bool ApplySwap_helper(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);
   void ApplySwap(unsigned qubit1, unsigned qubit2);
@@ -198,6 +213,10 @@ class QubitRegister
   // gate specialization (experimental)
   void TurnOnSpecialize();
   void TurnOffSpecialize();
+
+  // more precise gate specialization (experimental)
+  void TurnOnSpecializeV2() { specialize2 = true; }
+  void TurnOffSpecializeV2() { specialize2 = false; }
 
   // measurement
   bool GetClassicalValue(unsigned qubit, BaseType tolerance = 1.e-13) const;
@@ -273,6 +292,7 @@ class QubitRegister
   std::size_t llc_watermarkbit;
   bool imported_state;
   bool specialize;
+  bool specialize2 = false;
 
   // temporary buffer for fusion
   bool fusion;

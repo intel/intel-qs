@@ -1,5 +1,6 @@
 #include "../include/qureg.hpp"
 #include "../include/highperfkernels.hpp"
+#include "../include/spec_kernels.hpp"
 
 /// \addtogroup qureg
 /// @{
@@ -160,7 +161,8 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 /////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
 bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> const&m, 
-                                                 std::size_t sind, std::size_t eind)
+                                                 std::size_t sind, std::size_t eind,
+						                                     GateSpec1Q spec, BaseType angle)
 {
   assert(qubit_ < num_qubits);
   unsigned qubit = (*permutation)[qubit_]; 
@@ -188,7 +190,11 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   if (P < M)
   {
       assert(eind - sind <= LocalSize());
-      Loop_DN(sind, eind, UL(P), state, state, 0UL, (1UL << P), m, specialize, timer);
+      // Introduce specialized kernel here
+      if (!specialize2 || (spec == GateSpec1Q::None))
+	      Loop_DN(sind, eind, UL(P), state, state, 0UL, (1UL << P), m, specialize, timer);
+      else
+	      Loop_DN(sind, eind, UL(P), state, state, 0UL, (1UL << P), spec, timer, angle);
   }
   else
   {
@@ -215,7 +221,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
-void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
+void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m, GateSpec1Q spec, BaseType angle)
 {
   // Update counter of the statistics.
   if (gate_counter != nullptr)
@@ -243,7 +249,7 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m)
   }
 
   L:
-  Apply1QubitGate_helper(qubit, m, 0UL, LocalSize());
+  Apply1QubitGate_helper(qubit, m, 0UL, LocalSize(), spec, angle);
 }
 
 
@@ -262,7 +268,7 @@ void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
   qhipster::TinyMatrix<Type, 2, 2, 32> rx;
   rx(0, 1) = rx(1, 0) = Type(0, -std::sin(theta / 2.));
   rx(0, 0) = rx(1, 1) = std::cos(theta / 2.);
-  Apply1QubitGate(qubit, rx);
+  Apply1QubitGate(qubit, rx, GateSpec1Q::RotationX, theta);
 }
 
 
@@ -282,7 +288,7 @@ void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
   ry(0, 1) = Type(-std::sin(theta / 2.), 0.);
   ry(1, 0) = Type( std::sin(theta / 2.), 0.);
   ry(0, 0) = ry(1, 1) = std::cos(theta / 2.);
-  Apply1QubitGate(qubit, ry);
+  Apply1QubitGate(qubit, ry, GateSpec1Q::RotationY, theta);
 }
 
 
@@ -302,7 +308,7 @@ void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
   rz(0, 0) = Type(std::cos(theta / 2.), -std::sin(theta / 2.));
   rz(1, 1) = Type(std::cos(theta / 2.), std::sin(theta / 2.));
   rz(0, 1) = rz(1, 0) = Type(0., 0.);
-  Apply1QubitGate(qubit, rz);
+  Apply1QubitGate(qubit, rz, GateSpec1Q::RotationZ, theta);
 }
 
 
@@ -320,7 +326,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
   px(1, 1) = Type(0., 0.);
-  Apply1QubitGate(qubit, px);
+  Apply1QubitGate(qubit, px, GateSpec1Q::PauliZ);
 }
 
 
@@ -356,7 +362,7 @@ void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
   py(0, 1) = Type(0., -1.);
   py(1, 0) = Type(0., 1.);
   py(1, 1) = Type(0., 0.);
-  Apply1QubitGate(qubit, py);
+  Apply1QubitGate(qubit, py, GateSpec1Q::PauliY);
 }
 
 
@@ -392,7 +398,7 @@ void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
   pz(1, 1) = Type(-1., 0.);
-  Apply1QubitGate(qubit, pz);
+  Apply1QubitGate(qubit, pz, GateSpec1Q::PauliZ);
 }
 
 
@@ -429,7 +435,7 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
   BaseType f = 1. / std::sqrt(2.);
   h(0, 0) = h(0, 1) = h(1, 0) = Type(f, 0.);
   h(1, 1) = Type(-f, 0.);
-  Apply1QubitGate(qubit, h);
+  Apply1QubitGate(qubit, h, GateSpec1Q::Hadamard);
 }
 
 
@@ -448,7 +454,7 @@ void QubitRegister<Type>::ApplyT(unsigned const qubit)
   t(0, 1) = Type(0.0, 0.0);
   t(1, 0) = Type(0.0, 0.0);
   t(1, 1) = Type(cos(M_PI/4.0), sin(M_PI/4.0));
-  Apply1QubitGate(qubit, t);
+  Apply1QubitGate(qubit, t, GateSpec1Q::T);
 
 }
 
