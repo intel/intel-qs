@@ -133,8 +133,8 @@
     std::size_t ind0 = l1 + l2 + l3;            \
     std::size_t ind1 = ind0 + index_shift;      \
     Type in0 = state[ind0], in1 = state[ind1];  \
-    state[ind0] = (in0 + in1) * isqrt2;					\
-    state[ind1] = (in0 - in1) * isqrt2;					\
+    state[ind0] = (in0 + in1) * isqrt2;         \
+    state[ind1] = (in0 - in1) * isqrt2;         \
 }
 
 #define CP_BODY_3D {                        \
