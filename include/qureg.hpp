@@ -106,6 +106,10 @@ class QubitRegister
   std::size_t NumQubits() const { return num_qubits; }
   Type *TmpSpace() const { return state + LocalSize(); }
   size_t TmpSize() const {return tmp_spacesize_;}
+  
+  // Useful for python/numpy bindings and other buffer protocols
+  Type *RawState() { return state; }
+
 
   // bit manipulation
   inline bool check_bit(std::size_t variable, std::size_t position) const

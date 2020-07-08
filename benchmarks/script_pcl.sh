@@ -23,7 +23,7 @@ exec_args=" -nq "$num_qubits" -ng "$num_gates" -od "$out_directory" -of "$out_fi
 ##########################################################################
 
 exec_name="basic_scaling"
-exec_file="../build/bin/basic_code_for_scaling.exe"
+exec_file="./bin/basic_code_for_scaling.exe"
 
 ##########################################################################
 
@@ -60,7 +60,7 @@ job_content=\
 "export INTEL_LICENSE_FILE=/swtools/intel/licenses/"$'\n'\
 "export I_MPI_HYDRA_BOOTSTRAP=slurm"$'\n\n'\
 "mpiexec.hydra -genv I_MPI_DEBUG 4 -genv OMP_NUM_THREADS "$num_threads_per_rank\
-" -genv KMP_AFFINITY granularity=thread,1,0,verbose -ppn $num_ranks ./"$exec_file" "$exec_args
+" -genv KMP_AFFINITY granularity=thread,1,0,verbose -ppn $num_ranks "$exec_file" "$exec_args
 
 echo "$job_content"  > $job_file
 

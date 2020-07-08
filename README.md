@@ -1,6 +1,6 @@
 ![C++ build with CMake](https://github.com/iqusoft/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg)
-![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
-[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
+![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg?branch=develop-action)
+![Python build with MPI](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20with%20MPI/badge.svg?branch=develop-action)[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=inactive)](https://arxiv.org/abs/1601.07195)
 
 # Intel Quantum Simulator
@@ -101,15 +101,16 @@ Underneath, this option uses [`-xhost`](https://software.intel.com/en-us/cpp-com
 with Intel compilers and [`-march=native`](https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html) with GNU compilers.
 
 
-### Enable Python binding (only available without MPI)
+### Enable Python binding
 
-By default, whenever MPI is disabled, the building process includes the Python binding for
+By default, the compilation does not include the the Python binding for
 Intel-QS. The binding code uses the Pybind11 library which needs to be installed via 'conda'
 (and not simply with pip) to include the relevant information in CMake.
 See [this page](https://github.com/pybind/pybind11/issues/1628) for more info on this issue.
 
-To disable the Python wrap, even without MPI, set the CMake option selection to
-`-DIqsPython=OFF`.
+To enable the Python wrap set the CMake option selection to
+`-DIqsPython=ON`. 
+This option works also with the MPI buile enabled.
 
 
 ### Unit test

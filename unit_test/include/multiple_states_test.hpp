@@ -46,7 +46,7 @@ class MultipleStatesTest : public ::testing::Test
          qhipster::mpi::Environment::UpdateStateComm(1,false);
   }
 
-  int num_qubits_= 6;
+  int num_qubits_= 8;
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
