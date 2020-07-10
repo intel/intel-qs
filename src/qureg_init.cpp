@@ -9,7 +9,6 @@
 #endif
 
 #include "../include/qureg.hpp"
-
 /// \addtogroup qureg
 /// @{
 
@@ -68,7 +67,7 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 
@@ -181,7 +180,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 }
