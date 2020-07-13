@@ -131,12 +131,12 @@ TEST_F(PermutationTest, Data2Program)
 
   // Basic permutation formed by a 2-cycle.
   map_ = {1, 0, 2};
-  std::vector<std::size_t> expected_map = {0,2,1,3, 4,6,5,7};	// hardcoded example
+  std::vector<std::size_t> expected_program2data = {0,2,1,3, 4,6,5,7};	// hardcoded example
   permutation.SetNewPermutationFromMap(map_, "direct");
   for (std::size_t v=0; v<dim; ++v)
   {
       //std::cout << "v=" << v << " --> " << permutation.program2data_(v) << "\n";
-      ASSERT_EQ(permutation.program2data_(v), expected_map[v]);
+      ASSERT_EQ(permutation.program2data_(v), expected_program2data[v]);
       // When the permutation is only 1- and 2-cycles, map==imap.
       ASSERT_EQ(permutation.data2program_(v), permutation.program2data_(v));
   }
@@ -151,7 +151,7 @@ TEST_F(PermutationTest, Data2Program)
   //    0   1   0            1   0   0    (since program bit '1' is mapped to data bit '2')
   //    0   1   1            1   1   0    (see above)
   //       ...                  ...
-  expected_map = {0,2,4,6, 1,3,5,7};	// hardcoded example
+  expected_program2data = {0,2,4,6, 1,3,5,7};	// hardcoded example
   permutation.SetNewPermutationFromMap(map_, "direct");
   std::size_t u;
   //std::cout << "program representation --> data representation\n";
@@ -160,7 +160,7 @@ TEST_F(PermutationTest, Data2Program)
       u = permutation.program2data_(v);
       //std::cout << "v="    << v << "=" << permutation.dec2bin(v, num_bits_)
       //          << " --> " << u << "=" << permutation.dec2bin(u, num_bits_) << "\n";
-      ASSERT_EQ(u, expected_map[v]);
+      ASSERT_EQ(u, expected_program2data[v]);
   }
 }
 
@@ -341,14 +341,14 @@ TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
   //    0   1   0            0   0   1    (since program bit '1' is mapped to data bit '0')
   //    0   1   1            1   0   1    (see above)
   //       ...                  ...
-  std::vector<std::size_t> expected_map  = {0,4,1,5, 2,6,3,7};	// hardcoded example
-  std::vector<std::size_t> expected_imap = {0,2,4,6, 1,3,5,7};	// hardcoded example
+  std::vector<std::size_t> expected_program2data = {0,4,1,5, 2,6,3,7};	// hardcoded example
+  std::vector<std::size_t> expected_data2program = {0,2,4,6, 1,3,5,7};	// hardcoded example
   for (std::size_t i=0; i<(1<<num_bits_); ++i)
   {
       // From data to program.
-      ASSERT_DOUBLE_EQ(s.state[i].imag(), expected_imap[i]);
+      ASSERT_DOUBLE_EQ(s.state[i].imag(), expected_data2program[i]);
       // From program to data.
-      ASSERT_DOUBLE_EQ(i, s.state[expected_map[i]].imag());
+      ASSERT_DOUBLE_EQ(i, s.state[expected_program2data[i]].imag());
   }
 
   s.permute(Permutation({0, 1, 2}));
