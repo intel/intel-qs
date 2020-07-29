@@ -149,7 +149,7 @@ For this, Three steps need to be followed to prepare containerirzed intelqs simu
 *  Configure SSH tunneling
 *  Launch Jupyter notebook
 
-### Create container
+#### Create container
 
 Important: If user is not `root`,add `sudo` before each bash and docker command.
 First command in below will build docker image for Intelqs named qhipster.One can choose other name too.
@@ -171,7 +171,7 @@ If Docker is used on a Windows host machine, the last line should be substituted
 `winpty docker exec -it <container_id> //bin/bash`.
 
 
-### Configure SSH tunneling
+#### Configure SSH tunneling
 
 In local laptop, open Ubuntu emulator. This to allow the use of SSH protocol for port forwarding.
 For example if you use MobaxTerm tool,launch a session and type following command in the mobxterm shell:
@@ -180,7 +180,7 @@ For example if you use MobaxTerm tool,launch a session and type following comman
   ssh -L 8080:localhost:8080 user@domain.com
 ```
 
-### Launch Jupyter notebook
+#### Launch Jupyter notebook
 
 Now, paste the copied token(which we copied from 'Create Container' section) in your preffered web browser 
 (most importantly, please clear your browser cache before pasting the token). Once you are seeing all 
