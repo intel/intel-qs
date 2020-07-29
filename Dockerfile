@@ -18,14 +18,14 @@
 FROM ubuntu:latest
 
 # Setup the proxy server environment.
-ENV http_proxy http://proxy-chain.intel.com:911
-ENV https_proxy http://proxy-chain.intel.com:911
+#ENV http_proxy http://proxy-chain.intel.com:911
+#ENV https_proxy http://proxy-chain.intel.com:911
 
 # Fetch and install the GNU Make utility.
 RUN apt-get update && apt-get install -y build-essential g++ make
 
 # Fetch and install a generic MPI implementation.
-RUN apt-get update && apt-get install -y mpich
+RUN apt-get update && DEBIAN_FRONTEND=nonitneractive apt-get install -y mpich
 
 # Fetch and install OpenSSH (client/server) for interacting between
 # nodes of the cluster in a Docker swarm configuration.
@@ -62,8 +62,6 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 
-# Install VIM to edit files.
-RUN apt-get install -y vim
 
 # Setup the local build environment for the simulation framework.
 WORKDIR /root/intelqs
@@ -71,13 +69,21 @@ COPY . /root/intelqs
 
 #FIXME
 # For stability reasons, the container should not be used as 'root'.
-# A new user is created, named 'tester':
-#RUN useradd --home-dir /home/tester --create-home tester
-#WORKDIR /home/tester/intelqs
-#COPY . /home/tester/intelqs
+# A new user is created, named 'user':
+#RUN useradd --home-dir /home/user --create-home user
+#WORKDIR /home/user/intelqs
+#COPY . /home/user/intelqs
 
-#FIXME
-# Install Intel Quantum Simulator
-#RUN source /opt/intel/mkl/bin/mklvars.sh intel64 ilp64
-#RUN mkdir build; cd build; CXX=g++ cmake -DIqsMPI=OFF -DIqsUtest=ON -DIqsPython=OFF ..
+# install lib for missing pthread module
+RUN apt-get -y install libboost-all-dev
 
+# installing and configuring conda env
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+RUN bash ~/miniconda.sh -b -p $HOME/miniconda
+ENV PATH="/root/miniconda/bin:$PATH"
+RUN /bin/bash -c ". ~/.bashrc && \
+	 	conda install -y notebook && \
+		conda install -y pybind11 && \
+		conda install -y numpy && \
+		conda install -y matplotlib"
+# Dockerfile Ends here
