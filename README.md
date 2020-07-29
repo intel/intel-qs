@@ -150,14 +150,15 @@ For this, Three steps need to be followed to prepare containerirzed intelqs simu
 *  Launch Jupyter notebook
 
 ### Create container
-Important: If user is not `root`, then add `sudo` before each bash and docker command.
+
+Important: If user is not `root`,add `sudo` before each bash and docker command.
 First command in below will build docker image for Intelqs named qhipster.One can choose other name too.
 (if choosen name is other than qhipster, replace that name in all other commands as well). 
 Second command will create container while mapping 8080 port to the localhost. 
-Third command will enable conda env,execute cmake and make command, also it will launch jupyter notebook
+Third command will enable conda env,execute cmake and make command, it will launch jupyter notebook
 in the terminal. Copy and save the printed token from the terminal.  
-example of a given token : http://127.0.0.1:8080/?token=6ee42173ee71353c1f1b33f8feb33132aed15f2a07960bc8
-Last command is optional,this can be executed if one to go inside container.
+`Example of a given token : http://127.0.0.1:8080/?token=6ee42173ee71353c1f1b33f8feb33132aed15f2a07960bc8`.
+Last command is optional,this can be executed to go inside container.
 
 ```bash
   docker build -t qhipster .
