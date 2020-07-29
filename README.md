@@ -145,9 +145,9 @@ with Intel-QS already installed. The image can be 'run' to create a container.
 The container can be 'executed' to login into the machine.
 For this, Three steps need to be followed to prepare containerirzed intelqs simulator.
 
-*  [Create container](#create container) 
-*  [Configure SSH tunneling](#configure SSH tunneling)
-*  [Launch Jupyter notebook](#launch jupyter notebook)
+*  Create container
+*  Configure SSH tunneling
+*  Launch Jupyter notebook
 
 ### Create container
 Important: If user is not `root`, then add `sudo` before each bash and docker command.
