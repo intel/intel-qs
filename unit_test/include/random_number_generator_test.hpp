@@ -118,8 +118,12 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
 
 TEST_F(RandomNumberGeneratorTest, LargeRandomVectors)
 {
-  // Added since with GCC this caused problems at a certain point.
+  // A large vector size gave errors with GCC when running on github servers.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+  std::size_t num_samples = (1UL << 22);
+#else
   std::size_t num_samples = (1UL << 16);
+#endif
   double random [num_samples];
   qhipster::RandomNumberGenerator<double> rng;
   std::size_t seed = 717;

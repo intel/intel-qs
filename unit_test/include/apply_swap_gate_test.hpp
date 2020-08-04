@@ -159,7 +159,12 @@ TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
 // Extra unit test for distributed implementation of the SWAP gate.
 TEST_F(ApplySwapGateTest, TestForDistributedImplementation)
 {
+  // Large qubit numbers gave errors with GCC when running on github servers.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
   unsigned num_qubits = 20;
+#else
+  unsigned num_qubits = 17;
+#endif
   std::size_t rng_seed = 12345;
   qhipster::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
