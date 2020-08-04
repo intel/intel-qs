@@ -33,6 +33,7 @@ class StateInitializationTest : public ::testing::Test
   const std::size_t num_qubits_ = 10;
   TM2x2<ComplexDP> G_;
   double accepted_error_ = 1e-15;
+  bool do_print_info_ = false;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,13 +135,14 @@ TEST_F(StateInitializationTest, RandomState)
   rnd_generator_2.SetSeedStreamPtrs(rng_seed);
   psi_2.SetRngPtr(&rnd_generator_2);
   psi_2.Initialize("rand", 1);
-// FIXME
-#if 0
-for (size_t j=0; j<psi_2.GlobalSize(); ++j)
-  if (psi_1[j] != psi_2[j])
-    std::cout << "@@ psi_1[" << j << "] = " << psi_1[j] << "\n"
-              << "@@ psi_2[" << j << "] = " << psi_2[j] << "\n";
-#endif
+  // For visual inspection, if required:
+  if (do_print_info_)
+  {
+      for (size_t j=0; j<psi_2.GlobalSize(); ++j)
+          if (psi_1[j] != psi_2[j])
+              std::cout << "@@ psi_1[" << j << "] = " << psi_1[j] << "\n"
+                        << "@@ psi_2[" << j << "] = " << psi_2[j] << "\n";
+  }
 
   EXPECT_NEAR(psi_2.MaxAbsDiff(psi_1), 0, accepted_error_ );
   EXPECT_NEAR(psi_2.MaxL2NormDiff(psi_1), 0, accepted_error_ );
@@ -174,9 +176,12 @@ TEST_F(StateInitializationTest, RandomStateSameSeed)
   psi_copy.SetRngPtr(&rng_copy);
   psi_copy.Initialize("rand",num_states);
 
-//FIXME
-//psi.Print("|random psi> = ");
-//psi_copy.Print("|copy psi> = ");
+  // For visual inspection, if required:
+  if (do_print_info_)
+  {
+      psi.Print("|random psi> = ");
+      psi_copy.Print("|copy psi> = ");
+  }
 
   ASSERT_NEAR(psi_copy.MaxAbsDiff(psi), 0., accepted_error_ );
   ASSERT_NEAR(psi_copy.MaxL2NormDiff(psi), 0., accepted_error_ );

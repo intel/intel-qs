@@ -1,11 +1,8 @@
+/// @file qureg_apply2qubitgate.cpp
+/// @brief Define the @c QubitRegister method corresponding to the application of arbitrary two-qubit gates.
+
 #include "../include/qureg.hpp"
 #include "../include/highperfkernels.hpp"
-
-/// \addtogroup qureg
-/// @{
-
-/// @file qureg_apply2qubitgate.cpp
-/// @brief Define the @c QubitRegister methods corresponding to the application of two-qubit gates.
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Arbitrary two-qubit gate.
@@ -19,7 +16,8 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
   myrank = qhipster::mpi::Environment::GetStateRank();
   nprocs = qhipster::mpi::Environment::GetStateSize();
-  // The general case has not been implemented yet for distributed computation.
+
+  // TODO: The general case has not been implemented yet for distributed computation.
   assert(nprocs == 1);
 
   std::size_t n = GlobalSize();
@@ -28,12 +26,18 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
   assert(qubit_high < qhipster::highestBit(n));
   assert(qubit_low != qubit_high);
 
-  std::size_t dh = 1UL << qubit_high;
-  std::size_t dl = 1UL << qubit_low;
+  unsigned position_high = (*qubit_permutation)[qubit_high];
+  unsigned position_low  = (*qubit_permutation)[qubit_low ];
+  assert(position_high < num_qubits);
+  assert(position_low  < num_qubits);
+  assert(position_low != position_high);
 
-  // it is easier if the qubit indices are ordered, meaning that:
+  std::size_t dh = 1UL << position_high;
+  std::size_t dl = 1UL << position_low;
+
+  // It is easier if the qubit indices are ordered, meaning that:
   //     qubit_high > qubit_low
-  // if not, we take this into account with the variable 'invert'
+  // if not, we take this into account with the variable 'invert'.
   bool const invert = qubit_low > qubit_high;
 
   // Does the compiler pull out the if-statements and thus perform the
@@ -61,15 +65,10 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
-      // Verify that permutation is identity.
-      assert(qubit_high == (*permutation)[qubit_high]);
-      assert(qubit_low  == (*permutation)[qubit_low ]);
-      // Otherwise find better location that is compatible with the permutation.
+      // IQS count the gates acting on specific program qubits.
       gate_counter->TwoQubitIncrement(qubit_high, qubit_low);
   }
 }
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
-
-/// @}

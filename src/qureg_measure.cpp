@@ -23,9 +23,13 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
 
-  if (qubit < M)
+  std::size_t delta = 1UL << position;
+
+  if (position < M)
   {
       bool up = false, down = false;
       for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
@@ -43,7 +47,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   {
       int up = 0, down = 0;
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0)
+      if (check_bit(src_glb_start, position) == 0)
       {
         down = 0;
         for (std::size_t j = 0; j < LocalSize(); ++j) 
@@ -92,9 +96,13 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
 
-  if (qubit < M)
+  std::size_t delta = 1UL << position;
+
+  if (position < M)
   { 
       for (std::size_t i = value ? 0 : delta; i < LocalSize(); i += 2 * delta)
           for (std::size_t j = 0; j < delta; ++j) state[i + j] = 0.;
@@ -102,12 +110,12 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0 && value == true)
+      if (check_bit(src_glb_start, position) == 0 && value == true)
       {
           for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
       }
-      else if (check_bit(src_glb_start, qubit) == 1 && value == false)
+      else if (check_bit(src_glb_start, position) == 1 && value == false)
       {
           for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
@@ -131,10 +139,15 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
+
+  std::size_t delta = 1UL << position;
   BaseType local_P = 0.;
-  if (qubit < M)
-  { // if '0' and '1' for qubit state are witin the same rank
+  if (position < M)
+  {
+      // here, '0' and '1' for qubit state are within the same rank
       for (std::size_t i = delta; i < LocalSize(); i += 2 * delta)
       {
           for (std::size_t j = 0; j < delta; ++j)
@@ -144,7 +157,7 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 1)
+      if (check_bit(src_glb_start, position) == 1)
       {
         for (std::size_t j = 0; j < LocalSize(); ++j)
             local_P += std::norm(state[j]);
@@ -174,9 +187,13 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
+
+  std::size_t delta = 1UL << position;
   int bit_is_zero = 0, bit_is_one = 0; 
-  if (qubit < M)
+  if (position < M)
   {
       for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
       {
@@ -198,7 +215,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0)
+      if (check_bit(src_glb_start, position) == 0)
       {
           for (std::size_t j = 0; j < LocalSize(); j++)
           {

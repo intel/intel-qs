@@ -161,9 +161,11 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
   std::size_t glb_start = UL(myrank) * LocalSize();
 // integer in binary notation with 1 located at the position of the qubits
   std::size_t y=0;
+  std::size_t position;
   for (std::size_t i=0; i<qubits.size(); i++)
   {
-      y += 1 << qubits[i];
+      position = (*qubit_permutation)[qubits[i]];
+      y += 1 << position;
   }
 
 #pragma omp parallel
