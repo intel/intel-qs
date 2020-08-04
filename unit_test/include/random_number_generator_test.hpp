@@ -119,7 +119,7 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
 TEST_F(RandomNumberGeneratorTest, LargeRandomVectors)
 {
   // Added since with GCC this caused problems at a certain point.
-  std::size_t num_samples = (1L << 22);
+  std::size_t num_samples = (1UL << 22);
   double random [num_samples];
   qhipster::RandomNumberGenerator<double> rng;
   std::size_t seed = 717;
