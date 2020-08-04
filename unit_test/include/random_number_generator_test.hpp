@@ -116,6 +116,21 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(RandomNumberGeneratorTest, LargeRandomVectors)
+{
+  // Added since with GCC this caused problems at a certain point.
+  std::size_t num_samples = (1L << 22);
+  double random [num_samples];
+  qhipster::RandomNumberGenerator<double> rng;
+  std::size_t seed = 717;
+  rng.SetSeedStreamPtrs(seed);
+  // Generate the samples.
+  rng.UniformRandomNumbers(random, num_samples, 0., 1., "local");
+  ASSERT_TRUE(random[0] != random[num_samples-1]);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 TEST_F(RandomNumberGeneratorTest, SkipMethod)
 {
   std::size_t half_samples = 40;

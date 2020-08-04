@@ -258,7 +258,12 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
       assert(base_index==0 || base_index==qhipster::mpi::Environment::GetNumStates() );
 
       // Parallel initialization using open-source parallel RNG or VRL (if MKL is used).
+      // TODO: with GCC, using OpenMP code below produces a SEGMENTATION FAULT result.
+      //       This happens when randomly initializing states with 20 or more qubits (no MPI)
+      //       Currently we reserve the OpenMP initialization to ICPC only.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel
+#endif
       {
 #ifdef _OPENMP
           std::size_t thread_id   = omp_get_thread_num();

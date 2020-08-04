@@ -10,6 +10,13 @@
 #include <string>
 #include <vector>
 
+// For the determination of the number of CPU cycles via __rdtsc()
+#ifdef _WIN32
+#include <intrin.h>
+#else
+#include <x86intrin.h>
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // Test fixture class: permutation for qubit ordering
 //////////////////////////////////////////////////////////////////////////////
@@ -270,7 +277,7 @@ namespace utest
         }
         // printf("\n");
     
-        __int64 t0 = __rdtsc();
+        std::uint64_t t0 = __rdtsc();
         double s0 = sec();
         for (std::size_t i = 0; i < state.size(); i++)
         {
@@ -282,7 +289,7 @@ namespace utest
             assert(to == pnew.bin2dec(pnew.program2data(pold.data2program(i))));
             state_new[to] = state[i];
         }
-        __int64 t1 = __rdtsc();
+        std::uint64_t t1 = __rdtsc();
         double s1 = sec();
         double bw = D(state.size()) * D(sizeof(state[0])) * 2.0 / D(s1 - s0);
         if (do_print) printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", D(t1 - t0) / D(state.size()), bw / 1e9);

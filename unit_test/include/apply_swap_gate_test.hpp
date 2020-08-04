@@ -171,7 +171,6 @@ TEST_F(ApplySwapGateTest, TestForDistributedImplementation)
 
   // |psi_2> = |psi_1> = |random>
   QubitRegister<ComplexDP> psi_2(psi_1);
-
   // Compare two implementations of the SWAP gate.
   unsigned qubit1 = 2, qubit2 = num_qubits-1;
   psi_1.ApplySwap(qubit1, qubit2);
