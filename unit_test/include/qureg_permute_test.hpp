@@ -129,7 +129,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
   psi[0]=0;
   // Set a few amplitudes:
   std::vector<std::size_t> indices = {             2,              8,           1024,           4096};
-  std::vector<ComplexDP>   values  = {ComplexDP(2,0), ComplexDP(2,0), ComplexDP(2,0), ComplexDP(2,0)};
+  std::vector<ComplexDP>   values  = {ComplexDP(1,0), ComplexDP(2,0), ComplexDP(3,0), ComplexDP(4,0)};
 
   indices.push_back((1UL << (num_qubits_-1)) + 512);
   values.push_back(ComplexDP(0,1));
@@ -140,21 +140,20 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
   values.push_back(ComplexDP(0,3));
   indices.push_back((1UL << (num_qubits_-2)) + 1024);
   values.push_back(ComplexDP(0,4));
-// FIXME delete the next two lines
   indices.push_back((1UL << (num_qubits_-2)) + 4096);
-  values.push_back(ComplexDP(0,11));
+  values.push_back(ComplexDP(0,5));
 
   indices.push_back((1UL << (num_qubits_-3)) + 0);
-  values.push_back(ComplexDP(0,5));
-  indices.push_back((1UL << (num_qubits_-3)) + 4096);
   values.push_back(ComplexDP(0,6));
+  indices.push_back((1UL << (num_qubits_-3)) + 4096);
+  values.push_back(ComplexDP(0,7));
 
   indices.push_back((1UL << (num_qubits_-4)) + 0);
-  values.push_back(ComplexDP(0,7));
-  indices.push_back((1UL << (num_qubits_-4)) + 512);
   values.push_back(ComplexDP(0,8));
-  indices.push_back((1UL << (num_qubits_-4)) + 4096);
+  indices.push_back((1UL << (num_qubits_-4)) + 512);
   values.push_back(ComplexDP(0,9));
+  indices.push_back((1UL << (num_qubits_-4)) + 4096);
+  values.push_back(ComplexDP(0,10));
 
   ASSERT_EQ(indices.size(), values.size());
   for (unsigned i=0; i<indices.size(); ++i)
@@ -201,21 +200,23 @@ TEST_F(QuregPermuteTest, PermuteQubits)
   // Initial state |0000...0>
   QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
   psi[0]=0;
-  // Set a few amplitudes:
-  psi.SetGlobalAmplitude(2, ComplexDP(2,0)); // 2^1
-  psi.SetGlobalAmplitude(8, ComplexDP(8,0)); // 2^3
-  psi.SetGlobalAmplitude(1024, ComplexDP(1024,0)); // 2^10
-  psi.SetGlobalAmplitude(4096, ComplexDP(4096,0)); // 2^12
+  // Set a few amplitudes:                       2^1             2^3            2^10            2^12
+  std::vector<std::size_t> indices = {             2,              8,           1024,           4096};
+  std::vector<ComplexDP>   values  = {ComplexDP(1,0), ComplexDP(2,0), ComplexDP(3,0), ComplexDP(4,0)};
 
-  std::size_t index = (1UL << (num_qubits_-1)) + 512;
-  psi.SetGlobalAmplitude(index, ComplexDP(0,1));
-  index = (1UL << (num_qubits_-1)) + 1024;
-  psi.SetGlobalAmplitude(index, ComplexDP(0,2));
+  indices.push_back( (1UL << (num_qubits_-1)) +  512);
+  values.push_back(ComplexDP(0,1));
+  indices.push_back( (1UL << (num_qubits_-1)) + 1024);
+  values.push_back(ComplexDP(0,2));
 
-  index = (1UL << (num_qubits_-2)) + 512;
-  psi.SetGlobalAmplitude(index, ComplexDP(0,3));
-  index = (1UL << (num_qubits_-2)) + 1024;
-  psi.SetGlobalAmplitude(index, ComplexDP(0,4));
+  indices.push_back( (1UL << (num_qubits_-2)) +  512);
+  values.push_back(ComplexDP(0,3));
+  indices.push_back( (1UL << (num_qubits_-2)) + 1024);
+  values.push_back(ComplexDP(0,4));
+
+  ASSERT_EQ(indices.size(), values.size());
+  for (unsigned i=0; i<indices.size(); ++i)
+      psi.SetGlobalAmplitude(indices[i], values[i]); 
 
   // The map corresponds to several k-cycles.
   //    (0,4,6,16) (3,5,19) (8,10) (18,17,9) 
@@ -253,18 +254,11 @@ TEST_F(QuregPermuteTest, PermuteQubits)
   // - shuffle global qubits only
   // - pairwise exchange of local-global qubits
 
-  ASSERT_EQ( psi.GetGlobalAmplitude(2).real(), 2);
-  ASSERT_EQ( psi.GetGlobalAmplitude(8).real(), 8);
-  ASSERT_EQ( psi.GetGlobalAmplitude(1024).real(), 1024);
-  ASSERT_EQ( psi.GetGlobalAmplitude(4096).real(), 4096);
-  index = (1UL << (num_qubits_-1)) + 512;
-  ASSERT_EQ( psi.GetGlobalAmplitude(index).imag(), 1);
-  index = (1UL << (num_qubits_-1)) + 1024;
-  ASSERT_EQ( psi.GetGlobalAmplitude(index).imag(), 2);
-  index = (1UL << (num_qubits_-2)) + 512;
-  ASSERT_EQ( psi.GetGlobalAmplitude(index).imag(), 3);
-  index = (1UL << (num_qubits_-2)) + 1024;
-  ASSERT_EQ( psi.GetGlobalAmplitude(index).imag(), 4);
+  for (unsigned i=0; i<indices.size(); ++i)
+  {
+      std::cout << i << ":  index[]= " << indices[i] << " , value[]= " << values[i] << "\n";
+      ASSERT_EQ(psi.GetGlobalAmplitude(indices[i]), values[i]);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
