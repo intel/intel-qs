@@ -23,8 +23,7 @@ class NoisySimulationTest : public ::testing::Test
     num_ranks_ = 1;
     pool_rank_id_ = 0;
 #endif
-std::cout << "pool_rank_id = " << pool_rank_id_ << "\n";//FIXME
-qhipster::mpi::PoolBarrier();
+
     // To ensure that each of two states has at least 2 amplitude per rank.
     int min_num_qubits = qhipster::floor_power_of_two( num_ranks_) + 1;
     if (num_qubits_ < min_num_qubits)

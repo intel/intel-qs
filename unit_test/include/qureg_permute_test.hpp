@@ -255,10 +255,7 @@ TEST_F(QuregPermuteTest, PermuteQubits)
   // - pairwise exchange of local-global qubits
 
   for (unsigned i=0; i<indices.size(); ++i)
-  {
-      std::cout << i << ":  index[]= " << indices[i] << " , value[]= " << values[i] << "\n";
       ASSERT_EQ(psi.GetGlobalAmplitude(indices[i]), values[i]);
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
