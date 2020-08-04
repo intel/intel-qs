@@ -125,7 +125,7 @@ TEST_F(PermutationTest, ExchangeTwoElements)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PermutationTest, Data2Program)
+TEST_F(PermutationTest, Program2Data)
 {
   num_bits_ = 3;
   Permutation permutation(num_bits_);
@@ -134,7 +134,7 @@ TEST_F(PermutationTest, Data2Program)
   std::size_t dim = (0x1 << num_bits_);
   ASSERT_EQ(dim, std::pow(2, num_bits_));
   for (std::size_t v=0; v<dim; ++v)
-      ASSERT_EQ(v, permutation.data2program_(v));
+      ASSERT_EQ(v, permutation.program2data_(v));
 
   // Basic permutation formed by a 2-cycle.
   map_ = {1, 0, 2};
@@ -168,6 +168,39 @@ TEST_F(PermutationTest, Data2Program)
       //std::cout << "v="    << v << "=" << permutation.dec2bin(v, num_bits_)
       //          << " --> " << u << "=" << permutation.dec2bin(u, num_bits_) << "\n";
       ASSERT_EQ(u, expected_program2data[v]);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PermutationTest, Data2Program)
+{
+  num_bits_ = 4;
+  Permutation permutation(num_bits_);
+  map_ = {0, 1, 2, 3};
+  permutation.SetNewPermutationFromMap(map_, "direct");
+  std::size_t dim = (0x1 << num_bits_);
+  ASSERT_EQ(dim, std::pow(2, num_bits_));
+  for (std::size_t v=0; v<dim; ++v)
+      ASSERT_EQ(v, permutation.data2program_(v));
+
+  // Permutation with a 4-cycle. This is the inverse map.
+  imap_ = {2, 3, 1, 0};
+  // Explicit computation:
+  //       data rep     ------>    program rep
+  //   '3' '2' '1' '0'          '3' '2' '1' '0'
+  //    0   0   0   0            0   0   0   0
+  //    0   0   0   1            0   1   0   0    (since data bit '0' is mapped to program bit '2')
+  //    0   0   1   0            1   0   0   0    (since data bit '1' is mapped to program bit '3')
+  //    0   0   1   1            1   1   0   0    (see above)
+  //       ...                  ...
+  std::vector<std::size_t> expected_data2program = {0,4,8,12, 2,6,10,14, 1,5,9,13, 3,7,11,15};	// hardcoded example
+  permutation.SetNewPermutationFromMap(imap_, "inverse");
+  std::size_t u;
+  for (std::size_t v=0; v<dim; ++v)
+  {
+      u = permutation.data2program_(v);
+      ASSERT_EQ(u, expected_data2program[v]);
   }
 }
 
