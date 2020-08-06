@@ -382,7 +382,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
 /// @param qubit index of the target qubit
 /// @param m 2x2 matrix corresponding to the single-qubit gate (implemented if control qubit is in |1\>)
 template <class Type>
-void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned qubit,
+void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
                                                     TM2x2<Type> const&m, GateSpec2Q spec, BaseType angle)
 {
   assert(target_qubit < num_qubits);
@@ -410,7 +410,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned q
       }
   }
   L:
-  ApplyControlled1QubitGate_helper(control, qubit, m, 0UL, LocalSize(), spec, angle);
+  ApplyControlled1QubitGate_helper(control_qubit, target_qubit, m, 0UL, LocalSize(), spec, angle);
 }
 
 
