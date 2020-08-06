@@ -24,6 +24,8 @@ void benchmark(const std::vector<std::array<int, 2>> &pairs, const char *name, F
 
 int main(int argc, char *argv[])
 {
+  qhipster::mpi::Environment::Init(argc, argv);
+
   if (argc != 2) 
   {
     std::cout<<"Usage: "<<argv[0]<<" <num_qubits> \n";
@@ -62,5 +64,8 @@ int main(int argc, char *argv[])
     benchmark(pairs, "CX", [&psi](int i, int j) { psi.ApplyCPauliX(i, j); });
     benchmark(pairs, "CY", [&psi](int i, int j) { psi.ApplyCPauliY(i, j); });
   }
+
+  qhipster::mpi::Environment::Finalize();
+
   return 0;
 }
