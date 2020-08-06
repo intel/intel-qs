@@ -17,8 +17,8 @@
 
 // Include the header file including the declaration of the QbitRegister class
 // and of its methods.
-#include "../qureg/qureg.hpp"
-#include "../qureg/permute.hpp"
+#include "../include/qureg.hpp"
+#include "../include/permute.hpp"
 
 // Start of the main program (C++ language).
 int main(int argc, char **argv)

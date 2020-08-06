@@ -9,7 +9,6 @@
 #endif
 
 #include "../include/qureg.hpp"
-
 /// \addtogroup qureg
 /// @{
 
@@ -26,7 +25,7 @@ QubitRegister<Type>::QubitRegister()
 
   timer = nullptr;
   gate_counter = nullptr;
-  permutation = nullptr;
+  qubit_permutation = nullptr;
   imported_state = false;
   specialize = false;
   num_qubits = 1;
@@ -68,13 +67,12 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 
-  TODO(move permutation to WaveFunctionSimulator class)
-  if (permutation) delete permutation;
-  permutation = new Permutation(num_qubits);
+  if (qubit_permutation) delete qubit_permutation;
+  qubit_permutation = new Permutation(num_qubits);
 }
 
 
@@ -133,8 +131,8 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   this->num_qubits = new_num_qubits;
   assert(LocalSize() >= 1L);
 
-  // set-up initial permutation
-  permutation = new Permutation(new_num_qubits);
+  // Set-up initial qubit permutation and state_rank permutation.
+  qubit_permutation = new Permutation(new_num_qubits);
 
   if ( do_print_extra_info && !myrank)
       printf("Specialization is off\n");
@@ -181,7 +179,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 }
@@ -259,7 +257,12 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
       assert(base_index==0 || base_index==qhipster::mpi::Environment::GetNumStates() );
 
       // Parallel initialization using open-source parallel RNG or VRL (if MKL is used).
+      // TODO: with GCC, using OpenMP code below produces a SEGMENTATION FAULT result.
+      //       This happens when randomly initializing states with 20 or more qubits (no MPI)
+      //       Currently we reserve the OpenMP initialization to ICPC only.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel
+#endif
       {
 #ifdef _OPENMP
           std::size_t thread_id   = omp_get_thread_num();
@@ -363,8 +366,10 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
   TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
 #endif
 
-  for (std::size_t i = 0; i < lcl; i++) state[i] = in.state[i];
-  *permutation = *(in.permutation);
+  for (std::size_t i = 0; i < lcl; i++)
+      state[i] = in.state[i];
+ 
+  *qubit_permutation = *(in.qubit_permutation);
 }
 
 
@@ -401,7 +406,7 @@ QubitRegister<Type>::~QubitRegister()
 #endif
   if (timer != nullptr) delete timer;
   if (gate_counter != nullptr) delete gate_counter;
-  if (permutation != nullptr) delete permutation;
+  if (qubit_permutation != nullptr) delete qubit_permutation;
 }
 
 template class QubitRegister<ComplexSP>;

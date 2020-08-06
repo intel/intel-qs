@@ -1,15 +1,19 @@
-#include "../include/qureg.hpp"
-#include "../include/highperfkernels.hpp"
-
-/// \addtogroup qureg
-/// @{
-
 /// @file qureg_applydiag.cpp
 /// @brief Define the @c QubitRegister methods for the application of two-qubit diagonal gates.
 
+#include "../include/qureg.hpp"
+#include "../include/highperfkernels.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////////
+// General comment.
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
-void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit1, unsigned qubit2,  TM4x4<Type> const &m)
+void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit_1, unsigned qubit_2,  TM4x4<Type> const &m)
 {
   unsigned myrank=0, nprocs=1;
 #ifdef INTELQS_HAS_MPI
@@ -22,17 +26,22 @@ void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit1, unsigned qubit2,  TM4x4
        d22 = m[2][2],
        d33 = m[3][3];
 
+  unsigned position_1 = (*qubit_permutation)[qubit_1];
+  unsigned position_2 = (*qubit_permutation)[qubit_2];
+  assert(position_1 < num_qubits);
+  assert(position_2 < num_qubits);
+
   std::size_t src_glb_start = UL(myrank) * LocalSize();
   for (std::size_t i = 0;  i < LocalSize(); i++)
   {
-    if(check_bit(src_glb_start + i, qubit1) == 0 &&
-       check_bit(src_glb_start + i, qubit2) == 0 )
+    if(check_bit(src_glb_start + i, position_1) == 0 &&
+       check_bit(src_glb_start + i, position_2) == 0 )
         state[i] *= d00;
-    else if(check_bit(src_glb_start + i, qubit1) == 0 &&
-            check_bit(src_glb_start + i, qubit2) == 1 )
+    else if(check_bit(src_glb_start + i, position_1) == 0 &&
+            check_bit(src_glb_start + i, position_2) == 1 )
         state[i] *= d11;
-    else if(check_bit(src_glb_start + i, qubit1) == 1 &&
-            check_bit(src_glb_start + i, qubit2) == 0 )
+    else if(check_bit(src_glb_start + i, position_1) == 1 &&
+            check_bit(src_glb_start + i, position_2) == 0 )
         state[i] *= d22;
     else 
         state[i] *= d33;
@@ -40,17 +49,17 @@ void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit1, unsigned qubit2,  TM4x4
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
-void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<Type> const &m)
+void QubitRegister<Type>::ApplyDiag(unsigned qubit_1, unsigned qubit_2,  TM4x4<Type> const &m)
 {
+  assert(qubit_1 < num_qubits);
+  assert(qubit_2 < num_qubits);
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
-      // Verify that permutation is identity.
-      assert(qubit1_ == (*permutation)[qubit1_]);
-      assert(qubit2_ == (*permutation)[qubit2_]);
-      // Otherwise find better location that is compatible with the permutation.
-      gate_counter->TwoQubitIncrement(qubit1_, qubit2_);
+      // IQS count the gates acting on specific program qubits.
+      gate_counter->TwoQubitIncrement(qubit_1, qubit_2);
   }
 
  // flush fusion buffers
@@ -59,12 +68,10 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
       ApplyFusedGates();
   }
 
-  assert(qubit1_ < num_qubits);
-  unsigned qubit1 = (*permutation)[qubit1_];
-  assert(qubit1 < num_qubits);
-  assert(qubit2_ < num_qubits);
-  unsigned qubit2 = (*permutation)[qubit2_];
-  assert(qubit2 < num_qubits);
+  unsigned position_1 = (*qubit_permutation)[qubit_1];
+  unsigned position_2 = (*qubit_permutation)[qubit_2];
+  assert(position_1 < num_qubits);
+  assert(position_2 < num_qubits);
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
@@ -74,8 +81,8 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
 #endif
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta1 = 1 << qubit1;
-  std::size_t delta2 = 1 << qubit2;
+  std::size_t delta1 = 1 << position_1;
+  std::size_t delta2 = 1 << position_2;
 
   Type d00 = m[0][0],
        d11 = m[1][1],
@@ -89,7 +96,7 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
   if (controlled == true)
   {
       // controlled 2-qubit diagonal gate
-      if (qubit1 < M && qubit2 < M)
+      if (position_1 < M && position_2 < M)
       {
           printf("here1\n");
           unsigned delta1_ = std::min(delta1, delta2);
@@ -105,10 +112,10 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
                   delta1_, 2UL*delta1_, delta2_,
                   m2x2, NULL);
       }
-      else if (qubit1 >= M && qubit2 < M)
+      else if (position_1 >= M && position_2 < M)
       {
           printf("here2\n");
-          if (check_bit(src_glb_start, qubit1) != 0) {
+          if (check_bit(src_glb_start, position_1) != 0) {
             for (std::size_t j = 0; j < LocalSize(); j += 2 * delta2) {
               for (std::size_t k = 0; k < delta2; ++k) {
                  state[j + k                 ] *= d22;
@@ -117,26 +124,26 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
             }
           } 
       }
-      else if (qubit1 < M && qubit2 >= M)
+      else if (position_1 < M && position_2 >= M)
       {
           Type d0, d1;
           printf("here3\n");
-          d1 = (check_bit(src_glb_start, qubit2) == 0) ? d22 : d33;
+          d1 = (check_bit(src_glb_start, position_2) == 0) ? d22 : d33;
           for (std::size_t j = 0; j < LocalSize(); j += 2 * delta1) {
             for (std::size_t k = 0; k < delta1; ++k) {
                state[j + k + delta1        ] *= d1;
             }
           }
       }
-      else if (qubit1 >= M && qubit2 >= M)
+      else if (position_1 >= M && position_2 >= M)
       {
           printf("here4\n");
-          if (check_bit(src_glb_start, qubit1) == 1 &&
-              check_bit(src_glb_start, qubit2) == 0 ) {
+          if (check_bit(src_glb_start, position_1) == 1 &&
+              check_bit(src_glb_start, position_2) == 0 ) {
             for (std::size_t i = 0;  i < LocalSize(); i++)
               state[i] *= d22;
-          } else if (check_bit(src_glb_start, qubit1) == 1 &&
-                     check_bit(src_glb_start, qubit2) == 1 ) {
+          } else if (check_bit(src_glb_start, position_1) == 1 &&
+                     check_bit(src_glb_start, position_2) == 1 ) {
             for (std::size_t i = 0;  i < LocalSize(); i++)
               state[i] *= d33;
           }
@@ -145,7 +152,7 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
   #endif
   {
     // general 2-qubit diagonal gate
-    if (qubit1 < M && qubit2 < M)
+    if (position_1 < M && position_2 < M)
     {
         unsigned delta1_ = std::min(delta1, delta2);
         unsigned delta2_ = std::max(delta1, delta2);
@@ -163,19 +170,20 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
             }
         }
     }
-    else if (qubit1 >= M && qubit2 < M || qubit1 < M && qubit2 >= M)
+    else if (   position_1 >= M && position_2 <  M
+             || position_1 <  M && position_2 >= M)
     {
         Type d0, d1;
         unsigned delta;
-        if (qubit1 >= M && qubit2 < M)  {
-            d0 = (check_bit(src_glb_start, qubit1) == 0) ? d00 : d22;
-            d1 = (check_bit(src_glb_start, qubit1) == 0) ? d11 : d33;
+        if (position_1 >= M && position_2 < M)  {
+            d0 = (check_bit(src_glb_start, position_1) == 0) ? d00 : d22;
+            d1 = (check_bit(src_glb_start, position_1) == 0) ? d11 : d33;
             delta = delta2;
         }
         else
         {
-            d0 = (check_bit(src_glb_start, qubit2) == 0) ? d00 : d11;
-            d1 = (check_bit(src_glb_start, qubit2) == 0) ? d22 : d33;
+            d0 = (check_bit(src_glb_start, position_2) == 0) ? d00 : d11;
+            d1 = (check_bit(src_glb_start, position_2) == 0) ? d22 : d33;
             delta = delta1;
         }
         for (std::size_t j = 0; j < LocalSize(); j += 2 * delta)
@@ -187,21 +195,21 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
             }
         } 
     }
-    else if (qubit1 >= M && qubit2 >= M)
+    else if (position_1 >= M && position_2 >= M)
     {
-        if (check_bit(src_glb_start, qubit1) == 0 &&
-            check_bit(src_glb_start, qubit2) == 0 ) {
+        if (check_bit(src_glb_start, position_1) == 0 &&
+            check_bit(src_glb_start, position_2) == 0 ) {
             for (std::size_t i = 0;  i < LocalSize(); i++)
                 state[i] *= d00;
         }
-        else if (check_bit(src_glb_start, qubit1) == 0 &&
-                 check_bit(src_glb_start, qubit2) == 1 )
+        else if (check_bit(src_glb_start, position_1) == 0 &&
+                 check_bit(src_glb_start, position_2) == 1 )
         {
             for (std::size_t i = 0;  i < LocalSize(); i++)
                 state[i] *= d11;
         }
-        else if (check_bit(src_glb_start, qubit1) == 1 &&
-                 check_bit(src_glb_start, qubit2) == 0 )
+        else if (check_bit(src_glb_start, position_1) == 1 &&
+                 check_bit(src_glb_start, position_2) == 0 )
         {
             for (std::size_t i = 0;  i < LocalSize(); i++)
                 state[i] *= d22;
@@ -218,5 +226,3 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
-
-/// @}

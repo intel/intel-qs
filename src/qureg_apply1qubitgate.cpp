@@ -1,14 +1,18 @@
+/// @file qureg_apply1qubitgate.cpp
+/// @brief Define the @c QubitRegister methods corresponding to the application of single-qubit gates.
+
 #include "../include/qureg.hpp"
 #include "../include/highperfkernels.hpp"
 #include "../include/spec_kernels.hpp"
 
-/// \addtogroup qureg
-/// @{
-
-/// @file qureg_apply1qubitgate.cpp
-/// @brief Define the @c QubitRegister methods corresponding to the application of single-qubit gates.
-
 /////////////////////////////////////////////////////////////////////////////////////////
+// General comment.
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 {
@@ -165,8 +169,8 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
 						                                     GateSpec1Q spec, BaseType angle)
 {
   assert(qubit_ < num_qubits);
-  unsigned qubit = (*permutation)[qubit_]; 
-  assert(qubit < num_qubits);
+  unsigned position = (*qubit_permutation)[qubit_]; 
+  assert(position < num_qubits);
 
   TODO(Add diagonal special case)
 
@@ -175,7 +179,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   nprocs = qhipster::mpi::Environment::GetStateSize();
   log2_nprocs = qhipster::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
-  std::size_t P = qubit;
+  std::size_t P = position;
 
   std::size_t src_glb_start = UL(myrank) * LocalSize();
   // check for special case of diagonal
@@ -226,19 +230,20 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m, G
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
-      // Verify that permutation is identity.
-      assert(qubit == (*permutation)[qubit]);
-      // Otherwise find better location that is compatible with the permutation.
+      // IQS count the gates acting on specific program qubits.
       gate_counter->OneQubitIncrement(qubit);
   }
 
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position < num_qubits);
+
+  // FIXME verify that fusion is properly working even with non-identity qubit permutation.
   if (fusion == true)
   {
-      assert((*permutation)[qubit] < num_qubits);
-      if ((*permutation)[qubit] < log2llc)
+      if (position < log2llc)
       {
           std::string name = "sqg";
-          fwindow.push_back(std::make_tuple(name, m, qubit, 0U));
+          fwindow.push_back(std::make_tuple(name, m, qubit, 0U)); // FIXME: check if using qubit (original) or position
           return;
       }
       else
@@ -460,5 +465,3 @@ void QubitRegister<Type>::ApplyT(unsigned const qubit)
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
-
-/// @}
