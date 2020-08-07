@@ -2,7 +2,7 @@
 ![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=inactive)](https://arxiv.org/abs/1601.07195)
-[![Published Dockerfile](https://img.shields.io/badge/docker%20build-passing-181717?style=flat-square&logo=github&labelColor=black&color=green)](https://github.com/iqusoft/intel-qs/blob/master/Dockerfile)
+[![Published Dockerfile](https://img.shields.io/badge/docker%20build-passing-181717?style=flat-square&logo=github&labelColor=black&color=brightgreen)](https://github.com/iqusoft/intel-qs/blob/master/Dockerfile)
 
 
 # Intel Quantum Simulator
@@ -199,7 +199,6 @@ define a qubit register object, perform quantum gates, measure one or multiple q
 
 If the Python bindings were enabled, the same learning can be performed using the iPython
 notebook `tutorials/get_started_with_IQS.ipynb`.
-(Important note: comment line "from numpy import random_inte")
 
 ----
 ## How to contribute
