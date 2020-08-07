@@ -1,7 +1,9 @@
 ![C++ build with CMake](https://github.com/iqusoft/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg)
-![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg?branch=develop-action)
-![Python build with MPI](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20with%20MPI/badge.svg?branch=develop-action)[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
+![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
+[![arXiv](https://img.shields.io/static/v1?label=arXiv&message=2001.10554&color=success)](https://arxiv.org/abs/2001.10554)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=inactive)](https://arxiv.org/abs/1601.07195)
+[![Published Dockerfile](https://img.shields.io/badge/docker%20build-passing-181717?style=flat-square&logo=github&labelColor=black&color=brightgreen)](https://github.com/iqusoft/intel-qs/blob/master/Dockerfile)
+
 
 # Intel Quantum Simulator
 
@@ -101,16 +103,15 @@ Underneath, this option uses [`-xhost`](https://software.intel.com/en-us/cpp-com
 with Intel compilers and [`-march=native`](https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html) with GNU compilers.
 
 
-### Enable Python binding
+### Enable Python binding (only available without MPI)
 
-By default, the compilation does not include the the Python binding for
+By default, whenever MPI is disabled, the building process includes the Python binding for
 Intel-QS. The binding code uses the Pybind11 library which needs to be installed via 'conda'
 (and not simply with pip) to include the relevant information in CMake.
 See [this page](https://github.com/pybind/pybind11/issues/1628) for more info on this issue.
 
-To enable the Python wrap set the CMake option selection to
-`-DIqsPython=ON`. 
-This option works also with the MPI buile enabled.
+To disable the Python wrap, even without MPI, set the CMake option selection to
+`-DIqsPython=OFF`.
 
 
 ### Unit test
@@ -144,17 +145,48 @@ A quick look at the options can be found at
 `Dockerfile` includes the instructions to build the docker image of an Ubuntu machine
 with Intel-QS already installed. The image can be 'run' to create a container.
 The container can be 'executed' to login into the machine.
+For this, Three steps need to be followed to prepare containerirzed intelqs simulator.
+
+*  Create container
+*  Configure SSH tunneling
+*  Launch Jupyter notebook
+
+#### Create container
+
+Important: If user is not `root`,add `sudo` before each bash and docker command.
+First command in below will build docker image for Intelqs named qhipster.One can choose other name too.
+(if choosen name is other than qhipster, replace that name in all other commands as well). 
+Second command will create container while mapping 8080 port to the localhost. 
+Third command will enable conda env,execute cmake and make command, it will launch jupyter notebook
+in the terminal. Copy and save the printed token from the terminal.  
+`Example of a given token : http://127.0.0.1:8080/?token=6ee42173ee71353c1f1b33f8feb33132aed15f2a07960bc8`.
+Last command is optional,this can be executed to go inside container.
 
 ```bash
   docker build -t qhipster .
-  docker run -d -t qhipster
-  docker ps
-  docker exec -itd <container_id> /bin/bash
+  docker run -d -t -p 8080:8080 qhipster
+  docker exec -i $(docker ps|grep -i qhipster|cut -d ' ' -f1) /bin/bash -c ". ~/.bashrc && . /opt/intel/mkl/bin/mklvars.sh intel64 ilp64 && . /opt/intel/bin/compilervars.sh -arch intel64 -platform linux && mkdir build && cd build && CXX=g++ cmake -DIqsMPI=OFF -DIqsUtest=ON -DIqsPython=ON .. && make && cd .. && jupyter notebook --ip 0.0.0.0 --port 8080 --no-browser --allow-root"
+  docker exec -it $(docker ps|grep -i qhipster|cut -d ' ' -f1) /bin/bash
 ```
 
 If Docker is used on a Windows host machine, the last line should be substituted by:
-`winpty docker exec -itd <container_id> //bin/bash`.
+`winpty docker exec -it <container_id> //bin/bash`.
 
+
+#### Configure SSH tunneling
+
+In local laptop, open Ubuntu emulator. This to allow the use of SSH protocol for port forwarding.
+For example if you use MobaxTerm tool,launch a session and type following command in the mobxterm shell:
+
+```bash
+  ssh -L 8080:localhost:8080 user@domain.com
+```
+
+#### Launch Jupyter notebook
+
+Now, paste the copied token(which we copied from 'Create Container' section) in your preffered web browser 
+(most importantly, please clear your browser cache before pasting the token). Once you are seeing all 
+folders and files in browser, follow below section to begin.
 
 ----
 ## Getting started with Intel-QS
@@ -167,7 +199,6 @@ define a qubit register object, perform quantum gates, measure one or multiple q
 
 If the Python bindings were enabled, the same learning can be performed using the iPython
 notebook `tutorials/get_started_with_IQS.ipynb`.
-
 
 ----
 ## How to contribute
