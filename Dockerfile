@@ -17,10 +17,6 @@
 # Use an official Ubuntu linux image as the run time environment.
 FROM ubuntu:latest
 
-# Setup the proxy server environment.
-#ENV http_proxy http://proxy-chain.intel.com:911
-#ENV https_proxy http://proxy-chain.intel.com:911
-
 # Fetch and install the GNU Make utility.
 RUN apt-get update && apt-get install -y build-essential g++ make
 
