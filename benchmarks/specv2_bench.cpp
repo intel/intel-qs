@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
       {
         std::cerr << "State comparison test failed for spec " << i 
                   << "\nMax diff: " << diff << "\nAborting..." << std::endl;
-        return 1;
+        break;
       }
     }
   }
