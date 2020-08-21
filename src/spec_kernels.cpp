@@ -151,6 +151,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              std::size_t indsht0, std::size_t indsht1,
 	           GateSpec1Q spec, Timer *timer, double angle)
 {
+  double ttmp1 = sec(), ttot = 0.;
   assert((UL(state0) % 256) == 0);
   assert((UL(state1) % 256) == 0);
 #if defined(__ICC) || defined(__INTEL_COMPILER)
@@ -172,7 +173,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
   nthreads = omp_get_num_threads();
 #endif
   bool par = nthreads > 1;
-  // printf("Executing here with %d threads...\n", nthreads);
+
   switch(spec) {
 
    case GateSpec1Q::Hadamard:
@@ -216,8 +217,16 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
     break;
 
    default:
-     break;
+    // This should not happen!
+    throw std::runtime_error("InvalidArgument: Loop_DN SpecializeV2 is called with GateSpec1Q::None!");
  }
+
+ if(timer)
+  {
+      ttot = sec() - ttmp1;     
+      double datab = 2.0 * sizeof(state0[0]) * D(gend - gstart);
+      timer->record_dn(ttot, datab / ttot);
+  }
 }
 
 template <class Type>
@@ -229,6 +238,7 @@ void Loop_TN(Type *state,
              std::size_t index_shift, GateSpec2Q spec,
              Timer *timer, double angle)
 {
+  double ttmp1 = sec(), ttot = 0.;
   assert((UL(state) % 256) == 0);
 #if defined(__ICC) || defined(__INTEL_COMPILER)
   __assume_aligned(state, 256);
@@ -247,6 +257,7 @@ void Loop_TN(Type *state,
   const decltype(theta) sin_2 = std::sin(theta / 2);
   const decltype(theta) msin_2 = -sin_2;
   const Type pexp = Type(std::cos(theta), std::sin(theta));
+
   switch(spec) {
 
     case GateSpec2Q::CHadamard:
@@ -289,8 +300,17 @@ void Loop_TN(Type *state,
       else { SERIAL_FOR_3D CP_BODY_3D; }
       break;
 
-    default:
-      break;
+    default: 
+      // This should not happen!
+      throw std::runtime_error("InvalidArgument: Loop_TN SpecializeV2 is called with GateSpec2Q::None!");
+  }
+
+  if (timer)
+  {
+    ttot = sec() - ttmp1;
+    double datab =
+      4.0 * sizeof(state[0]) * D((c12 - c11) / c13) * D((c22 - c21) / c23) * D(c32 - c31);
+    timer->record_tn(ttot, datab / ttot);
   }
 }
 
