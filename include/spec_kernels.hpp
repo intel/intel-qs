@@ -9,6 +9,13 @@ using qhipster::GateSpec2Q;
 
 template< typename Type >
 __attribute__((noinline))
+void Loop_SN(std::size_t gstart, std::size_t gend,
+             Type *state0, Type *state1,
+             std::size_t indsht0, std::size_t indsht1,
+	         GateSpec1Q spec, Timer *timer, double angle);
+
+template< typename Type >
+__attribute__((noinline))
 void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              Type *state0, Type *state1,
              std::size_t indsht0, std::size_t indsht1,
