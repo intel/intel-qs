@@ -105,8 +105,8 @@
     std::size_t ind0 = l1 + l2 + l3;              \
     std::size_t ind1 = ind0 + index_shift;        \
     Type in0 = state[ind0], in1 = state[ind1];    \
-    state[ind0] = cos_2 * in0 + msin_2 * in1;     \
-    state[ind1] = sin_2 * in0 + cos_2 * in1;      \
+    state[ind0] = Type(cos_2, msin_2) * in0;     \
+    state[ind1] = Type(cos_2, sin_2) * in1;      \
 }
 
 #define PX_BODY_3D {                        \
@@ -246,8 +246,7 @@ void Loop_TN(Type *state,
   const decltype(theta) cos_2 = std::cos(theta / 2);
   const decltype(theta) sin_2 = std::sin(theta / 2);
   const decltype(theta) msin_2 = -sin_2;
-  const Type pexp = Type(std::cos(theta), std::sin(theta)); 
-
+  const Type pexp = Type(std::cos(theta), std::sin(theta));
   switch(spec) {
 
     case GateSpec2Q::CHadamard:

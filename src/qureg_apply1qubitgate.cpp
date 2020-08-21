@@ -331,7 +331,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
   px(1, 1) = Type(0., 0.);
-  Apply1QubitGate(qubit, px, GateSpec1Q::PauliZ);
+  Apply1QubitGate(qubit, px, GateSpec1Q::PauliX);
 }
 
 
