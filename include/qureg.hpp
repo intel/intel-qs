@@ -294,9 +294,8 @@ class QubitRegister
   void TurnOnSpecialize();
   void TurnOffSpecialize();
 
-  // more precise gate specialization (experimental)
-  void TurnOnSpecializeV2() { specialize2 = true; }
-  void TurnOffSpecializeV2() { specialize2 = false; }
+  void TurnOnSpecializeV2();
+  void TurnOffSpecializeV2();
 
   // measurement
   bool GetClassicalValue(unsigned qubit, BaseType tolerance = 1.e-13) const;

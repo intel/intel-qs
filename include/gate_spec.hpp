@@ -3,6 +3,7 @@
 
 namespace qhipster {
 
+/// @brief Known 1-qubit gate types used internally with specialization v2
 enum class GateSpec1Q { 
   Hadamard=0, 
   RotationX, RotationY, RotationZ, 
@@ -11,6 +12,7 @@ enum class GateSpec1Q {
   None
 };
 
+/// @brief Known 2-qubit gate types used internally with specialization v2
 enum class GateSpec2Q {
   CHadamard=0,
   CRotationX, CRotationY, CRotationZ,
