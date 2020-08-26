@@ -166,7 +166,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 template <class Type>
 bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> const&m, 
                                                  std::size_t sind, std::size_t eind,
-						                                     GateSpec1Q spec, BaseType angle)
+                                                 GateSpec1Q spec, BaseType angle)
 {
   assert(qubit_ < num_qubits);
   unsigned position = (*qubit_permutation)[qubit_]; 

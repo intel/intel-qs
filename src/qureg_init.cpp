@@ -406,6 +406,19 @@ void QubitRegister<Type>::TurnOffSpecialize()
 ///
 /// Avoids matrix multiplication in some common gates to improve performance.
 /// Turned off by default.
+///
+/// Supported Gate Types:
+///     - 1-Qubit Gates
+///         - Hadamard
+///         - Rotation(X, Y, Z)
+///         - Pauli(X, Y, Z)
+///         - T
+///     - Controlled Gates
+///         - CHadamard
+///         - CRotation(X, Y, Z)
+///         - CPauli(X, Y, Z)
+///         - CPhaseRotation
+///
 /// @warning May not work with gate fusion!
 template <class Type>
 void QubitRegister<Type>::TurnOnSpecializeV2()

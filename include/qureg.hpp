@@ -221,25 +221,34 @@ class QubitRegister
   // single qubit gates
   bool Apply1QubitGate_helper(unsigned qubit,  TM2x2<Type> const&m,
                               std::size_t sstate_ind, std::size_t estate_ind,
-                              // Spec parameters
-			      qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                              // For spec and angle, see the description in Apply1QubitGate below
+                              qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
                               BaseType angle=0);
 
   void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m,
-                       // Spec parameters 
-		       qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                       // spec argument is for specifying the gate type in spec v2
+                       // GateSpec1Q::None means there is no spec v2
+                       qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                       // angle argument should be passed with rotation gates provided with specv2.
+                       // Passed internally by the gate functions.
                        BaseType angle=0);
 
   // constrolled gates
   bool ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                         TM2x2<Type> const&m,
-                                        std::size_t sind, std::size_t eind, 
-					qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                        std::size_t sind, std::size_t eind,
+                                        // For spec and angle, see the description in ApplyControlled1QubitGate below
+                                        qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
                                         BaseType angle=0);
          
   void ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
-                                 TM2x2<Type> const&m, 
-				 qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                 TM2x2<Type> const&m,
+                                 // spec argument is for specifying the controlled gate type in spec v2
+                                 // GateSpec1Q::None means there is no spec v2.
+                                 // spec argument is passed internally by the gate functions
+                                 qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                 // angle argument is used with the controlled rotation gates in spec v2,
+                                 // is spec is not None. Passes internally by the gate functions.
                                  BaseType angle=0);
   // swap gates
   bool ApplySwap_helper(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);

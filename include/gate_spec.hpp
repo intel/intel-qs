@@ -1,3 +1,6 @@
+/// @file gate_spec.hpp
+/// @brief Declare structs used in specialization v2.
+
 #ifndef GATE_SPEC_HPP
 #define GATE_SPEC_HPP
 
