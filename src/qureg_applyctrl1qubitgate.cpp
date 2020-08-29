@@ -284,7 +284,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
                     Loop_TN(state, 
                           sind,  eind,        1UL<<C+1UL,
                       1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                      0L,     1UL<<T,     1UL<<T, spec, timer);
+                      0L,     1UL<<T,     1UL<<T, spec, timer, angle);
                 }
                 else
                 {

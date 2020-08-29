@@ -166,7 +166,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
 template <class Type>
 bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> const&m, 
                                                  std::size_t sind, std::size_t eind,
-						                                     GateSpec1Q spec, BaseType angle)
+                                                 GateSpec1Q spec, BaseType angle)
 {
   assert(qubit_ < num_qubits);
   unsigned position = (*qubit_permutation)[qubit_]; 
@@ -331,7 +331,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
   px(1, 1) = Type(0., 0.);
-  Apply1QubitGate(qubit, px, GateSpec1Q::PauliZ);
+  Apply1QubitGate(qubit, px, GateSpec1Q::PauliX);
 }
 
 
