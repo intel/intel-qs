@@ -157,7 +157,7 @@ __attribute__((noinline))
 void Loop_SN(std::size_t gstart, std::size_t gend,
              Type *state0, Type *state1,
              std::size_t indsht0, std::size_t indsht1,
-	           GateSpec1Q spec, Timer *timer, double angle)
+             GateSpec1Q spec, Timer *timer, double angle)
 {
   assert((UL(state0) % 256) == 0);
   assert((UL(state1) % 256) == 0);
@@ -182,7 +182,7 @@ void Loop_SN(std::size_t gstart, std::size_t gend,
   nthreads = omp_get_num_threads();
 #endif
   bool par = nthreads > 1;
-  // printf("Executing here with %d threads...\n", nthreads);
+
   switch(spec) {
 
    case GateSpec1Q::Hadamard:
@@ -226,7 +226,7 @@ void Loop_SN(std::size_t gstart, std::size_t gend,
     break;
 
    default:
-     break;
+     throw std::runtime_error("InvalidArgument: Loop_SN SpecializeV2 is called with GateSpec1Q::None!");;
  }
 }
 
