@@ -165,6 +165,8 @@ void Loop_SN(std::size_t gstart, std::size_t gend,
   __assume_aligned(state0, 256);
   __assume_aligned(state1, 256);
 #endif
+  double ttot = 0., tnov = 0., ttmp1, ttmp2;
+  ttmp1 = sec();
 
   // Declare constants
   const auto theta = static_cast<decltype(state0[0].real())>(angle);
@@ -228,6 +230,18 @@ void Loop_SN(std::size_t gstart, std::size_t gend,
    default:
      throw std::runtime_error("InvalidArgument: Loop_SN SpecializeV2 is called with GateSpec1Q::None!");;
  }
+
+  if (timer)
+  {
+    ttot = sec() - ttmp1;
+    double datab = ((state0 == state1) ? 2.0 : 4.0) *
+        sizeof(state0[0]) * D(gend - gstart);
+    
+    double flops = D(1L << 19) * 38.0;
+    double gflops = flops / ttot / 1e9;
+
+    timer->record_sn(ttot, datab / ttot);
+  }
 }
 
 
