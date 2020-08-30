@@ -236,7 +236,7 @@ __attribute__((noinline))
 void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              Type *state0, Type *state1,
              std::size_t indsht0, std::size_t indsht1,
-	           GateSpec1Q spec, Timer *timer, double angle)
+             GateSpec1Q spec, Timer *timer, double angle)
 {
   double ttmp1 = sec(), ttot = 0.;
   assert((UL(state0) % 256) == 0);

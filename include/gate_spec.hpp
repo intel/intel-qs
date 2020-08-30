@@ -24,6 +24,8 @@ enum class GateSpec2Q {
   None
 };
 
+GateSpec1Q ConvertSpec2to1(GateSpec2Q spec);
+
 }
 
 #endif

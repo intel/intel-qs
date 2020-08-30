@@ -23,6 +23,7 @@ set(IQS_FILES
   mpi_exception.cpp
   utils.cpp
   rng_utils.cpp
+  gate_spec.cpp
   CACHE INTERNAL "" FORCE)
 
 add_library(iqs SHARED ${IQS_FILES})

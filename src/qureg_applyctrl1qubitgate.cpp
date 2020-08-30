@@ -5,6 +5,8 @@
 #include "../include/highperfkernels.hpp"
 #include "../include/spec_kernels.hpp"
 
+using qhipster::ConvertSpec2to1;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // General comment.
 // To distinguish between program qubits (used in the algorithm) and data qubits
@@ -19,9 +21,10 @@
 /// @param m 2x2 matrix corresponding to the quantum gate
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned target_position,
-                                         TM2x2<Type> const&m)
+                                         TM2x2<Type> const&m, GateSpec2Q spec, BaseType angle)
 {
   assert(LocalSize() > 1);
+  auto spec1q = ConvertSpec2to1(spec);
 #ifndef INTELQS_HAS_MPI
   assert(0);
 #else
@@ -101,9 +104,17 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
     
             // 3. src and dst compute
             if (M - C == 1) {
+              if (specialize2 && (spec1q != GateSpec1Q::None))
+                Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L,
+                        spec1q, timer, angle);
+              else
                 Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L,
                         m, specialize, timer);
             } else {
+              if (specialize2 && (spec1q != GateSpec1Q::None))
+                Loop_DN((UL(1) << C), lcl_chunk, C, &(state[c]), tmp_state, lcl_size_half, 0L,
+                        spec1q, timer, angle);
+              else
                 Loop_DN((UL(1) << C), lcl_chunk, C, &(state[c]), tmp_state, lcl_size_half, 0L,
                         m, specialize, timer);
             }
@@ -126,9 +137,14 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
     
             if (M - C == 1)
             {}    // this is intentional special case: nothing happens
-            else
+            else {
+              if (specialize2 && (spec1q != GateSpec1Q::None))
+                Loop_DN((UL(1) << C), lcl_chunk, C, tmp_state, &(state[c]), 0L, 0L,
+                        spec1q, timer, angle);
+              else
                 Loop_DN((UL(1) << C), lcl_chunk, C, tmp_state, &(state[c]), 0L, 0L,
                         m, specialize, timer);
+            }
 
             t = sec();
             qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
@@ -156,8 +172,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             tnet += sec() - t;
     
             // 3. src and dst compute
-            Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L,
-                    m, specialize, timer);
+            if (specialize2 && (spec1q != GateSpec1Q::None))
+              Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L,
+                      spec1q, timer, angle);
+            else
+              Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L,
+                      m, specialize, timer);
 
             t = sec();
             qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
@@ -174,9 +194,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
                                           &(tmp_state[0])          , lcl_chunk, itask, tag1,
                                           comm, &status);
             tnet += sec() - t;
-    
-            Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L,
-                    m, specialize, timer);
+          if (specialize2 && (spec1q != GateSpec1Q::None))
+              Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L,
+                      spec1q, timer, angle);
+          else
+              Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L,
+                      m, specialize, timer);
 
             t = sec();
             qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
@@ -203,7 +226,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
 template <class Type>
 bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                                           TM2x2<Type> const&m,
-							                                            std::size_t sind, std::size_t eind, 
+                                                          std::size_t sind, std::size_t eind,
                                                           GateSpec2Q spec, BaseType angle)
 {
   assert(control_qubit != target_qubit);
@@ -272,9 +295,14 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
             {
                 if(check_bit(sind, C) == 1)
                 {
-                    Loop_DN(sind, eind, T, state, state,
-                            0, 1UL<<T, m, specialize, timer);
-                    HasDoneWork = true;
+                    auto spec1q = ConvertSpec2to1(spec);
+                    if (specialize2 && spec1q != GateSpec1Q::None)
+                        Loop_DN(sind, eind, T, state, state,
+                                0, 1UL<<T, spec1q, timer, angle);
+                    else
+                        Loop_DN(sind, eind, T, state, state,
+                                0, 1UL<<T, m, specialize, timer);
+                  HasDoneWork = true;
                 }
             }
             else
@@ -282,16 +310,16 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
                 if (specialize2 && (spec != GateSpec2Q::None))
                 {
                     Loop_TN(state, 
-                          sind,  eind,        1UL<<C+1UL,
-                      1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                      0L,     1UL<<T,     1UL<<T, spec, timer, angle);
+                            sind,  eind,        1UL<<C+1UL,
+                            1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
+                            0L,     1UL<<T,     1UL<<T, spec, timer, angle);
                 }
                 else
                 {
                     Loop_TN(state, 
-                      sind,  eind,        1UL<<C+1UL,
-                      1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                      0L,     1UL<<T,     1UL<<T    , m, specialize, timer);
+                            sind,  eind,        1UL<<C+1UL,
+                            1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
+                            0L,     1UL<<T,     1UL<<T , m, specialize, timer);
                 }
                 HasDoneWork = true;
             }
@@ -339,7 +367,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
             }
             else
             {
-                HP_Distrpair(T, m);
+                HP_Distrpair(T, m, ConvertSpec2to1(spec), angle);
                 // printf("HPD 1\n");
             }
             HasDoneWork = true;
@@ -357,11 +385,11 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
               md[0][1] = md[1][0] = {0., 0.};
               md[1][1] = (check_bit(src_glb_start, T) == 0) ? m[0][0] : m[1][1];
               TODO(Insert Loop_SN specialization for this case)
-              Loop_DN(sind, eind, C, state, state, 0, 1UL<<C, md, specialize, timer); 
+              Loop_DN(sind, eind, C, state, state, 0, 1UL<<C, md, specialize, timer);
           }
           else
           {
-              HP_Distrpair(C, T, m);
+              HP_Distrpair(C, T, m, spec, angle);
               // printf("HPD 2\n");
           }
           HasDoneWork = true;

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   if (argc == 3) 
     compare_states = static_cast<bool>(atoi(argv[2]));
   
-  if (rank == 0 && compare_states) // Compare only for small numbers
+  if (rank == 0 && compare_states)
     std::cout << "State comparison will be performed" << std::endl;
   else if (rank == 0)
     std::cout << "State comparison will not be performed" << std::endl;
