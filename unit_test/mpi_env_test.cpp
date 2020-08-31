@@ -122,7 +122,7 @@ int main(int argc, char** argv)
 // test of the exception handling for the MPI environment
 
 #ifdef INTELQS_HAS_MPI
-  QHIPSTER_MPI_CHECK_RESULT(MPI_Errhandler_set,(MPI_COMM_WORLD, MPI_ERRORS_RETURN))
+  QHIPSTER_MPI_CHECK_RESULT(MPI_Comm_set_errhandler,(MPI_COMM_WORLD, MPI_ERRORS_RETURN))
   // test if exceptions work
   try {
     int data;
