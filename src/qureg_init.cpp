@@ -374,6 +374,11 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Specialization using the unitary matrix structure.
+///
+/// When turned on, avoids full matrix multiplication in some special cases
+/// to improve performance.
+/// Turned off by default.
 template <class Type>
 void QubitRegister<Type>::TurnOnSpecialize()
 {
@@ -396,6 +401,45 @@ void QubitRegister<Type>::TurnOffSpecialize()
   specialize = false;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Specialization using the executed gate types.
+///
+/// Avoids matrix multiplication in some common gates to improve performance.
+/// Turned off by default.
+///
+/// Supported Gate Types:
+///     - 1-Qubit Gates
+///         - Hadamard
+///         - Rotation(X, Y, Z)
+///         - Pauli(X, Y, Z)
+///         - T
+///     - Controlled Gates
+///         - CHadamard
+///         - CRotation(X, Y, Z)
+///         - CPauli(X, Y, Z)
+///         - CPhaseRotation
+///
+/// @warning May not work with gate fusion!
+template <class Type>
+void QubitRegister<Type>::TurnOnSpecializeV2()
+{
+  int myrank=0;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+    printf("Specialization v2 is on\n");
+  specialize2 = true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template <class Type>
+void QubitRegister<Type>::TurnOffSpecializeV2()
+{
+  unsigned myrank=0;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+    printf("Specialization v2 is off\n");
+  specialize2 = false;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>

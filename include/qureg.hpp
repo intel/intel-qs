@@ -36,6 +36,7 @@
 #include "bitops.hpp"
 #include "conversion.hpp"
 #include "tinymatrix.hpp"
+#include "gate_spec.hpp"
 
 template<typename T>
 struct extract_value_type //lets call it extract_value_type
@@ -57,6 +58,7 @@ using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 
 template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
+
 
 /// @class QubitRegister represents the state of N qubits and update it due to quantum operations.
 ///
@@ -112,7 +114,6 @@ using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 ///
 /// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
 #endif
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // QubitRegister class declaration
@@ -219,14 +220,36 @@ class QubitRegister
   // Generic gates
   // single qubit gates
   bool Apply1QubitGate_helper(unsigned qubit,  TM2x2<Type> const&m,
-                              std::size_t sstate_ind, std::size_t estate_ind);
-  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m);
+                              std::size_t sstate_ind, std::size_t estate_ind,
+                              // For spec and angle, see the description in Apply1QubitGate below
+                              qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                              BaseType angle=0);
+
+  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m,
+                       // spec argument is for specifying the gate type in spec v2
+                       // GateSpec1Q::None means there is no spec v2
+                       qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                       // angle argument should be passed with rotation gates provided with specv2.
+                       // Passed internally by the gate functions.
+                       BaseType angle=0);
+
   // constrolled gates
   bool ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                         TM2x2<Type> const&m,
-                                        std::size_t sind, std::size_t eind);
+                                        std::size_t sind, std::size_t eind,
+                                        // For spec and angle, see the description in ApplyControlled1QubitGate below
+                                        qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                        BaseType angle=0);
+         
   void ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
-                                 TM2x2<Type> const&m);
+                                 TM2x2<Type> const&m,
+                                 // spec argument is for specifying the controlled gate type in spec v2
+                                 // GateSpec1Q::None means there is no spec v2.
+                                 // spec argument is passed internally by the gate functions
+                                 qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                 // angle argument is used with the controlled rotation gates in spec v2,
+                                 // is spec is not None. Passes internally by the gate functions.
+                                 BaseType angle=0);
   // swap gates
   bool ApplySwap_helper(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);
   void ApplySwap(unsigned qubit1, unsigned qubit2);
@@ -279,6 +302,9 @@ class QubitRegister
   // gate specialization (experimental)
   void TurnOnSpecialize();
   void TurnOffSpecialize();
+
+  void TurnOnSpecializeV2();
+  void TurnOffSpecializeV2();
 
   // measurement
   bool GetClassicalValue(unsigned qubit, BaseType tolerance = 1.e-13) const;
@@ -355,6 +381,7 @@ class QubitRegister
   std::size_t llc_watermarkbit;
   bool imported_state;
   bool specialize;
+  bool specialize2 = false;
 
   // temporary buffer for fusion
   bool fusion;
