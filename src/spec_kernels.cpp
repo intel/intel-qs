@@ -5,7 +5,7 @@
   _Pragma("omp parallel for")                             \
   for (std::size_t ind0 = gstart; ind0 < gend; ind0++)
 
-  #define SERIAL_FOR_1D                                  \
+#define SERIAL_FOR_1D                                     \
   for (std::size_t ind0 = gstart; ind0 < gend; ind0++)
 
 #define PARALLEL_FOR_2D                                   \
@@ -151,7 +151,6 @@
 }
 
 // Kernels
-
 template< typename Type >
 __attribute__((noinline))
 void Loop_SN(std::size_t gstart, std::size_t gend,

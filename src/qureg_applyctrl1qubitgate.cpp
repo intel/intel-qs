@@ -7,6 +7,7 @@
 
 using qhipster::ConvertSpec2to1;
 
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // General comment.
 // To distinguish between program qubits (used in the algorithm) and data qubits
@@ -316,7 +317,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
                 }
                 else
                 {
-                    Loop_TN(state, 
+                    Loop_TN(state,
                             sind,  eind,        1UL<<C+1UL,
                             1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
                             0L,     1UL<<T,     1UL<<T , m, specialize, timer);
