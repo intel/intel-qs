@@ -361,9 +361,13 @@ class QubitRegister
   void Print(std::string x, std::vector<std::size_t> qbits = {});
 
   double HP_Distrpair(unsigned position, TM2x2<Type> const&m,
+                      // See Apply1QubitGate declaration below 
+                      // for the following specialize v2 parameters
                       qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
                       BaseType angle=0);
   double HP_Distrpair(unsigned control_position, unsigned target_position, TM2x2<Type> const&m,
+                      // See ApplyControlled1QubitGate declaration below
+                      // for the following specialize v2 parameters
                       qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
                       BaseType angle=0);
   double HP_DistrSwap(unsigned low_position, unsigned high_position, TM2x2<Type> const&m);
