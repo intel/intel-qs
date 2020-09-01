@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 {
   Environment::Init(argc, argv);
   const auto rank = Environment::GetRank();
+  const auto world_size = Environment::GetNumRanksPerNode() * Environment::GetNumNodes();
 
   if (argc != 2 && argc != 3) 
   {
@@ -61,6 +62,8 @@ int main(int argc, char *argv[])
     QubitRegister<ComplexDP> psi(nbits, "base", 0);
     if (i == 1)
     {
+      // MPI use cases with more than two ranks need to be fixed
+      if (world_size > 2) continue;
       if (rank == 0) std::cout << "\nBenchmarking with spec v1\n------------\n";
       psi.TurnOnSpecialize();
     }
@@ -71,6 +74,8 @@ int main(int argc, char *argv[])
     }
     else if (i == 3)
     {
+      // MPI use cases with more than two ranks need to be fixed
+      if (world_size > 2) continue;
       if (rank == 0) std::cout << "\nBenchmarking with spec v1 & v2\n------------\n";
       psi.TurnOnSpecialize();
       psi.TurnOnSpecializeV2();
