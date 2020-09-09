@@ -9,7 +9,7 @@ from intelqs_py import MPIEnvironment
 def run_circuit(num_qubits):
     reg = iqs.QubitRegister(num_qubits, 'base', 0, 0)
     # Uncomment the following to enable specialization
-    reg.TurnOnSpecializeV2()
+    # reg.TurnOnSpecializeV2()
     for i in range(num_qubits):
         reg.ApplyHadamard(i)
     reg.ApplyRotationZ(i, np.pi/3)
