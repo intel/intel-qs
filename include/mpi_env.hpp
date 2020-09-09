@@ -156,6 +156,14 @@ void PoolBarrier();
 void StateBarrier();
 void Barrier();
 
+/// @brief Find minimum wall clock time in all processes and return it at rank 0.
+/// Returns local time for other processes.
+double MinTime();
+
+/// @brief Find maximum wall clock time in all processes and return it at rank 0.
+/// Returns local time for other processes.
+double MaxTime();
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Print from all MPI processes

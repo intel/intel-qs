@@ -269,8 +269,14 @@ PYBIND11_MODULE(intelqs_py, m)
         .def_static("GetNumRanksPerNode", &Environment::GetNumRanksPerNode)
         .def_static("GetNumNodes", &Environment::GetNumNodes)
         .def_static("GetStateId", &Environment::GetStateId)
-        .def_static("GetNumStates", &Environment::GetNumStates);
+        .def_static("GetNumStates", &Environment::GetNumStates)
 
+        .def_static("Barrier", &qhipster::mpi::Barrier)
+        .def_static("PoolBarrier", &qhipster::mpi::PoolBarrier)
+        .def_static("StateBarrier", &qhipster::mpi::StateBarrier)
+
+        .def_static("MinTime", &qhipster::mpi::MinTime)
+        .def_static("MaxTime", &qhipster::mpi::MaxTime);
 }
 
 //////////////////////////////////////////////////////////////////////////////

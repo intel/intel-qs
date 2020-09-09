@@ -1,11 +1,15 @@
 import sys
+import numpy as np
+import time
 sys.path.insert(0, '../build/lib')
 import intelqs_py as iqs
-import numpy as np
+from intelqs_py import MPIEnvironment
 
 
 def run_circuit(num_qubits):
     reg = iqs.QubitRegister(num_qubits, 'base', 0, 0)
+    # Uncomment the following to enable specialization
+    reg.TurnOnSpecializeV2()
     for i in range(num_qubits):
         reg.ApplyHadamard(i)
     reg.ApplyRotationZ(i, np.pi/3)
@@ -19,12 +23,21 @@ if __name__ == '__main__':
     num_qubits = int(sys.argv[1])
 
     iqs.init()
-    
+
+    start_time = MPIEnvironment.MinTime()
     reg = run_circuit(num_qubits)
     state_vector = np.array(reg, copy=False)
+    end_time = MPIEnvironment.MaxTime()
 
-    rank = iqs.MPIEnvironment.GetRank()
-    print('\nFinal state at rank {}: {}'.format(rank, state_vector))
+    rank = MPIEnvironment.GetRank()
+    print('\nFinal state at rank {}: {}'.format(rank, state_vector),
+          flush=True)
+
+    MPIEnvironment.Barrier()
+    if not rank:
+        time.sleep(1)
+        print('\nElapsed time : {} seconds'.format(end_time - start_time),
+              flush=True)
 
     iqs.finalize()
 
