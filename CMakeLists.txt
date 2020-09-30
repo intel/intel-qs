@@ -44,14 +44,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
-option(IqsPython "Enable Python wrap?" OFF)
-option(IqsUtest "Enable unit test?" ON)
+option(IqsPython "Enable Python wrap?" ON)
+option(IqsUtest "Enable unit test?" OFF)
 option(BuildExamples "Build the Examples" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
 ################################################################################
+
+##### set external projects #####
+include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
 
 if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
@@ -124,7 +127,6 @@ if(IqsMPI)
 else()
     message(STATUS "MPI functionality: disabled.")
 endif()
-
 
 ################################################################################
 # Enable native compilation, yes or not?
@@ -290,11 +292,39 @@ endif()
 # If without MPI, build the Python library for the IQS wrapper.
 ################################################################################
 
-if (NOT IqsPython)
-    message(STATUS "Python wrapper: disabled.")
-else()
+if (IqsPython)
     message(STATUS "Python wrapper: enabled.")
-    add_subdirectory(pybind11)
+    if(MSYS OR MINGW OR CYGWIN)
+		set(PYBIND11_BUILD_DIR   ${CMAKE_BINARY_DIR}/pybind11)
+		set(PYBIND11_INSTALL_DIR ${CMAKE_SOURCE_DIR}/python/pybind11)
+		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
+		ExternalProject_Add(
+			pybind11_pop
+			URL http://github.com/pybind/pybind11/archive/v2.2.4.tar.gz
+			PREFIX ${PYBIND11_BUILD_DIR}
+			CONFIGURE_COMMAND ""
+			BUILD_COMMAND ""
+			INSTALL_COMMAND
+			${CMAKE_COMMAND} -E copy_directory ${PYBIND11_BUILD_DIR}/src/pybind11_pop ${PYBIND11_INSTALL_DIR}
+			TEST_COMMAND ""
+		)
+		include_directories(SYSTEM ${PYBIND11_INCLUDE_DIR})
+	else()
+		FetchContent_Declare(
+			pybind11_fetch
+			GIT_REPOSITORY https://github.com/pybind/pybind11
+			GIT_TAG v2.2.4
+		)
+		FetchContent_GetProperties(pybind11_fetch)
+		if(NOT pybind11_fetch_POPULATED)
+			message(STATUS "Fetch pybind11 for python-binding")
+			FetchContent_Populate(pybind11_fetch)
+			add_subdirectory(${pybind11_fetch_SOURCE_DIR})
+		endif()
+	endif()
+	add_subdirectory(python)
+else()
+    message(STATUS "Python wrapper: disabled.")
 endif()
 
 ################################################################################

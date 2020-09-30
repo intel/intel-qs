@@ -3,15 +3,15 @@ sys.path.insert(0, '../build/lib')
 import intelqs_py as simulator
 import numpy as np
 
-from mpi4py import MPI
+#from mpi4py import MPI
 
 #------------------------------------------------
 #- Initialize the MPI environment ---------------
 #------------------------------------------------
 
-comm = MPI.COMM_WORLD
+#comm = MPI.COMM_WORLD
 
-print(f'Hi from {comm.Get_rank()}/{comm.Get_size()}')
+#print(f'Hi from {comm.Get_rank()}/{comm.Get_size()}')
 
 #------------------------------------------------
 #- Quantum Simulation ---------------------------
