@@ -32,11 +32,11 @@ class ChunkingCommunicationTest : public ::testing::Test
   double accepted_error_loose_ = 1e-12;
 
   unsigned nprocs_ = qhipster::mpi::Environment::GetStateSize();
-  unsigned log2_nprocs_ = qhipster::ilog2(nprocs_);
-  size_t local_size_ = size_t(1L << size_t(num_qubits_ - log2_nprocs_));
-  size_t tmp_spacesize_half_    = local_size_/2;
-  size_t tmp_spacesize_quarter_ = local_size_/4;
-  size_t tmp_spacesize_eighth_  = local_size_/8;
+  unsigned log2_nprocs_ = qhipster::ilog2( qhipster::floor_power_of_two(nprocs_));
+  std::size_t local_size_ = std::size_t(1UL << std::size_t(num_qubits_ - log2_nprocs_));
+  std::size_t tmp_spacesize_half_    = local_size_/2UL;
+  std::size_t tmp_spacesize_quarter_ = local_size_/4UL;
+  std::size_t tmp_spacesize_eighth_  = local_size_/8UL;
 };
 
 //////////////////////////////////////////////////////////////////////////////

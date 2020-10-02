@@ -4,6 +4,7 @@
 
 set(IQS_FILES 
   highperfkernels.cpp
+  spec_kernels.cpp
   qureg_apply1qubitgate.cpp
   qureg_apply2qubitgate.cpp
   qureg_applyctrl1qubitgate.cpp

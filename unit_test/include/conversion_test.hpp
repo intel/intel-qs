@@ -3,6 +3,8 @@
 
 #include "../../include/conversion.hpp"
 
+#include <string>
+
 //////////////////////////////////////////////////////////////////////////////
 // Test fixture class: compiler flags
 //////////////////////////////////////////////////////////////////////////////
@@ -29,6 +31,10 @@ TEST_F(ConversionTest, BasicUse)
 {
   ASSERT_TRUE(qhipster::toString(1)  =="1");
   ASSERT_TRUE(qhipster::toString('a')=="a");
+  int var = 25;
+  ASSERT_TRUE(qhipster::toString(var)=="25");
+  std::string s = "I have 2 apples";
+  ASSERT_EQ(qhipster::toString(s), s);
 }
 
 //////////////////////////////////////////////////////////////////////////////

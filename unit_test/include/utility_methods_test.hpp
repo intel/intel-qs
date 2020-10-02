@@ -99,6 +99,20 @@ TEST_F(UtilityMethodsTest, DifferenceOfTwoStates)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(UtilityMethodsTest, SmallUtilityFunctions)
+{
+  // Method 'check_bit' of class QubitRegister should return a bool.
+  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  std::size_t index = 5; // 5 = 0101 in 4-bit notation
+  for (unsigned position = 0; position<num_qubits_; ++position)
+      if (position%2==0)
+          ASSERT_EQ(psi.check_bit(index, position), 1);
+      else
+          ASSERT_EQ(psi.check_bit(index, position), 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 TEST_F(UtilityMethodsTest, AddOthers)
 {
 }
