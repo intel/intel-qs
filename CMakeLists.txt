@@ -184,6 +184,7 @@ endif() # for the MKL configuration
 
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     # Ad-hoc modifications to compile and link with g++.
+    add_compile_options(-O3)
     add_compile_options(-m64)
 #    add_compile_options(-Wall)
     # MKL libraries: optional
