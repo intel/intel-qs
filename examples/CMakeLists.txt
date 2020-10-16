@@ -3,6 +3,9 @@
 add_executable(benchgates.exe benchgates.cpp)
 target_link_libraries(benchgates.exe PRIVATE iqs)
 
+add_executable(grover_4qubit.exe grover_4qubit.cpp)
+target_link_libraries(grover_4qubit.exe PRIVATE iqs)
+
 add_executable(quantum_fourier_transform.exe quantum_fourier_transform.cpp)
 target_link_libraries(quantum_fourier_transform.exe iqs)
 
@@ -22,6 +25,7 @@ target_link_libraries(test_of_custom_gates.exe iqs)
 
 set_target_properties( benchgates.exe
                        quantum_fourier_transform.exe
+                       grover_4qubit.exe
                        expect_value_test.exe
                        heisenberg_dynamics.exe
                        noisy_circuit_test.exe
