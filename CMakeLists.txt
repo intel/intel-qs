@@ -261,7 +261,10 @@ add_compile_definitions(USE_MM_MALLOC)
 add_subdirectory(src)
 
 if(BuildExamples)
+    message(STATUS "Build examples : enabled.")
     add_subdirectory(examples)
+else()
+    message(STATUS "Build examples : disabled.")
 endif()
 
 add_subdirectory(tutorials)
