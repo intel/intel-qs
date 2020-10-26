@@ -10,7 +10,7 @@
 // To distinguish between program qubits (used in the algorithm) and data qubits
 // (used in the representation of the quantum state), we use the term:
 // - 'position' to refer to data qubits
-// - 'qubit' ro refer to program qubits
+// - 'qubit' to refer to program qubits
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
@@ -263,7 +263,7 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m, G
 /// @param qubit index of the involved qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     exp( -i X theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -282,7 +282,7 @@ void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
 /// @param qubit index of the involved qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     exp( -i Y theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -302,7 +302,7 @@ void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
 /// @param qubit index of the involved qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     exp( -i Z theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -321,7 +321,7 @@ void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
 /// @brief Apply X Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     i * exp( -i X pi/2 ) = X 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
@@ -339,7 +339,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
 /// @brief Apply square root of the X Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     sqrt(X) 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
@@ -357,7 +357,7 @@ void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
 /// @brief Apply Y Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     i * exp( -i Y pi/2 ) = Y 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
@@ -375,7 +375,7 @@ void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
 /// @brief Apply square root of the Y Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     sqrt(Y) 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
@@ -393,7 +393,7 @@ void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
 /// @brief Apply Z Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     i * exp( -i Z pi/2 ) = Z 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
@@ -411,7 +411,7 @@ void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
 /// @brief Apply square root of the Z Pauli operator
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to:\n
+/// Explicitly, the gate corresponds to:\n
 ///     sqrt(Z) 
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
@@ -430,7 +430,7 @@ void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
 /// @brief Apply Hadamard gate
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to the 2x2 matrix:\n
+/// Explicitly, the gate corresponds to the 2x2 matrix:\n
 ///     | 1/sqrt(2)   1/sqrt(2) |\n
 ///     | 1/sqrt(2)  -1/sqrt(2) |
 template <class Type>
@@ -448,7 +448,7 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 /// @brief Apply T gate
 /// @param qubit index of the involved qubit
 ///
-/// Explicitely, the gate corresponds to the 2x2 matrix:\n
+/// Explicitly, the gate corresponds to the 2x2 matrix:\n
 ///     | 1              0           |\n
 ///     | 0    cos(pi/4)+i*sin(pi/4) |
 template <class Type>

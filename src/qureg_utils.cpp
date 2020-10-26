@@ -81,7 +81,7 @@ Type QubitRegister<Type>::GetGlobalAmplitude
   // Transform the global_index w.r.t. the data qubit order.
   global_index = qubit_permutation->program2data_(global_index);
 
-  // Determine in what (state) rank is the amplidute and what is its local index.
+  // Determine in what (state) rank is the amplitude and what is its local index.
   Type amplitude;
 #ifdef INTELQS_HAS_MPI
   std::size_t local_index, hosting_rank;

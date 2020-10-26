@@ -47,7 +47,7 @@ template void ConvertToBinary<std::size_t,unsigned> (std::size_t, std::vector<un
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Function to convert a binary number (expressed as vector) into a decimal number.
-/// The 0-componenet of the vector represents the least significant bit (i.e. associated
+/// The 0-component of the vector represents the least significant bit (i.e. associated
 /// to the factor 2^0 in power expension).
 template<typename T_bit, typename T_decimal>
 void ConvertToDecimal( std::vector<T_bit> &z , T_decimal &k )

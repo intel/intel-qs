@@ -13,7 +13,7 @@
 /// @param qubit1 index of the first qubit
 /// @param qubit2 index of the second qubit
 ///
-/// Explicitely, the gate corresponds to the matrix:\n
+/// Explicitly, the gate corresponds to the matrix:\n
 ///           | 1  0  0  0 |\n
 ///    SWAP = | 0  0  1  0 |\n
 ///           | 0  1  0  0 |\n
@@ -42,7 +42,7 @@ void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 /// @param qubit1 index of the first qubit
 /// @param qubit2 index of the second qubit
 ///
-/// Explicitely, the gate corresponds to the matrix:\n
+/// Explicitly, the gate corresponds to the matrix:\n
 ///            | 1  0  0  0 |\n
 ///    iSWAP = | 0  0  i  0 |\n
 ///            | 0  i  0  0 |\n
@@ -61,7 +61,7 @@ void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
 /// @param qubit1 index of the first qubit
 /// @param qubit2 index of the second qubit
 ///
-/// Explicitely, the gate corresponds to the matrix:\n
+/// Explicitly, the gate corresponds to the matrix:\n
 ///                            | 1  0  0  0 |\n
 ///    sqrt(iSWAP) = 1/sqrt(2) | 0  1  i  0 |\n
 ///                            | 0  i  1  0 |\n
@@ -81,7 +81,7 @@ void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
 /// @param qubit1 index of the first qubit
 /// @param qubit2 index of the second qubit
 ///
-/// Explicitely, the gate corresponds to the matrix:\n
+/// Explicitly, the gate corresponds to the matrix:\n
 ///               | 1   0   0  0 |\n
 ///    iSWAP(m) = | 0  m00 m01 0 |\n
 ///               | 0  m10 m11 0 |\n
