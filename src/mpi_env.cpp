@@ -6,6 +6,8 @@
 #include <mpi.h>
 #include <stdexcept>
 #include <vector>
+#else
+#include <chrono>
 #endif
 
 #include <iomanip>
@@ -78,7 +80,16 @@ void StatePrint(std::string s, bool all)
   }
 }
 
+double MaxTime()
+{
+  auto now = std::chrono::system_clock::now();
+  return std::chrono::duration<double>(now.time_since_epoch()).count();
+}
+
+double MinTime() { return MaxTime(); }
+
 #endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // A few methods have the same implementation with / without MPI.
@@ -504,6 +515,24 @@ void StateBarrier()
 {
   MPI_Comm comm = Environment::GetStateComm(); 
   MPI_Barrier(comm);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+double MinTime()
+{
+  double min_time;
+  double local_time = MPI_Wtime();
+  MPI_Reduce(&local_time, &min_time, 1, MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  return Environment::GetRank() ? local_time : min_time;
+}
+
+double MaxTime()
+{
+  double max_time;
+  double local_time = MPI_Wtime();
+  MPI_Reduce(&local_time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  return Environment::GetRank() ? local_time : max_time;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
