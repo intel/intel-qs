@@ -16,7 +16,7 @@ Welcome to Intel QS's documentation!
    :maxdepth: 2
    :caption: Advanced:
 
-   all-about-me
+   CONTRIBUTING
 
 
 Indices and tables
