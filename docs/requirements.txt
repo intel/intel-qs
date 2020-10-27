@@ -32,7 +32,6 @@ nbsphinx==0.8.0
 nest-asyncio==1.4.2
 packaging==20.4
 pandocfilters==1.4.3
-pkg-resources==0.0.0
 Pygments==2.7.2
 pyparsing==2.4.7
 pyrsistent==0.17.3
