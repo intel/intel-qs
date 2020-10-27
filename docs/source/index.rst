@@ -28,7 +28,7 @@ Welcome to Intel QS's documentation!
    :maxdepth: 2
    :caption: API References:
 
-   CONTRIBUTING
+   api/library_root
 
 
 
