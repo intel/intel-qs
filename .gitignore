@@ -4,3 +4,5 @@ docs/source/_static
 docs/source/_templates
 docs/build
 venv
+docs/source/doxyoutput
+docs/source/api
