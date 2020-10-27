@@ -15,7 +15,7 @@ Welcome to Intel QS's documentation!
    :maxdepth: 2
    :caption: Tutorials:
 
-   CONTRIBUTING
+   get_started_examples
 
 .. toctree::
    :maxdepth: 2
