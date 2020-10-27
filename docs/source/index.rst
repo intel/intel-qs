@@ -26,7 +26,6 @@ Welcome to Intel QS's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: API References:
 
    api/library_root
 
