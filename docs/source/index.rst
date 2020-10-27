@@ -8,15 +8,27 @@ Welcome to Intel QS's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Getting Started:
    
    getting-started
 
 .. toctree::
    :maxdepth: 2
-   :caption: Advanced:
+   :caption: Tutorials:
 
    CONTRIBUTING
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Libraries:
+
+   CONTRIBUTING
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API References:
+
+   CONTRIBUTING
+
 
 
 Indices and tables
