@@ -16,6 +16,7 @@ Welcome to Intel QS's documentation!
    :caption: Tutorials:
 
    get_started_examples
+   qaoa_example
 
 .. toctree::
    :maxdepth: 2
