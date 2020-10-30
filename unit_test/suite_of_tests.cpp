@@ -57,6 +57,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 // Utility methods and distributed implementation.
 #include "include/utility_methods_test.hpp"
 #include "include/chunking_communication_test.hpp"
+#include "include/apply_ncu_test.hpp"
 
 // Noisy simulations and extra features.
 #include "include/qureg_permute_test.hpp"
