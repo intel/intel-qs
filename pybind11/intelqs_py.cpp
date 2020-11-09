@@ -77,6 +77,13 @@ PYBIND11_MODULE(intelqs_py, m)
         .def("UniformRandomNumbers", &qhipster::RandomNumberGenerator<double>::UniformRandomNumbers)
         .def("GaussianRandomNumbers", &qhipster::RandomNumberGenerator<double>::GaussianRandomNumbers)
         .def("RandomIntegersInRange", &qhipster::RandomNumberGenerator<double>::RandomIntegersInRange)
+        .def("GetUniformRandomNumbers",
+             [](qhipster::RandomNumberGenerator<double> &rng, std::size_t size,
+                double a, double b, std::string shared) {
+                std::vector<double> random_values(size);
+                rng.UniformRandomNumbers(random_values.data(), size, a, b, shared);
+                return random_values;
+             }, "Return an array of 'size' random number from the uniform distribution [a,b[.")
 #ifdef WITH_MPI_AND_MKL
         .def("SetRndStreamPtrs", &qhipster::RandomNumberGenerator<double>::SetRndStreamPtrs)
 #endif
@@ -264,19 +271,25 @@ PYBIND11_MODULE(intelqs_py, m)
 //////////////////////////////////////////////////////////////////////////////
     py::class_<Environment>(m, "MPIEnvironment")
         .def(py::init<>())
-
         .def_static("GetRank", &Environment::GetRank)
         .def_static("IsUsefulRank", &Environment::IsUsefulRank)
+
         .def_static("GetPoolRank", &Environment::GetPoolRank)
         .def_static("GetStateRank", &Environment::GetStateRank)
-
         .def_static("GetPoolSize", &Environment::GetPoolSize)
         .def_static("GetStateSize", &Environment::GetStateSize)
 
         .def_static("GetNumRanksPerNode", &Environment::GetNumRanksPerNode)
         .def_static("GetNumNodes", &Environment::GetNumNodes)
         .def_static("GetStateId", &Environment::GetStateId)
-        .def_static("GetNumStates", &Environment::GetNumStates);
+        .def_static("GetNumStates", &Environment::GetNumStates)
+
+        .def_static("Barrier", &qhipster::mpi::Barrier)
+        .def_static("PoolBarrier", &qhipster::mpi::PoolBarrier)
+        .def_static("StateBarrier", &qhipster::mpi::StateBarrier)
+
+        .def_static("IncoherentSumOverAllStatesOfPool", &Environment::IncoherentSumOverAllStatesOfPool<double>)
+        .def_static("UpdateStateComm", &Environment::UpdateStateComm);
 
 }
 
