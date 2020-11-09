@@ -31,19 +31,25 @@ namespace py = pybind11;
 using Environment = qhipster::mpi::Environment;
 
 //////////////////////////////////////////////////////////////////////////////
-// PYBIND CODE for the QubitRegister class
+
+void EnvInit()
+{ Environment::Init(); }
+
+void EnvFinalize()
+{ Environment::Finalize(); }
+
+void EnvFinalizeDummyRanks()
+{
+  if (Environment::GetSharedInstance()->IsUsefulRank()==false)
+  {
+      Environment::Finalize();
+      return;
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
-
-void init()
-{
-    Environment::Init();
-}
-
-void finalize()
-{
-    Environment::Finalize();
-}
-
+// PYBIND CODE for the Intel Quantum Simulator library
+//////////////////////////////////////////////////////////////////////////////
 
 PYBIND11_MODULE(intelqs_py, m)
 {
@@ -53,8 +59,9 @@ PYBIND11_MODULE(intelqs_py, m)
 //////////////////////////////////////////////////////////////////////////////
 // Init & Finalize for HPC
 //////////////////////////////////////////////////////////////////////////////
-    m.def("init", &init, "Initialize intelqs for HPC resource allocation");
-    m.def("finalize", &finalize, "Finalize intelqs");
+    m.def("EnvInit", &EnvInit, "Initialize the MPI environment of Intel-QS for HPC resource allocation");
+    m.def("EnvFinalize", &EnvFinalize, "Finalize the MPI environemtn fo Intel-QS");
+    m.def("EnvFinalizeDummyRanks", &EnvFinalizeDummyRanks, "Finalize the dummy ranks of the MPI environment");
 
 
 //////////////////////////////////////////////////////////////////////////////

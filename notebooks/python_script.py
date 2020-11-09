@@ -7,10 +7,20 @@ import numpy as np
 #------------------------------------------------
 #- Initialize the MPI environment ---------------
 #------------------------------------------------
-iqs.init()
+iqs.EnvInit()
+if iqs.MPIEnvironment.IsUsefulRank()==False:
+    iqs.EnvFinalize()
+    exit()
 
 rank = iqs.MPIEnvironment.GetRank()
 master = 0
+# The simulation of a 2-qubit system cannot be divided in more than 2 ranks.
+if iqs.MPIEnvironment.GetStateSize()>2:
+    if rank==master:
+        print("No more than 2 useful ranks per state.")
+    iqs.EnvFinalize()
+    exit()
+
 #------------------------------------------------
 #- Quantum Simulation ---------------------------
 #------------------------------------------------
@@ -111,4 +121,4 @@ print('|psi_2> =?= |0>|1> :   prob(0)={} , prob(1)={}  --> YES'.format(
 #------------------------------------------------
 print()
 
-iqs.finalize()
+iqs.EnvFinalize()

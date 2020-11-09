@@ -198,7 +198,7 @@ Environment::Environment(int& argc, char**& argv) : inited_(false)
 }
 
 
-// TODO: Copy-pase! Consider refactoring.
+// TODO: Copy-pasted! Consider refactoring.
 Environment::Environment() : inited_(false)
 {
   int flag;

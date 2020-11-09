@@ -113,10 +113,7 @@ class Environment
 #endif
 
 
-/* 
-The singleton interface that is used for global management
-of MPI resources.
-*/
+/// The singleton interface that is used for global management of MPI resources.
   static void Init();
   static void Init(int &argc, char**&argv);
   static void Finalize();
