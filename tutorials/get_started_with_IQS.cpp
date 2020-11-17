@@ -59,7 +59,7 @@ int main(int argc, char **argv)
  * In practice, the quantum state of N qubits is represented as a complex vector with
  * 2^N components.
  *
- * Each componenet corresponds to the probability amplitude of a specific computational
+ * Each component corresponds to the probability amplitude of a specific computational
  * basis state:
  *     ψ(k)=⟨k|ψ⟩
  * with the index k corresponding to the N-bit integer in decimal representation, and
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 // Display the quantum state
 /////////////////////////////////////////////////////////////////////////////////////////
 /* It is important to be able to access and visualize the quantum state.
- * IQS allows to access the single componenets of the state or to print a comprehensive
+ * IQS allows to access the single components of the state or to print a comprehensive
  * description.
  * What index is associated to state |1011⟩? In decimal representation one has:
  *     1011 → 1×2^0 + 0×2^1 + 1×2^2 + 1×2^3 = 1+4+8 = 13
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////
 // Two-qubit gates
 /////////////////////////////////////////////////////////////////////////////////////////
-/* To achieve universal quantum computation, it is enought to implement one-qubit
+/* To achieve universal quantum computation, it is enough to implement one-qubit
  * gates and a single type of two-qubit gate. The essential requirement is that such
  * two-qubit gate is able to generate entanglement. Usually the controlled-not gate
  * (CNOT in the following) is the operation of choice.

@@ -229,7 +229,7 @@ class QubitRegister
                        // spec argument is for specifying the gate type in spec v2
                        // GateSpec1Q::None means there is no spec v2
                        qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
-                       // angle argument should be passed with rotation gates provided with specv2.
+                       // angle argument should be passed with rotation gates provided with spec v2.
                        // Passed internally by the gate functions.
                        BaseType angle=0);
 
