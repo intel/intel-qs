@@ -87,7 +87,7 @@ WORKDIR /root/intelqs
 LABEL mode="MPI" version="1.0" description="intel-qs built with MPI, no py interface, with Examples"
 
 # Install lib for missing pthread module [necessary?]
-#RUN apt-get -y install libboost-all-dev
+RUN apt-get -y install libboost-all-dev
 
 # installing and configuring conda env
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
