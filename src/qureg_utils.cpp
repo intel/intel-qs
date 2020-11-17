@@ -10,10 +10,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Overload operator 'compare'.
+///
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 {
   assert(rhs.GlobalSize() == GlobalSize());
+  assert(rhs.qubit_permutation->map == qubit_permutation->map);
   for (std::size_t i = 0; i < rhs.LocalSize(); i++)
   {
       if (state[i] != rhs.state[i])
@@ -29,11 +32,14 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the L_infinity distance between two states, psi and x.
+///
 /// Before the comparison, x can be multiplied by a complex factor.
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegister &x, Type sfactor)
 {
   assert(LocalSize() == x.LocalSize());
+  assert(x.qubit_permutation->map == qubit_permutation->map);
   BaseType lcl_maxabsdiff = -1.0;
 
   std::size_t lcl = LocalSize();
@@ -61,38 +67,68 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegi
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the amplitude given its global index.
+///
+/// The global index is expressed in terms of the program qubits:
+///   index = pq0 * 2^0 + pq1 * 2^1 + pq2 * 2^2 + ...
+/// where pqk indicates the bit {0,1} corresponding to the computational
+/// basis state {|0>, |1>} of program qubit k.
 
 template <class Type>
 Type QubitRegister<Type>::GetGlobalAmplitude
   (std::size_t global_index) const
 {
   assert(global_index < global_size_);
-  // Determine in what (state) rank is the amplidute and what is its local index.
+  // Transform the global_index w.r.t. the data qubit order.
+  global_index = qubit_permutation->program2data_(global_index);
+
+  // Determine in what (state) rank is the amplitude and what is its local index.
   Type amplitude;
 #ifdef INTELQS_HAS_MPI
   std::size_t local_index, hosting_rank;
   hosting_rank = global_index/local_size_;
-  assert(hosting_rank < qhipster::mpi::Environment::GetStateSize());
   local_index = global_index % local_size_;
   // Broadcast the value to all ranks.
   amplitude = state[local_index];
-  qhipster::mpi::MPI_Bcast_x(&amplitude, (int)hosting_rank,
-                             qhipster::mpi::Environment::GetStateComm());
+  qhipster::mpi::MPI_Bcast_x(&amplitude, hosting_rank, qhipster::mpi::Environment::GetStateComm());
 #else
   amplitude = state[global_index];
 #endif
   return amplitude;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Return the maximum L2 distance between the local parts of two states.
+
+template <class Type>
+void QubitRegister<Type>::SetGlobalAmplitude(std::size_t global_index, Type value)
+{
+  assert(global_index < global_size_);
+  // Transform the global_index w.r.t. the data qubit order.
+  global_index = qubit_permutation->program2data_(global_index);
+
+  // Determine in what (state) rank is the amplitude and set its local index.
+#ifdef INTELQS_HAS_MPI
+  std::size_t local_index, hosting_rank;
+  hosting_rank = global_index/local_size_;
+  local_index = global_index % local_size_;
+  if (hosting_rank == qhipster::mpi::Environment::GetStateRank())
+      state[local_index] = value;
+#else
+  state[global_index] = value;
+#endif
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return the maximum L2 distance between the local parts of two states.
+///
 /// The L2 distance between the states would be not the 'max', but the 'sum' of all
 /// rank-local contributions.
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxL2NormDiff(QubitRegister &x)
 {
   assert(LocalSize() == x.LocalSize());
+  assert(x.qubit_permutation->map == qubit_permutation->map);
   BaseType lcl_diff = 0.0;
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
@@ -170,9 +206,12 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 /// The overlap between this state and another state |psi\>
 /// is define by:\n
 ///     \<psi|this state\>
+/// The permutation of both QubitRegister objects must be the same.
 template <class Type>
 Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
 {
+  assert(LocalSize() == psi.LocalSize());
+  assert(psi.qubit_permutation->map == qubit_permutation->map);
   Type local_over = Type(0.,0.);
   BaseType local_over_re = 0.;
   BaseType local_over_im = 0.;
@@ -363,14 +402,15 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
 /// Partial sum of |amplitude|^2 is computed.
 //------------------------------------------------------------------------------
 template <class Type, class BaseType>
-std::string PrintVector(Type *state, std::size_t size, std::size_t num_qubits,
-                        BaseType &cumulative_probability, Permutation *permutation)
+std::string PrintVector(Type *state, std::size_t size, std::size_t num_elements,
+                        BaseType &cumulative_probability,
+                        Permutation *permutation,
+                        int my_data_rank)
 {
   std::string str;
-  int rank = 0;
   for (std::size_t i = 0; i < size; i++) {
-    // std::string bin = dec2bin(rank * size + i, num_qubits, false);
-    std::string bin = permutation->lin2perm(rank * size + i);
+    // std::string bin = dec2bin(myrank * size + i, num_qubits, false);
+    std::string bin = permutation->data2program((std::size_t)my_data_rank * size + i);
     char s[4096];
     sprintf(s, "\t%-13.8lf + i * %-13.8lf   %% |%s> p=%lf\n",
             std::real(state[i]), std::imag(state[i]),
@@ -396,37 +436,39 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   TODO(Second argument of Print() is not used!)
   BaseType cumulative_probability = 0;
 
-  unsigned myrank=0, nprocs=1;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  int my_rank = qhipster::mpi::Environment::GetStateRank();
+  int nprocs = qhipster::mpi::Environment::GetStateSize();
 #ifdef INTELQS_HAS_MPI
   MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
 #endif
   qhipster::mpi::StateBarrier();
 
-  if (myrank == 0)
+  int tag;
+  if (my_rank == 0)
   {
       // print permutation
-      assert(permutation);
-      printf("permutation: %s\n", permutation->GetMapStr().c_str());
+      assert(qubit_permutation);
+      printf("qubit permutation: %s\n", qubit_permutation->GetMapStr().c_str());
       std::string s = PrintVector<Type, BaseType>(state, LocalSize(), num_qubits,
-                                                  cumulative_probability, permutation);
+                                                  cumulative_probability, qubit_permutation, my_rank);
       printf("%s=[\n", (const char *)x.c_str());
       printf("%s", (const char *)s.c_str());
 #ifdef INTELQS_HAS_MPI
       for (std::size_t i = 1; i < nprocs; i++)
       {
           std::size_t len;
+          tag = 1000+i;
 #ifdef BIGMPI
-          MPIX_Recv_x(&len, 1, MPI_LONG, i, 1000 + i, comm, MPI_STATUS_IGNORE);
+          MPIX_Recv_x(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
 #else
-          MPI_Recv(&len, 1, MPI_LONG, i, 1000 + i, comm, MPI_STATUS_IGNORE);
+          MPI_Recv(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
 #endif //BIGMPI
           s.resize(len);
+          tag = i;
 #ifdef BIGMPI
-          MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, i, i, comm, MPI_STATUS_IGNORE);
+          MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
 #else
-          MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, i, comm, MPI_STATUS_IGNORE);
+          MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
 #endif //BIGMPI
           printf("%s", (const char *)s.c_str());
       }
@@ -435,14 +477,15 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   else
   {
 #ifdef INTELQS_HAS_MPI
-      std::string s = PrintVector(state, LocalSize(), num_qubits, cumulative_probability, permutation);
+      std::string s = PrintVector(state, LocalSize(), num_qubits, cumulative_probability, qubit_permutation, my_rank);
       std::size_t len = s.length() + 1;
+      tag = 1000 + my_rank;
 #ifdef BIGMPI
-      MPIX_Send_x(&len, 1, MPI_LONG, 0, 1000 + myrank, comm);
-      MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, myrank, comm);
+      MPIX_Send_x(&len, 1, MPI_LONG, 0, tag, comm);
+      MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
 #else
-      MPI_Send(&len, 1, MPI_LONG, 0, 1000 + myrank, comm);
-      MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, myrank, comm);
+      MPI_Send(&len, 1, MPI_LONG, 0, tag, comm);
+      MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
 #endif //BIGMPI
 #endif
   }
@@ -453,8 +496,9 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 #else
   glb_cumulative_probability = cumulative_probability;
 #endif
-  if (myrank == 0)
+  if (my_rank == 0)
   {
+      assert(my_rank==0);
       printf("]; %% cumulative probability = %lf\n", (double)glb_cumulative_probability);
   }
 

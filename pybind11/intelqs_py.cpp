@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "../include/qureg.hpp"
+#include "../include/mpi_env.hpp"
 #include "../include/rng_utils.hpp"
 
 // Extra feature. It can be included optionally.
@@ -27,14 +28,41 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace py = pybind11;
+using Environment = qhipster::mpi::Environment;
 
 //////////////////////////////////////////////////////////////////////////////
-// PYBIND CODE for the QubitRegister class
+
+void EnvInit()
+{ Environment::Init(); }
+
+void EnvFinalize()
+{ Environment::Finalize(); }
+
+void EnvFinalizeDummyRanks()
+{
+  if (Environment::GetSharedInstance()->IsUsefulRank()==false)
+  {
+      Environment::Finalize();
+      return;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// PYBIND CODE for the Intel Quantum Simulator library
 //////////////////////////////////////////////////////////////////////////////
 
 PYBIND11_MODULE(intelqs_py, m)
 {
     m.doc() = "pybind11 wrap for the Intel Quantum Simulator";
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Init & Finalize for HPC
+//////////////////////////////////////////////////////////////////////////////
+    m.def("EnvInit", &EnvInit, "Initialize the MPI environment of Intel-QS for HPC resource allocation");
+    m.def("EnvFinalize", &EnvFinalize, "Finalize the MPI environemtn fo Intel-QS");
+    m.def("EnvFinalizeDummyRanks", &EnvFinalizeDummyRanks, "Finalize the dummy ranks of the MPI environment");
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
@@ -49,6 +77,13 @@ PYBIND11_MODULE(intelqs_py, m)
         .def("UniformRandomNumbers", &qhipster::RandomNumberGenerator<double>::UniformRandomNumbers)
         .def("GaussianRandomNumbers", &qhipster::RandomNumberGenerator<double>::GaussianRandomNumbers)
         .def("RandomIntegersInRange", &qhipster::RandomNumberGenerator<double>::RandomIntegersInRange)
+        .def("GetUniformRandomNumbers",
+             [](qhipster::RandomNumberGenerator<double> &rng, std::size_t size,
+                double a, double b, std::string shared) {
+                std::vector<double> random_values(size);
+                rng.UniformRandomNumbers(random_values.data(), size, a, b, shared);
+                return random_values;
+             }, "Return an array of 'size' random number from the uniform distribution [a,b[.")
 #ifdef WITH_MPI_AND_MKL
         .def("SetRndStreamPtrs", &qhipster::RandomNumberGenerator<double>::SetRndStreamPtrs)
 #endif
@@ -81,6 +116,17 @@ PYBIND11_MODULE(intelqs_py, m)
              if (index >= a.LocalSize()) throw py::index_error();
              a[index] = value;
              }, py::is_operator())
+        // Numpy buffer protocol
+        // See https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html
+        .def_buffer([](QubitRegister<ComplexDP> &reg) -> py::buffer_info {
+            return py::buffer_info(
+                reg.RawState(),                            /* Pointer to buffer */
+                sizeof(ComplexDP),                          /* Size of one scalar */
+                py::format_descriptor<ComplexDP>::format(), /* Python struct-style format descriptor */
+                1,                                      /* Number of dimensions */
+                { reg.LocalSize() },                 /* Buffer dimensions */
+                { sizeof(ComplexDP) });             /* Strides (in bytes) for each index */
+        })
         // One-qubit gates:
         .def("ApplyRotationX", &QubitRegister<ComplexDP>::ApplyRotationX)
         .def("ApplyRotationY", &QubitRegister<ComplexDP>::ApplyRotationY)
@@ -144,6 +190,11 @@ PYBIND11_MODULE(intelqs_py, m)
         .def("Initialize",
                (void (QubitRegister<ComplexDP>::*)(std::string, std::size_t ))
                  &QubitRegister<ComplexDP>::Initialize)
+        //Enable Specialization
+        .def("TurnOnSpecialize", &QubitRegister<ComplexDP>::TurnOnSpecialize)
+        .def("TurnOffSpecialize", &QubitRegister<ComplexDP>::TurnOffSpecialize)
+        .def("TurnOnSpecializeV2", &QubitRegister<ComplexDP>::TurnOnSpecializeV2)
+        .def("TurnOffSpecializeV2", &QubitRegister<ComplexDP>::TurnOffSpecializeV2)
         // Associate the random number generator and set its seed.
         .def("ResetRngPtr", &QubitRegister<ComplexDP>::ResetRngPtr)
         .def("SetRngPtr", &QubitRegister<ComplexDP>::SetRngPtr)
@@ -213,6 +264,32 @@ PYBIND11_MODULE(intelqs_py, m)
           &qaoa::GetHistogramFromCostFunctionWithWeightsBinned<ComplexDP>,
           "Get histogram instead of just the expectation value for a weighted graph, with specified bin width.");
 #endif
+
+
+//////////////////////////////////////////////////////////////////////////////
+// MPI Features
+//////////////////////////////////////////////////////////////////////////////
+    py::class_<Environment>(m, "MPIEnvironment")
+        .def(py::init<>())
+        .def_static("GetRank", &Environment::GetRank)
+        .def_static("IsUsefulRank", &Environment::IsUsefulRank)
+
+        .def_static("GetPoolRank", &Environment::GetPoolRank)
+        .def_static("GetStateRank", &Environment::GetStateRank)
+        .def_static("GetPoolSize", &Environment::GetPoolSize)
+        .def_static("GetStateSize", &Environment::GetStateSize)
+
+        .def_static("GetNumRanksPerNode", &Environment::GetNumRanksPerNode)
+        .def_static("GetNumNodes", &Environment::GetNumNodes)
+        .def_static("GetStateId", &Environment::GetStateId)
+        .def_static("GetNumStates", &Environment::GetNumStates)
+
+        .def_static("Barrier", &qhipster::mpi::Barrier)
+        .def_static("PoolBarrier", &qhipster::mpi::PoolBarrier)
+        .def_static("StateBarrier", &qhipster::mpi::StateBarrier)
+
+        .def_static("IncoherentSumOverAllStatesOfPool", &Environment::IncoherentSumOverAllStatesOfPool<double>)
+        .def_static("UpdateStateComm", &Environment::UpdateStateComm);
 
 }
 

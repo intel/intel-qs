@@ -30,7 +30,7 @@ out_filename_root="basic_weak_scaling"
 min_num_qubits=26
 num_gates=1
 
-exec_file="../build/bin/basic_code_for_scaling.exe"
+exec_file="./bin/basic_code_for_scaling.exe"
 
 ##########################################################################
 

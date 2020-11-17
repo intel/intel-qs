@@ -35,6 +35,9 @@ namespace mpi {
 Environment::Environment(int&, char**&)
 { useful_rank = true; }
 
+Environment::Environment()
+{ useful_rank = true; }
+
 Environment::~Environment() {}
 
 void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
@@ -91,6 +94,28 @@ int Environment::GetNodeId() {return my_node_id;}
 int Environment::GetNumStates() {return num_states;}
 int Environment::GetStateId() {return my_state_id;}
 
+void Environment::Init()
+{
+  if (shared_instance != nullptr)
+    throw std::runtime_error("MPI Environment is already initialized!");
+  shared_instance = new Environment;
+}
+
+void Environment::Init(int &argc, char**&argv)
+{
+  if (shared_instance != nullptr)
+    throw std::runtime_error("MPI Environment is already initialized!");
+  shared_instance = new Environment(argc, argv);
+}
+
+void Environment::Finalize()
+{
+  if (shared_instance == nullptr)
+    throw std::runtime_error("MPI Environment is not initialized!");
+  delete shared_instance;
+  shared_instance = nullptr;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 bool Environment::useful_rank = true;
@@ -100,6 +125,8 @@ int Environment::num_nodes = 1;
 int Environment::my_node_id = 0;
 int Environment::num_states = 1;
 int Environment::my_state_id = 0;
+
+Environment* Environment::shared_instance = nullptr;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Actual implementation with MPI.
@@ -111,15 +138,11 @@ int Environment::my_state_id = 0;
 MPI_Comm Environment::pool_communicator = MPI_COMM_WORLD;
 MPI_Comm Environment::state_communicator = MPI_COMM_WORLD;
 
-/////////////////////////////////////////////////////////////////////////////////////////
 
-Environment::Environment(int& argc, char**& argv) : inited_(false)
+/////////////////////////////////////////////////////////////////////////////////////////
+void Environment::CommonInit(int flag)
 {
-  int flag;
-  QHIPSTER_MPI_CHECK_RESULT(MPI_Initialized,(&flag))
-  if (!flag) {
-    QHIPSTER_MPI_CHECK_RESULT(MPI_Init,(&argc, &argv))
-    inited_ = true;
+  if (flag) {
 #if 0
 #if defined(MVAPICH2_VERSION) 
     char * mv2_string; 
@@ -161,6 +184,30 @@ Environment::Environment(int& argc, char**& argv) : inited_(false)
 
   // start synching all threads
   // MPI_Ibarrier(MPI_COMM_WORLD, &synch_request);
+}
+
+Environment::Environment(int& argc, char**& argv) : inited_(false)
+{
+  int flag;
+  QHIPSTER_MPI_CHECK_RESULT(MPI_Initialized,(&flag))
+  if (!flag) {
+    QHIPSTER_MPI_CHECK_RESULT(MPI_Init,(&argc, &argv))
+    inited_ = true;
+  }
+  CommonInit(flag);
+}
+
+
+// TODO: Copy-pasted! Consider refactoring.
+Environment::Environment() : inited_(false)
+{
+  int flag;
+  QHIPSTER_MPI_CHECK_RESULT(MPI_Initialized,(&flag))
+  if (!flag) {
+    QHIPSTER_MPI_CHECK_RESULT(MPI_Init,(NULL, NULL))
+    inited_ = true;
+  }
+  CommonInit(flag);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

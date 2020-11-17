@@ -9,7 +9,6 @@
 #endif
 
 #include "../include/qureg.hpp"
-
 /// \addtogroup qureg
 /// @{
 
@@ -26,7 +25,7 @@ QubitRegister<Type>::QubitRegister()
 
   timer = nullptr;
   gate_counter = nullptr;
-  permutation = nullptr;
+  qubit_permutation = nullptr;
   imported_state = false;
   specialize = false;
   num_qubits = 1;
@@ -68,13 +67,12 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 
-  TODO(move permutation to WaveFunctionSimulator class)
-  if (permutation) delete permutation;
-  permutation = new Permutation(num_qubits);
+  if (qubit_permutation) delete qubit_permutation;
+  qubit_permutation = new Permutation(num_qubits);
 }
 
 
@@ -114,11 +112,9 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   // Sometimes it is useful to reduce the tmp_spacesize_, to be able to simulate
   // one extra qubit. The implementation of SWAP-like gates is not ready for this yet.
 
-  #if 1
   size_t hard_bound_tmp_spacesize = UL(1L << UL(30));  // 4194304 = 2^22
   if (    tmp_spacesize_ == 0		// default case
-       || local_size_ <= tmp_spacesize_	// to avoid waste of memory
-       || num_ranks_per_node <= 2 )	// extra case, probably unnecessary
+       || local_size_ <= tmp_spacesize_)	// to avoid waste of memory
   {
       // if (!myrank) printf("Setting tmp storage to half the local state size\n");
       this->tmp_spacesize_ =  lcl_size_half;
@@ -131,20 +127,12 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   }
   else
       this->tmp_spacesize_ = hard_bound_tmp_spacesize;
-  #else
-  if (num_ranks_per_node <= 2)
-      this->tmp_spacesize_ =  lcl_size_half;
-  else
-      this->tmp_spacesize_ =  (lcl_size_half > 4194304) ? 4194304 : lcl_size_half;
-  // 4194304 = 2^22
-  assert((lcl_size_half % TmpSize()) == 0);
-  #endif
 
   this->num_qubits = new_num_qubits;
   assert(LocalSize() >= 1L);
 
-  // set-up initial permutation
-  permutation = new Permutation(new_num_qubits);
+  // Set-up initial qubit permutation and state_rank permutation.
+  qubit_permutation = new Permutation(new_num_qubits);
 
   if ( do_print_extra_info && !myrank)
       printf("Specialization is off\n");
@@ -191,7 +179,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
 #if defined(USE_MM_MALLOC)
   state = (Type *)_mm_malloc(nbytes, 256);
 #else
-  state_storage.Resize(num_amplitudes);
+  state_storage.resize(num_amplitudes);
   state = &state_storage[0];
 #endif
 }
@@ -269,7 +257,12 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
       assert(base_index==0 || base_index==qhipster::mpi::Environment::GetNumStates() );
 
       // Parallel initialization using open-source parallel RNG or VRL (if MKL is used).
+      // TODO: with GCC, using OpenMP code below produces a SEGMENTATION FAULT result.
+      //       This happens when randomly initializing states with 20 or more qubits (no MPI)
+      //       Currently we reserve the OpenMP initialization to ICPC only.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel
+#endif
       {
 #ifdef _OPENMP
           std::size_t thread_id   = omp_get_thread_num();
@@ -373,12 +366,19 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
   TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
 #endif
 
-  for (std::size_t i = 0; i < lcl; i++) state[i] = in.state[i];
-  *permutation = *(in.permutation);
+  for (std::size_t i = 0; i < lcl; i++)
+      state[i] = in.state[i];
+ 
+  *qubit_permutation = *(in.qubit_permutation);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Specialization using the unitary matrix structure.
+///
+/// When turned on, avoids full matrix multiplication in some special cases
+/// to improve performance.
+/// Turned off by default.
 template <class Type>
 void QubitRegister<Type>::TurnOnSpecialize()
 {
@@ -401,6 +401,45 @@ void QubitRegister<Type>::TurnOffSpecialize()
   specialize = false;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Specialization using the executed gate types.
+///
+/// Avoids matrix multiplication in some common gates to improve performance.
+/// Turned off by default.
+///
+/// Supported Gate Types:
+///     - 1-Qubit Gates
+///         - Hadamard
+///         - Rotation(X, Y, Z)
+///         - Pauli(X, Y, Z)
+///         - T
+///     - Controlled Gates
+///         - CHadamard
+///         - CRotation(X, Y, Z)
+///         - CPauli(X, Y, Z)
+///         - CPhaseRotation
+///
+/// @warning May not work with gate fusion!
+template <class Type>
+void QubitRegister<Type>::TurnOnSpecializeV2()
+{
+  int myrank=0;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+    printf("Specialization v2 is on\n");
+  specialize2 = true;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template <class Type>
+void QubitRegister<Type>::TurnOffSpecializeV2()
+{
+  unsigned myrank=0;
+  myrank = qhipster::mpi::Environment::GetStateRank();
+  if (do_print_extra_info && !myrank)
+    printf("Specialization v2 is off\n");
+  specialize2 = false;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
@@ -411,7 +450,7 @@ QubitRegister<Type>::~QubitRegister()
 #endif
   if (timer != nullptr) delete timer;
   if (gate_counter != nullptr) delete gate_counter;
-  if (permutation != nullptr) delete permutation;
+  if (qubit_permutation != nullptr) delete qubit_permutation;
 }
 
 template class QubitRegister<ComplexSP>;

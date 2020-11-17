@@ -25,13 +25,16 @@ class Apply1QGateTest : public ::testing::Test
     // If the local storage is a single amplitude, this cannot be further divided.
     if (qhipster::mpi::Environment::GetStateSize() > 8)
         GTEST_SKIP();
+
+    std::cout << "state_rank_id = " << qhipster::mpi::Environment::GetStateRank() << "\n";//FIXME delete
+    qhipster::mpi::StateBarrier();
   }
 
   const std::size_t num_qubits_ = 4;
   double accepted_error_ = 1e-15;
   // The gates involve the last qubit. If the state is |000j>, one has:
   int qubit_ = num_qubits_-1;
-  size_t j0_ = 0, j1_ = 8;
+  std::size_t j0_ = 0, j1_ = 8; // j0_ is index when j=0, j1_ is index when j=1.
   double sqrt2_ = std::sqrt(2.);
 };
 

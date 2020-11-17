@@ -1,17 +1,22 @@
-#include "../include/qureg.hpp"
-#include "../include/highperfkernels.hpp"
-
-/// \addtogroup qureg
-/// @{
-
 /// @file qureg_applyctrl1qubitgate.cpp
 /// @brief Define the @c QubitRegister methods for the application of controlled one-qubit gates.
 
+#include "../include/qureg.hpp"
+#include "../include/highperfkernels.hpp"
+#include "../include/spec_kernels.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Arbitrary two-qubit gate.
-/// @param qubit_high index of the first qubit
-/// @param qubit_low index of the second qubit
-/// @param m 4x4 matrix corresponding to the quantum gate
+// General comment.
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Arbitrary controlled two-qubit gate.
+/// @param control_position position of the control qubit in the current permutation
+/// @param target_position position of the target qubit in the current permutation
+/// @param m 2x2 matrix corresponding to the quantum gate
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned target_position,
                                          TM2x2<Type> const&m)
@@ -43,12 +48,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   if (check_bit(glb_start, T) == 0)
   {
       itask = myrank;
-      jtask = itask + (1 << (T - M));
+      jtask = itask + (1UL << (T - M));
   }
   else
   {
       jtask = myrank;
-      itask = jtask - (1 << (T - M));
+      itask = jtask - (1UL << (T - M));
   }
 
   // 1. allocate temp buffer
@@ -69,24 +74,18 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
       lcl_chunk = lcl_size_half;
   else
       assert((lcl_size_half % lcl_chunk) == 0);
-
-  if (lcl_chunk != lcl_size_half)
-  {
-//      fprintf(stderr, "GG tried to fix the chunking\n");
-//      assert(0);
-  }
 #endif
 
   double t, tnet = 0;
   // Which chunk do we have to Send/Recv?
   // If chunk == lcl_size_half, then all chunks are needed, and if chunk=2^C it means
   // that M=C+1 and there is a special case hardcoded.
-  // If chunk > 2^(C+1), then all chunks are needed since every chunk include
+  // If chunk >= 2^(C+1), then all chunks are needed since every chunk include
   // global indices with C-bit=0,1
   // If chunk < 2^(C+1), then chunks only include global indices with either C-bit=0
   // or C-bit=1
   if ( lcl_chunk == lcl_size_half
-       || lcl_chunk >= (UL(1)<<C+1) )
+       || lcl_chunk >= (UL(1)<<(C+1)) )
   {
       for(size_t c = 0; c < lcl_size_half; c += lcl_chunk)
       {
@@ -142,7 +141,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   else
   {
       assert( lcl_chunk <= (UL(1)<<C) );
-      assert( (UL(1)<<C % lcl_chunk)==0 );
+      assert( (UL(1)<<C) % lcl_chunk==0 );
       for(size_t gc = (UL(1)<<C); gc < lcl_size_half; gc += (UL(1)<<C+1))
       for(size_t c = gc+0; c < gc+(UL(1)<<C); c += lcl_chunk)
       {
@@ -202,24 +201,20 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
 /// @brief Helper for the application of controlled one-qubit gates.
 // Apply gate to the state vector in the range sind-eind
 template <class Type>
-bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, unsigned qubit_,
+bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                                           TM2x2<Type> const&m,
-                                                          std::size_t sind, std::size_t eind)
+							                                            std::size_t sind, std::size_t eind, 
+                                                          GateSpec2Q spec, BaseType angle)
 {
-  assert(control_ != qubit_);
-  assert(control_ < num_qubits);
-  assert(qubit_ < num_qubits);
-#if 0
-  printf("New permutation: ");
-  for(unsigned i = 0; i < permutation->size(); i++) printf("%u ", (*permutation)[i]);
-  printf("\n");
-#endif
-  unsigned control = (*permutation)[control_];
-  assert(control < num_qubits);
-  unsigned qubit = (*permutation)[qubit_];
-  assert(qubit < num_qubits);
+  assert(control_qubit != target_qubit);
+  assert(control_qubit < num_qubits);
+  assert(target_qubit < num_qubits);
+  unsigned control_position = (*qubit_permutation)[control_qubit];
+  assert(control_position < num_qubits);
+  unsigned target_position = (*qubit_permutation)[target_qubit];
+  assert(target_position < num_qubits);
 
-  std::size_t C = control, T = qubit;
+  std::size_t C = control_position, T = target_position;
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
@@ -252,7 +247,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
       md(2, 2) = m[0][0];
       md(3, 3) = m[1][1];
 
-      ApplyDiag(control, qubit, md);
+      ApplyDiag(control_position, target_position, md); //FIXME: qubits or positions?
       assert(eind - sind == LocalSize());
       assert(fusion == false);
 
@@ -284,20 +279,40 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
             }
             else
             {
-                Loop_TN(state, 
-                        sind,  eind,        1UL<<C+1UL,
-                        1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                        0L,     1UL<<T,     1UL<<T    , m, specialize, timer);
+                if (specialize2 && (spec != GateSpec2Q::None))
+                {
+                    Loop_TN(state, 
+                          sind,  eind,        1UL<<C+1UL,
+                      1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
+                      0L,     1UL<<T,     1UL<<T, spec, timer, angle);
+                }
+                else
+                {
+                    Loop_TN(state, 
+                      sind,  eind,        1UL<<C+1UL,
+                      1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
+                      0L,     1UL<<T,     1UL<<T    , m, specialize, timer);
+                }
                 HasDoneWork = true;
             }
-          
         }
         else
         {
-            Loop_TN(state, 
-                    sind,     eind,       1UL<<T+1UL,
-                    0L,       1UL<<T,     1UL<<C+1UL,
-                    1UL<<C,   1UL<<C+1UL, 1UL<<T    , m, specialize, timer);
+            if (specialize2 && (spec != GateSpec2Q::None))
+            {
+              Loop_TN(state, 
+                sind,     eind,       1UL<<T+1UL,
+                0L,       1UL<<T,     1UL<<C+1UL,
+                1UL<<C,   1UL<<C+1UL, 1UL<<T, spec, timer, angle
+              );
+            }
+            else
+            {
+              Loop_TN(state, 
+                sind,     eind,       1UL<<T+1UL,
+                0L,       1UL<<T,     1UL<<C+1UL,
+                1UL<<C,   1UL<<C+1UL, 1UL<<T    , m, specialize, timer);
+            }
             HasDoneWork = true;
         }
       }
@@ -367,27 +382,25 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_, un
 /// @param qubit index of the target qubit
 /// @param m 2x2 matrix corresponding to the single-qubit gate (implemented if control qubit is in |1\>)
 template <class Type>
-void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned qubit,
-                                                    TM2x2<Type> const&m)
+void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
+                                                    TM2x2<Type> const&m, GateSpec2Q spec, BaseType angle)
 {
-  assert(qubit < num_qubits);
+  assert(target_qubit < num_qubits);
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
-      // Verify that permutation is identity.
-      assert(control == (*permutation)[control]);
-      assert(qubit   == (*permutation)[qubit  ]);
-      // Otherwise find better location that is compatible with the permutation.
-      gate_counter->TwoQubitIncrement(control, qubit);
+      // IQS count the gates acting on specific program qubits.
+      gate_counter->TwoQubitIncrement(control_qubit, target_qubit);
   }
 
   if (fusion == true)
   {
-      assert((*permutation)[qubit] < num_qubits);
-      if ((*permutation)[qubit] < log2llc)
+      unsigned target_position =(*qubit_permutation)[target_qubit];
+      assert(target_position < num_qubits);
+      if (target_position < log2llc)
       {
           std::string name = "cqg";
-          fwindow.push_back(std::make_tuple(name, m, control, qubit));
+          fwindow.push_back(std::make_tuple(name, m, control_qubit, target_qubit)); // FIXME: notice the use of qubits vs positions
           return;
       }
       else
@@ -397,7 +410,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned q
       }
   }
   L:
-  ApplyControlled1QubitGate_helper(control, qubit, m, 0UL, LocalSize());
+  ApplyControlled1QubitGate_helper(control_qubit, target_qubit, m, 0UL, LocalSize(), spec, angle);
 }
 
 
@@ -408,7 +421,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control, unsigned q
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i X theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -418,7 +431,7 @@ void QubitRegister<Type>::ApplyCRotationX(unsigned const control, unsigned const
   qhipster::TinyMatrix<Type, 2, 2, 32> rx;
   rx(0, 1) = rx(1, 0) = Type(0, -std::sin(theta / 2.));
   rx(0, 0) = rx(1, 1) = Type(std::cos(theta / 2.), 0);
-  ApplyControlled1QubitGate(control, qubit, rx);
+  ApplyControlled1QubitGate(control, qubit, rx, GateSpec2Q::CRotationX, theta);
 }
 
 
@@ -428,7 +441,7 @@ void QubitRegister<Type>::ApplyCRotationX(unsigned const control, unsigned const
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i Y theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -439,7 +452,7 @@ void QubitRegister<Type>::ApplyCRotationY(unsigned const control, unsigned const
   ry(0, 1) = Type(-std::sin(theta / 2.), 0.);
   ry(1, 0) = Type( std::sin(theta / 2.), 0.);
   ry(0, 0) = ry(1, 1) = Type(std::cos(theta / 2.), 0);
-  ApplyControlled1QubitGate(control, qubit, ry);
+  ApplyControlled1QubitGate(control, qubit, ry, GateSpec2Q::CRotationY, theta);
 }
 
 
@@ -449,7 +462,7 @@ void QubitRegister<Type>::ApplyCRotationY(unsigned const control, unsigned const
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i Z theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -460,7 +473,7 @@ void QubitRegister<Type>::ApplyCRotationZ(unsigned const control, unsigned const
   rz(0, 0) = Type(std::cos(theta / 2.), -std::sin(theta / 2.));
   rz(1, 1) = Type(std::cos(theta / 2.), std::sin(theta / 2.));
   rz(0, 1) = rz(1, 0) = Type(0., 0.);
-  ApplyControlled1QubitGate(control, qubit, rz);
+  ApplyControlled1QubitGate(control, qubit, rz, GateSpec2Q::CRotationZ, theta);
 }
 
 
@@ -469,7 +482,7 @@ void QubitRegister<Type>::ApplyCRotationZ(unsigned const control, unsigned const
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i X pi/2 ) = X 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliX(unsigned const control, unsigned const qubit)
@@ -479,7 +492,7 @@ void QubitRegister<Type>::ApplyCPauliX(unsigned const control, unsigned const qu
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
   px(1, 1) = Type(0., 0.);
-  ApplyControlled1QubitGate(control, qubit, px);
+  ApplyControlled1QubitGate(control, qubit, px, GateSpec2Q::CPauliX);
 }
 
 
@@ -488,7 +501,7 @@ void QubitRegister<Type>::ApplyCPauliX(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i Y pi/2 ) = Y 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliY(unsigned const control, unsigned const qubit)
@@ -498,7 +511,7 @@ void QubitRegister<Type>::ApplyCPauliY(unsigned const control, unsigned const qu
   py(0, 1) = Type(0., -1.);
   py(1, 0) = Type(0., 1.);
   py(1, 1) = Type(0., 0.);
-  ApplyControlled1QubitGate(control, qubit, py);
+  ApplyControlled1QubitGate(control, qubit, py, GateSpec2Q::CPauliY);
 }
 
 
@@ -507,7 +520,7 @@ void QubitRegister<Type>::ApplyCPauliY(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i Z pi/2 ) = Z 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliZ(unsigned const control, unsigned const qubit)
@@ -517,7 +530,7 @@ void QubitRegister<Type>::ApplyCPauliZ(unsigned const control, unsigned const qu
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
   pz(1, 1) = Type(-1., 0.);
-  ApplyControlled1QubitGate(control, qubit, pz);
+  ApplyControlled1QubitGate(control, qubit, pz, GateSpec2Q::CPauliZ);
 }
 
 
@@ -526,7 +539,7 @@ void QubitRegister<Type>::ApplyCPauliZ(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     sqrt(Z) 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliSqrtZ(unsigned const control, unsigned const qubit)
@@ -540,13 +553,12 @@ void QubitRegister<Type>::ApplyCPauliSqrtZ(unsigned const control, unsigned cons
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Cotrolled hadamard gate.
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to the 2x2 matrix:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to the 2x2 matrix:\n
 ///     | 1/sqrt(2)   1/sqrt(2) |\n
 ///     | 1/sqrt(2)  -1/sqrt(2) |
 template <class Type>
@@ -556,7 +568,7 @@ void QubitRegister<Type>::ApplyCHadamard(unsigned const control, unsigned const 
   BaseType f = 1. / std::sqrt(2.);
   h(0, 0) = h(0, 1) = h(1, 0) = Type(f, 0.);
   h(1, 1) = Type(-f, 0.);
-  ApplyControlled1QubitGate(control, qubit, h);
+  ApplyControlled1QubitGate(control, qubit, h, GateSpec2Q::CHadamard);
 }
 
 //Controlled Phase Rotation///
@@ -572,12 +584,10 @@ void QubitRegister<Type>::ApplyCPhaseRotation(unsigned const control, unsigned c
   phase_gate(0, 1) = phase_gate(1, 0) = Type(0, 0);
   phase_gate(0, 0) = Type(1,0);
   phase_gate(1, 1) = Type(std::cos(theta), std::sin(theta));
-  ApplyControlled1QubitGate(control, qubit, phase_gate);
+  ApplyControlled1QubitGate(control, qubit, phase_gate, GateSpec2Q::CPhase, theta);
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
-
-/// @}

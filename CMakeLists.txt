@@ -45,7 +45,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
-option(IqsUtest "Enable unit test?" ON)
+option(IqsUtest "Enable unit test?" OFF)
 option(BuildExamples "Build the Examples" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
@@ -57,8 +57,7 @@ if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
 
     if(IqsPython)
-        message(STATUS "Python not compatible with MPI: disabled.")
-        set(IqsPython OFF)
+        message(STATUS "Python interface with MPI: enabled." )
     endif()
 
     if(IqsUtest)
@@ -140,6 +139,13 @@ if (IqsNative)
     endif()
 endif()
 
+
+################################################################################
+# Enable compiler optimizations to fix GCC performance.
+################################################################################
+if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+   add_compile_options(-O3)
+endif()
 
 ################################################################################
 # Locate MKL if it is already configured through Intel (mklvars.sh) scripts.

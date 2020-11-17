@@ -32,6 +32,22 @@ void qft(QubitRegister<Type> &psi)
   int n = qhipster::ilog2(psi.size());
 
   // main computation
+  //
+  //  6  -H--*----*------*--------...--*----------------x------  6
+  //  5  ----R-H--|-*----|-*------...--|-*--------------|-x----  5
+  //  4  ---------R-R-H--|-|-*----...--|-|-*------------|-|-x--  4
+  //  3  ----------------R-R-R-H--...--|-|-|-*----------|-|-|--  3
+  //  2  -------------------------...--|-|-|-|-*--------|-|-x--  2
+  //  1  -------------------------...--|-|-|-|-|-*------|-x----  1
+  //  0  -------------------------...--R-R-R-R-R-R-H----x------  0
+  //
+  // See: https://en.wikipedia.org/wiki/Quantum_Fourier_transform#Circuit_implementation
+  //
+  // Note that:
+  // 1. the qubit indices are inverted since the quantum-information convention has
+  //    qubit 0 corresponding to the highest-significance bit, while IQS convention has
+  //    qubit 0 corresponding to the lowest-significance bit (as standard in computer science).
+  // 2. in the phase-shift gate, the role of target and control is interchangeable.
   for (int i = n - 1; i >= 0; i--)
   {
     for (int j = n - 1; j > i; j--)
