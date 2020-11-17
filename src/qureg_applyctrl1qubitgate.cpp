@@ -421,7 +421,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control_qubit, unsi
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i X theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -441,7 +441,7 @@ void QubitRegister<Type>::ApplyCRotationX(unsigned const control, unsigned const
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i Y theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -462,7 +462,7 @@ void QubitRegister<Type>::ApplyCRotationY(unsigned const control, unsigned const
 /// @param qubit index of the target qubit
 /// @param theta rotation angle
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     exp( -i Z theta/2 )\n
 /// This convention is based on the fact that the generators
 /// of rotations for spin-1/2 spins are {X/2, Y/2, Z/2}.
@@ -482,7 +482,7 @@ void QubitRegister<Type>::ApplyCRotationZ(unsigned const control, unsigned const
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i X pi/2 ) = X 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliX(unsigned const control, unsigned const qubit)
@@ -501,7 +501,7 @@ void QubitRegister<Type>::ApplyCPauliX(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i Y pi/2 ) = Y 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliY(unsigned const control, unsigned const qubit)
@@ -520,7 +520,7 @@ void QubitRegister<Type>::ApplyCPauliY(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     i * exp( -i Z pi/2 ) = Z 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliZ(unsigned const control, unsigned const qubit)
@@ -539,7 +539,7 @@ void QubitRegister<Type>::ApplyCPauliZ(unsigned const control, unsigned const qu
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to:\n
 ///     sqrt(Z) 
 template <class Type>
 void QubitRegister<Type>::ApplyCPauliSqrtZ(unsigned const control, unsigned const qubit)
@@ -558,7 +558,7 @@ void QubitRegister<Type>::ApplyCPauliSqrtZ(unsigned const control, unsigned cons
 /// @param control index of the control qubit
 /// @param qubit index of the target qubit
 ///
-/// Explicitely, when control qubit is in |1\>, the gate corresponds to the 2x2 matrix:\n
+/// Explicitly, when control qubit is in |1\>, the gate corresponds to the 2x2 matrix:\n
 ///     | 1/sqrt(2)   1/sqrt(2) |\n
 ///     | 1/sqrt(2)  -1/sqrt(2) |
 template <class Type>
