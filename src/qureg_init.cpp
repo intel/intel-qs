@@ -16,6 +16,7 @@
 /// @brief Define the @c QubitRegister methods to initialize the quantum register.
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Base constructor.
 template <class Type>
 QubitRegister<Type>::QubitRegister()
 {
@@ -186,6 +187,7 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor <TODO: add extra info>
 template <class Type>
 QubitRegister<Type>::QubitRegister(std::size_t new_num_qubits, Type *state, 
                                    std::size_t tmp_spacesize_)
@@ -197,6 +199,7 @@ QubitRegister<Type>::QubitRegister(std::size_t new_num_qubits, Type *state,
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor, followed by state initialization.
 template <class Type>
 QubitRegister<Type>::QubitRegister(std::size_t new_num_qubits, 
                                    std::string style, 
@@ -209,6 +212,14 @@ QubitRegister<Type>::QubitRegister(std::size_t new_num_qubits,
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Initialize the state.
+///
+/// The 'style' of initialization can be:
+/// - 'rand': real and imag part of each amplitudes are uniformly random,
+///           using either the **local** or **pool** RNG stream,
+///           then state is normalized.
+/// - 'base': state of the computational basis, only a non-zero amplitude.
+/// - '++++': the balanced superposition of all computational basis states.
 template <class Type>
 void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 {
@@ -355,6 +366,7 @@ if (beginning != end) printf( (buffer.str()).c_str() );
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Constructor that copies another @c QubitRegister object.
 template <class Type>
 QubitRegister<Type>::QubitRegister(const QubitRegister &in)
 {
@@ -364,8 +376,8 @@ QubitRegister<Type>::QubitRegister(const QubitRegister &in)
 #pragma omp parallel for simd
 #else
   TODO(Remember to find 'omp parallel for simd' equivalent for gcc)
+#pragma omp parallel for
 #endif
-
   for (std::size_t i = 0; i < lcl; i++)
       state[i] = in.state[i];
  
@@ -442,6 +454,7 @@ void QubitRegister<Type>::TurnOffSpecializeV2()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// Destructor.
 template <class Type>
 QubitRegister<Type>::~QubitRegister()
 {

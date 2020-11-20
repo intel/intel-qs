@@ -38,6 +38,8 @@
 #include "tinymatrix.hpp"
 #include "gate_spec.hpp"
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template<typename T>
 struct extract_value_type //lets call it extract_value_type
 {
@@ -59,8 +61,35 @@ using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
-/// @class QubitRegister represents the state of N qubits and update it due to quantum operations.
+// Preparation for MPI-related performance improvement
+#if 0
+/// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
+/// This is also done recording their order in a Permutation object.
+///
+///    rank_id from COMM  -->  rank_id for data storage
+///           0                        map(0)
+///           1                        map(1)
+///           2                        map(2)
+///          ...                        ...
+///       num_ranks                    map(num_ranks-1)
+///
+/// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// QubitRegister class declaration
+/////////////////////////////////////////////////////////////////////////////////////////
+// General comment:
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @class QubitRegister
+/// Represent the state of N qubits and update it due to quantum operations.
 ///
 /// The N-qubit quantum state |psi> is stored as a 2^N complex vector.
 /// The global index i corresponds to the entry:
@@ -98,66 +127,33 @@ using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
 ///      2         imap(2)
 ///     ...          ...
 ///     N-1        imap(N-1)
-///
-
-// Preparation for MPI-related performance improvement
-#if 0
-/// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
-/// This is also done recording their order in a Permutation object.
-///
-///    rank_id from COMM  -->  rank_id for data storage
-///           0                        map(0)
-///           1                        map(1)
-///           2                        map(2)
-///          ...                        ...
-///       num_ranks                    map(num_ranks-1)
-///
-/// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////
-// QubitRegister class declaration
-/////////////////////////////////////////////////////////////////////////////////////////
-// General comment:
-// To distinguish between program qubits (used in the algorithm) and data qubits
-// (used in the representation of the quantum state), we use the term:
-// - 'position' to refer to data qubits
-// - 'qubit' ro refer to program qubits
-/////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type = ComplexDP>
 class QubitRegister
 {
   public:
-    using value_type = Type;
-    typedef typename extract_value_type<Type>::value_type BaseType;
 
-  // constructors / destructors
-    QubitRegister();
-    QubitRegister(std::size_t num_qubits, std::string style = "", 
-                 std::size_t base_index = 0, std::size_t tmp_spacesize_ = 0);
-    QubitRegister(const QubitRegister &in);
-    QubitRegister(std::size_t num_qubits, Type *state, std::size_t tmp_spacesize_ = 0);
-    ~QubitRegister();
+  using value_type = Type;
+  typedef typename extract_value_type<Type>::value_type BaseType;
+
+  // Constructors and destructors.
+  QubitRegister();
+  QubitRegister(std::size_t num_qubits, std::string style = "", 
+                std::size_t base_index = 0, std::size_t tmp_spacesize_ = 0);
+  QubitRegister(const QubitRegister &in);
+  QubitRegister(std::size_t num_qubits, Type *state, std::size_t tmp_spacesize_ = 0);
+  ~QubitRegister();
 
   // allocation & initialization
   void AllocateAdditionalQubit();
   void Allocate(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
   void Initialize(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
-  // The 'style' of initialization can be:
-  // - 'rand': real and imag part of each amplitudes are uniformly random,
-  //           using either the **local** or **pool** RNG stream,
-  //           then state is normalized.
-  // - 'base': state of the computational basis, only a non-zero amplitude.
-  // - '++++': the balanced superposition of all computational basis states.
   void Initialize(std::string style, std::size_t base_index);
 
-  // Overload [] operator to return the amplitude stored at the local index.
-  // NOTE: the index is the local one!
+  /// Overload [] operator to return the amplitude stored at the local index.
   inline Type& operator[] (std::size_t index) { return state[index]; }
   inline Type& operator[] (std::size_t index) const { return state[index]; }
-  // Return the amplitude corresponding to a global index (with MPI broadcast).
-  // The index is expressed in terms of the program qubits.
+  // Set/get a single amplitude identified by its global index (expressed in terms of the program qubits).
   Type GetGlobalAmplitude(std::size_t index) const;
   void SetGlobalAmplitude(std::size_t index, Type value);
 
