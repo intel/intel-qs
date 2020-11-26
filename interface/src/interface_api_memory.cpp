@@ -38,7 +38,7 @@ unsigned long qumalloc(string args) {
         psi1 = new QubitRegister<Type>(num_qubits);
 
         if (psi1) {
-            (*psi1)[0] = 1;
+            psi1->Initialize("base", 0);
             fPsiAllocated = true;
             cout << "Allocated ["<<num_qubits<<"] qubits."<<endl;
             return 0;
