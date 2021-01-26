@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
-double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
+double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m, GateSpec1Q spec, BaseType angle)
 {
   assert(LocalSize() > 1);
 #ifndef INTELQS_HAS_MPI
@@ -124,7 +124,10 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
         tnet += sec() - t;
 
         // 3. src and dst compute
-        Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L, m, specialize, timer);
+        if (specialize2 && spec != GateSpec1Q::None)
+          Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L, spec, timer, angle);
+        else
+          Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L, m, specialize, timer);
 
         t = sec();
         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
@@ -141,8 +144,10 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m)
                                       &(tmp_state[0])            , lcl_chunk, itask, tag1,
                                       comm, &status);
         tnet += sec() - t;
-
-        Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L, m, specialize, timer);
+        if (specialize2 && spec != GateSpec1Q::None)
+          Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L, spec, timer, angle);
+        else
+          Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L, m, specialize, timer);
 
         t = sec();
         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])            , lcl_chunk, itask, tag4,
@@ -212,7 +217,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
       }
       else
       {
-          HP_Distrpair(P, m);
+          HP_Distrpair(P, m, spec, angle);
       }
   }
 

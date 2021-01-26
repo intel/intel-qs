@@ -7,8 +7,11 @@ Thread count should be set by using export OMP_NUM_THREADS=<thread_count>.
 
 #include <array>
 #include <chrono>
+#include <string>
 #include <vector>
 #include "../include/qureg.hpp"
+
+using qhipster::mpi::Environment;
 
 template <typename Function>
 void benchmark(const std::vector<std::array<int, 2>> &pairs, const char *name, Function func)
@@ -19,29 +22,31 @@ void benchmark(const std::vector<std::array<int, 2>> &pairs, const char *name, F
     func(p[0], p[1]);
   auto end = std::chrono::steady_clock::now();
   auto elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-  std::cout  << name  <<  ": "  <<  elapsed.count()  <<  " seconds\n";
+  if (Environment::GetRank() == 0) std::cout  << name  <<  ": "  <<  elapsed.count()  <<  " seconds\n";
 }
 
 int main(int argc, char *argv[])
 {
-  qhipster::mpi::Environment::Init(argc, argv);
+  Environment::Init(argc, argv);
+  const auto rank = Environment::GetRank();
+  const auto world_size = Environment::GetNumRanksPerNode() * Environment::GetNumNodes();
 
   if (argc != 2 && argc != 3) 
   {
-    std::cout << "Usage: " << argv[0] << " <num_qubits> [<do_comparison> = 0]\n";
+    if (rank == 0) std::cout << "Usage: " << argv[0] << " <num_qubits> [<do_comparison> = 0]\n";
     return 0;
   }
 
   int nbits = atoi(argv[1]);
-  std::cout << "Num Qubits: " << nbits << "\n";
+  if (rank == 0) std::cout << "Num Qubits: " << nbits << "\n";
 
   bool compare_states = false;
   if (argc == 3) 
     compare_states = static_cast<bool>(atoi(argv[2]));
   
-  if (compare_states) // Compare only for small numbers
+  if (rank == 0 && compare_states)
     std::cout << "State comparison will be performed" << std::endl;
-  else
+  else if (rank == 0)
     std::cout << "State comparison will not be performed" << std::endl;
 
   // Comparison variables
@@ -52,22 +57,32 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nbits; ++i)
     pairs.push_back({i, (i + 1) % nbits});
 
-  for (int i = 0; i < 3; ++i) 
+  for (int i = 0; i < 4; ++i)
   {
     QubitRegister<ComplexDP> psi(nbits, "base", 0);
     if (i == 1)
     {
+      // MPI use cases with more than two ranks need to be fixed
+      if (world_size > 2) continue;
+      if (rank == 0) std::cout << "\nBenchmarking with spec v1\n------------\n";
       psi.TurnOnSpecialize();
-      std::cout << "\nBenchmarking with spec v1\n------------\n";
     }
     else if (i == 2)
     {
-      std::cout << "\nBenchmarking with spec v2\n------------\n";
+      if (rank == 0) std::cout << "\nBenchmarking with spec v2\n------------\n";
+      psi.TurnOnSpecializeV2();
+    }
+    else if (i == 3)
+    {
+      // MPI use cases with more than two ranks need to be fixed
+      if (world_size > 2) continue;
+      if (rank == 0) std::cout << "\nBenchmarking with spec v1 & v2\n------------\n";
+      psi.TurnOnSpecialize();
       psi.TurnOnSpecializeV2();
     }
     else
     {
-      std::cout << "\nBenchmarking without spec\n------------\n";
+      if (rank == 0) std::cout << "\nBenchmarking without spec\n------------\n";
     }
     // More gates can be added in the similar fashion
     // Covers all spec2 gates as of August 21, 2020
@@ -100,7 +115,8 @@ int main(int argc, char *argv[])
       auto diff = psi0->MaxAbsDiff(psi, {1, 0});
       if (diff < tol)
       {
-        std::cout << "State comparison test passed for spec " << i << std::endl;
+        std::string spec = (i == 3) ? "v1 & v2" : ("v" + std::to_string(i));
+        if (rank == 0) std::cout << "State comparison test passed for spec " << spec << std::endl;
       }
       else
       {
@@ -114,7 +130,7 @@ int main(int argc, char *argv[])
   if (compare_states)
     delete psi0;
 
-  qhipster::mpi::Environment::Finalize();
+  Environment::Finalize();
 
   return 0;
 }

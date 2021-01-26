@@ -1,6 +1,13 @@
 #include "../include/spec_kernels.hpp"
 
 // Declare loops
+#define PARALLEL_FOR_1D                                   \
+  _Pragma("omp parallel for")                             \
+  for (std::size_t ind0 = gstart; ind0 < gend; ind0++)
+
+#define SERIAL_FOR_1D                                     \
+  for (std::size_t ind0 = gstart; ind0 < gend; ind0++)
+
 #define PARALLEL_FOR_2D                                   \
   _Pragma("omp parallel for collapse(2)")                 \
   for(std::size_t group = gstart; group < gend;           \
@@ -146,10 +153,103 @@
 // Kernels
 template< typename Type >
 __attribute__((noinline))
+void Loop_SN(std::size_t gstart, std::size_t gend,
+             Type *state0, Type *state1,
+             std::size_t indsht0, std::size_t indsht1,
+             GateSpec1Q spec, Timer *timer, double angle)
+{
+  assert((UL(state0) % 256) == 0);
+  assert((UL(state1) % 256) == 0);
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+  __assume_aligned(state0, 256);
+  __assume_aligned(state1, 256);
+#endif
+  double ttot = 0., tnov = 0., ttmp1, ttmp2;
+  ttmp1 = sec();
+
+  // Declare constants
+  const auto theta = static_cast<decltype(state0[0].real())>(angle);
+  const decltype(theta) isqrt2 = 1 / std::sqrt(2);
+  const decltype(theta) cos_2 = std::cos(theta / 2);
+  const decltype(theta) sin_2 = std::sin(theta / 2);
+  const decltype(theta) msin_2 = -sin_2;
+  const Type texp = Type(std::cos(M_PI / 4), std::sin(M_PI / 4)); 
+
+  constexpr size_t group = 0;
+
+  size_t nthreads = 1;
+#ifdef _OPENMP
+#pragma omp parallel 
+  nthreads = omp_get_num_threads();
+#endif
+  bool par = nthreads > 1;
+
+  switch(spec) {
+
+   case GateSpec1Q::Hadamard:
+     if (par) { PARALLEL_FOR_1D HADAMARD_BODY_2D; }
+     else { SERIAL_FOR_1D HADAMARD_BODY_2D; }
+     break;
+
+  case GateSpec1Q::RotationX:
+    if (par) { PARALLEL_FOR_1D RX_BODY_2D; }
+    else { SERIAL_FOR_1D RX_BODY_2D; }
+    break;
+
+  case GateSpec1Q::RotationY:
+    if (par) { PARALLEL_FOR_1D RY_BODY_2D; }
+    else { SERIAL_FOR_1D RY_BODY_2D; }
+    break;
+
+  case GateSpec1Q::RotationZ:
+    if (par) { PARALLEL_FOR_1D RZ_BODY_2D; }
+    else { SERIAL_FOR_1D RZ_BODY_2D; }
+    break;
+
+  case GateSpec1Q::PauliX:
+    if (par) { PARALLEL_FOR_1D PX_BODY_2D; }
+    else { SERIAL_FOR_1D PX_BODY_2D; }
+    break;
+
+  case GateSpec1Q::PauliY:
+    if (par) { PARALLEL_FOR_1D PY_BODY_2D; }
+    else { SERIAL_FOR_1D PY_BODY_2D; }
+    break;
+  
+  case GateSpec1Q::PauliZ:
+    if (par) { PARALLEL_FOR_1D PZ_BODY_2D; }
+    else { SERIAL_FOR_1D PZ_BODY_2D; }
+    break;
+
+  case GateSpec1Q::T:
+    if (par) { PARALLEL_FOR_1D T_BODY_2D; }
+    else { SERIAL_FOR_1D T_BODY_2D; }
+    break;
+
+   default:
+     throw std::runtime_error("InvalidArgument: Loop_SN SpecializeV2 is called with GateSpec1Q::None!");;
+ }
+
+  if (timer)
+  {
+    ttot = sec() - ttmp1;
+    double datab = ((state0 == state1) ? 2.0 : 4.0) *
+        sizeof(state0[0]) * D(gend - gstart);
+    
+    double flops = D(1L << 19) * 38.0;
+    double gflops = flops / ttot / 1e9;
+
+    timer->record_sn(ttot, datab / ttot);
+  }
+}
+
+
+template < typename Type >
+__attribute__((noinline))
 void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              Type *state0, Type *state1,
              std::size_t indsht0, std::size_t indsht1,
-	           GateSpec1Q spec, Timer *timer, double angle)
+             GateSpec1Q spec, Timer *timer, double angle)
 {
   double ttmp1 = sec(), ttot = 0.;
   assert((UL(state0) % 256) == 0);
@@ -313,6 +413,17 @@ void Loop_TN(Type *state,
     timer->record_tn(ttot, datab / ttot);
   }
 }
+
+// Declarations
+template void Loop_SN<ComplexSP>(std::size_t gstart, std::size_t gend,
+                                 ComplexSP *state0, ComplexSP *state1,
+                                 std::size_t indsht0, std::size_t indsht1,
+                                 GateSpec1Q spec, Timer *timer, double angle);
+
+template void Loop_SN<ComplexDP>(std::size_t gstart, std::size_t gend,
+                                 ComplexDP *state0, ComplexDP *state1,
+                                 std::size_t indsht0, std::size_t indsht1,
+                                 GateSpec1Q spec, Timer *timer, double angle);
 
 template void Loop_DN<ComplexSP>(std::size_t gstart, std::size_t gend, std::size_t pos,
                                  ComplexSP *state0, ComplexSP *state1,
