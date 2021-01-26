@@ -17,6 +17,12 @@
 # Use an official Ubuntu linux image as the run time environment.
 FROM ubuntu:latest
 
+# Set timezone persistent
+#ENV TZ=Europe/Berlin
+
+# Set apt-get non-interactive for build
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Fetch and install the GNU Make utility.
 RUN apt-get update && apt-get install -y build-essential g++ make
 
@@ -61,6 +67,7 @@ RUN apt-get update && \
 
 # Setup the local build environment for the simulation framework.
 WORKDIR /root/intelqs
+# Copy from docker host cwd everything (the git project files) into the container
 COPY . /root/intelqs
 
 #FIXME
@@ -70,7 +77,16 @@ COPY . /root/intelqs
 #WORKDIR /home/user/intelqs
 #COPY . /home/user/intelqs
 
-# install lib for missing pthread module
+# Install Intel Quantum Simulator
+RUN /bin/bash -c "source /opt/intel/mkl/bin/mklvars.sh intel64 ilp64"
+RUN /bin/bash -c "mkdir build; cd build; CXX=g++ cmake -DIqsMPI=ON -DBuildExamples=ON -DIqsUtest=ON -DIqsPython=OFF .."
+WORKDIR /root/intelqs/build
+RUN make
+WORKDIR /root/intelqs
+
+LABEL mode="MPI" version="1.0" description="intel-qs built with MPI, no py interface, with Examples"
+
+# Install lib for missing pthread module [necessary?]
 RUN apt-get -y install libboost-all-dev
 
 # installing and configuring conda env

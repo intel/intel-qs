@@ -190,6 +190,7 @@ endif() # for the MKL configuration
 
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     # Ad-hoc modifications to compile and link with g++.
+    add_compile_options(-O3)
     add_compile_options(-m64)
 #    add_compile_options(-Wall)
     # MKL libraries: optional
@@ -266,7 +267,10 @@ add_compile_definitions(USE_MM_MALLOC)
 add_subdirectory(src)
 
 if(BuildExamples)
+    message(STATUS "Build examples : enabled.")
     add_subdirectory(examples)
+else()
+    message(STATUS "Build examples : disabled.")
 endif()
 
 add_subdirectory(tutorials)
