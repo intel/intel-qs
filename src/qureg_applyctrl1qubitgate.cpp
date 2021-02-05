@@ -159,8 +159,8 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   {
       assert( lcl_chunk <= (UL(1)<<C) );
       assert( (UL(1)<<C) % lcl_chunk==0 );
-      for(size_t gc = (UL(1)<<C); gc < lcl_size_half; gc += (UL(1)<<C+1))
-      for(size_t c = gc+0; c < gc+(UL(1)<<C); c += lcl_chunk)
+      for (size_t gc = (UL(1)<<C); gc < lcl_size_half; gc += (UL(1)<<(C+1)))
+      for (size_t c = gc+0; c < gc+(UL(1)<<C); c += lcl_chunk)
       {
         if (itask == myrank)  // this is itask
         {
@@ -311,16 +311,16 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
                 if (specialize2 && (spec != GateSpec2Q::None))
                 {
                     Loop_TN(state, 
-                            sind,  eind,        1UL<<C+1UL,
-                            1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                            0L,     1UL<<T,     1UL<<T, spec, timer, angle);
+                            sind,  eind,          1UL<<(C+1UL),
+                            1UL<<C, 1UL<<(C+1UL), 1UL<<(T+1UL),
+                            0L,     1UL<<T,       1UL<<T, spec, timer, angle);
                 }
                 else
                 {
                     Loop_TN(state,
-                            sind,  eind,        1UL<<C+1UL,
-                            1UL<<C, 1UL<<C+1UL, 1UL<<T+1UL,
-                            0L,     1UL<<T,     1UL<<T , m, specialize, timer);
+                            sind,  eind,          1UL<<(C+1UL),
+                            1UL<<C, 1UL<<(C+1UL), 1UL<<(T+1UL),
+                            0L,     1UL<<T,       1UL<<T , m, specialize, timer);
                 }
                 HasDoneWork = true;
             }
@@ -330,17 +330,17 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
             if (specialize2 && (spec != GateSpec2Q::None))
             {
               Loop_TN(state, 
-                sind,     eind,       1UL<<T+1UL,
-                0L,       1UL<<T,     1UL<<C+1UL,
-                1UL<<C,   1UL<<C+1UL, 1UL<<T, spec, timer, angle
+                sind,     eind,         1UL<<(T+1UL),
+                0L,       1UL<<T,       1UL<<(C+1UL),
+                1UL<<C,   1UL<<(C+1UL), 1UL<<T, spec, timer, angle
               );
             }
             else
             {
               Loop_TN(state, 
-                sind,     eind,       1UL<<T+1UL,
-                0L,       1UL<<T,     1UL<<C+1UL,
-                1UL<<C,   1UL<<C+1UL, 1UL<<T    , m, specialize, timer);
+                sind,     eind,         1UL<<(T+1UL),
+                0L,       1UL<<T,       1UL<<(C+1UL),
+                1UL<<C,   1UL<<(C+1UL), 1UL<<T    , m, specialize, timer);
             }
             HasDoneWork = true;
         }
