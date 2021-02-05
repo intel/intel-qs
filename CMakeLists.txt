@@ -251,7 +251,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
     link_libraries( -lstdc++)
 
 else()
-    message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")1
+    message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
     message(FATAL_ERROR "Currently, unsupported compiler environment.")
 endif()
 
