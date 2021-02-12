@@ -1,20 +1,22 @@
-#ifndef	TINYMATRIX_TEST_HPP
-#define	TINYMATRIX_TEST_HPP
+#ifndef	CHI_MATRIX_TEST_HPP
+#define	CHI_MATRIX_TEST_HPP
+
 
 #include <complex>
 #include <iostream>
+//#include <math.h>
 
-#include "../../include/tinymatrix.hpp"
+#include "../../include/chi_matrix.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
-// Test fixture class: tiny mattrix
+// Test fixture class: chi matrix
 //////////////////////////////////////////////////////////////////////////////
 
-class TinyMatrixTest : public ::testing::Test
+class ChiMatrixTest : public ::testing::Test
 {
  protected:
 
-  TinyMatrixTest()
+  ChiMatrixTest()
   { }
 
   void SetUp() override
@@ -29,16 +31,16 @@ class TinyMatrixTest : public ::testing::Test
 //////////////////////////////////////////////////////////////////////////////
 // Utility functions for the tests.
 
-template <class T, unsigned N, unsigned M>
-void tinymatrix_testsize()
+template <class T, unsigned N>
+void chimatrix_testsize()
 {
-  // create an aligned and an unaligned matrix
-  qhipster::TinyMatrix<T, N, M> mat;
-  qhipster::TinyMatrix<T, N, M, 32> mata;
+  // Create an aligned and an unaligned matrix
+  qhipster::ChiMatrix<T, N> mat;
+  qhipster::ChiMatrix<T, N, 32> mata;
 
   ASSERT_EQ(mat.numRows(), N);
-  ASSERT_EQ(mat.numCols(), M);
-  ASSERT_EQ(mat.size(), N * M);
+  ASSERT_EQ(mat.numCols(), N);
+  ASSERT_EQ(mat.size(), N * N);
 
   // test assignment and construction with different aligns
 
@@ -51,7 +53,7 @@ void tinymatrix_testsize()
       }
 
   // test const versrion
-  qhipster::TinyMatrix<T, N, M> const& matc(mat);
+  qhipster::ChiMatrix<T, N> const& matc(mat);
 
   // test assignment
   for (unsigned i = 0; i < mat.numRows(); ++i)
@@ -61,8 +63,8 @@ void tinymatrix_testsize()
   mata = mat;
 
   // test copy and comparison
-  qhipster::TinyMatrix<T, N, M> matb = matc;
-  qhipster::TinyMatrix<T, N, M, 32> matd = matc;
+  qhipster::ChiMatrix<T, N> matb = matc;
+  qhipster::ChiMatrix<T, N, 32> matd = matc;
 
   ASSERT_EQ(matb, mat);
   ASSERT_EQ(matb, mata);
@@ -78,8 +80,8 @@ void tinymatrix_testsize()
       ASSERT_EQ(&mat(0, 0), mat.getPtr());
 
   // test assignments
-  qhipster::TinyMatrix<T, N, M> mate;
-  qhipster::TinyMatrix<T, N, M> matf;
+  qhipster::ChiMatrix<T, N> mate;
+  qhipster::ChiMatrix<T, N> matf;
   mate = matc;
   matf = matc;
   ASSERT_EQ(mat, mate);
@@ -97,16 +99,16 @@ void tinymatrix_testsize()
 //////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void tinymatrix_testassign()
+void chimatrix_testassign()
 {
   double init[2][2] = {{1., 2.}, {3., 4.}};
 
-  qhipster::TinyMatrix<T, 2, 2> mat = init;
+  qhipster::ChiMatrix<T, 2> mat = init;
   for (unsigned i = 0; i < mat.numRows(); ++i)
       for (unsigned j = 0; j < mat.numCols(); ++j)
           ASSERT_EQ(mat(i, j), 1. + 2. * i + j);
 
-  qhipster::TinyMatrix<T, 2, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
+  qhipster::ChiMatrix<T, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
   for (unsigned i = 0; i < mat2.numRows(); ++i)
       for (unsigned j = 0; j < mat2.numCols(); ++j)
           ASSERT_EQ(mat2(i, j), 1. + 2. * i + j);
@@ -130,36 +132,69 @@ void tinymatrix_testassign()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+void chimatrix_testeigen()
+{
+  qhipster::ChiMatrix<T, 2> chimat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
+  
+  chimat2.SolveEigenSystem();
+  
+  float precision = 1e-7;
+  // Eigenvals
+  ASSERT_LT( abs(chimat2.GetEigenValue(0) - -0.37228132) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenValue(1) -  5.37228132) , precision);
+  // Eigenvec 1
+  ASSERT_LT( abs(chimat2.GetEigenVector(0)[0] - -0.82456484) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(0)[1] -  0.56576746) , precision);
+  // Eigenvec 2
+  ASSERT_LT( abs(chimat2.GetEigenVector(1)[0] - -0.41597356) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(1)[1] - -0.90937671) , precision);
+  
+  /*
+  Ground truth:
+  >>> A = np.array([[1.,2],[3,4]])
+  >>> la.eig(A)
+  (array([-0.37228132+0.j,  5.37228132+0.j]),
+  COLUMN eigenvectors:
+  array([[-0.82456484, -0.41597356],
+         [ 0.56576746, -0.90937671]]))
+  */
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
 // Test macros:
 
-TEST_F(TinyMatrixTest, Float)
+/*
+TEST_F(ChiMatrixTest, Float)
 {
-  tinymatrix_testsize<float, 1, 1>();
-  tinymatrix_testsize<float, 1, 2>();
-  tinymatrix_testsize<float, 2, 2>();
-  tinymatrix_testassign<float>();
+//  chimatrix_testsize<float, 1>();
+  chimatrix_testsize<float, 2>();
+  chimatrix_testassign<float>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(TinyMatrixTest, Int)
+TEST_F(ChiMatrixTest, Int)
 {
-  tinymatrix_testsize<int, 1, 1>();
-  tinymatrix_testsize<int, 1, 2>();
-  tinymatrix_testsize<int, 2, 2>();
-  tinymatrix_testassign<int>();
+//  chimatrix_testsize<int, 1>();
+  chimatrix_testsize<int, 2>();
+  chimatrix_testassign<int>();
+}
+*/
+
+//////////////////////////////////////////////////////////////////////////////
+
+TEST_F(ChiMatrixTest, ComplexDP)
+{
+  chimatrix_testsize<std::complex<double>, 1>();
+  chimatrix_testsize<std::complex<double>, 2>();
+  chimatrix_testassign<std::complex<double>>();
+  chimatrix_testeigen<std::complex<double>>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(TinyMatrixTest, ComplexDP)
-{
-  tinymatrix_testsize<std::complex<double>, 1, 1>();
-  tinymatrix_testsize<std::complex<double>, 1, 2>();
-  tinymatrix_testsize<std::complex<double>, 2, 2>();
-  tinymatrix_testassign<std::complex<double>>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-#endif	// header guard TINYMATRIX_TEST_HPP
+#endif

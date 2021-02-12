@@ -36,6 +36,7 @@
 #include "bitops.hpp"
 #include "conversion.hpp"
 #include "tinymatrix.hpp"
+#include "chi_matrix.hpp"
 #include "gate_spec.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -46,20 +47,18 @@ struct extract_value_type //lets call it extract_value_type
     typedef T value_type;
 };
 
-
-template<template<typename> class X, typename T>
-struct extract_value_type<X<T>>   //specialization
-{
-    typedef T value_type;
-};
-
-
 template<class Type>
 using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 
-
 template<class Type>
 using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
+
+
+template<class Type>
+using CM4x4 = qhipster::ChiMatrix<Type, 4, 32>;
+
+template<class Type>
+using CM16x16 = qhipster::ChiMatrix<Type, 16, 32>;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -340,6 +339,9 @@ class QubitRegister
   BaseType GetTphi () {return T_phi_; }
   void SetNoiseTimescales(BaseType T1, BaseType T2);
   void ApplyNoiseGate(const unsigned qubit, const BaseType duration);
+  void ApplyChannel(const unsigned qubit, CM4x4<Type> & chi);
+  void ApplyChannel(const unsigned qubit1, const unsigned qubit2, CM16x16<Type> & chi);
+  BaseType GetOverallSignOfChannels() {return overall_sign_of_channels; }
 //FIXME DELETE  BaseType IncoherentAverageOverAllStatesOfPool (BaseType local_value);
 
 
@@ -386,6 +388,8 @@ class QubitRegister
   bool imported_state;
   bool specialize;
   bool specialize2 = false;
+  // Related to the simulation of quantum channels:
+  BaseType overall_sign_of_channels = 1;
 
   // temporary buffer for fusion
   bool fusion;

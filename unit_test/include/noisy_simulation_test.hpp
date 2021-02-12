@@ -46,8 +46,8 @@ class NoisySimulationTest : public ::testing::Test
   }
 
   int num_qubits_= 6;
-  double T1_=6.;
-  double T2_=4.;
+  double T1_ = 6.;
+  double T2_ = 4.;
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
@@ -75,7 +75,7 @@ TEST_F(NoisySimulationTest, OneStateAtATime)
   QubitRegister<ComplexDP> noisy_psi (psi);
   ASSERT_DOUBLE_EQ( noisy_psi.ComputeOverlap(psi).real(), 1.);
   // Set the dissipation and decoherence times.
-  noisy_psi.SetNoiseTimescales(T1_,T2_);
+  noisy_psi.SetNoiseTimescales(T1_, T2_);
   // Noise gates require random numbers.
   std::size_t rng_seed = 7777;
   qhipster::RandomNumberGenerator<double> rnd_generator;
@@ -123,10 +123,12 @@ TEST_F(NoisySimulationTest, TwoStates)
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   noisy_psi.SetRngPtr(&rnd_generator);
   // If purely dissipation, the population in state |0> should increase.
-  psi.SetNoiseTimescales(T1_,T1_/2.);
+  noisy_psi.SetNoiseTimescales(T1_, T1_/2);
   double duration=T1_;
   for (int q=0; q<num_qubits_; ++q)
+  {
       noisy_psi.ApplyNoiseGate(q,duration);
+  }
   probability = noisy_psi.GetProbability(qubit);
   incoherent_sum
     = qhipster::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);

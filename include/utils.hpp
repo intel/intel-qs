@@ -25,6 +25,20 @@
 using ComplexSP = std::complex<float>;
 using ComplexDP = std::complex<double>;
 
+template<typename T>
+struct extract_value_type //lets call it extract_value_type
+{
+    typedef T value_type;
+};
+
+template<template<typename> class X, typename T>
+struct extract_value_type<X<T>>   //specialization
+{
+    typedef T value_type;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 double time_in_seconds(void);
 
 /////////////////////////////////////////////////////////////////////////////////////////

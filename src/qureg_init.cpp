@@ -96,7 +96,7 @@ void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp
   myrank = qhipster::mpi::Environment::GetStateRank();
   nprocs = qhipster::mpi::Environment::GetStateSize();
   log2_nprocs = qhipster::ilog2(nprocs);
-  assert(new_num_qubits>log2_nprocs);
+  assert(new_num_qubits>log2_nprocs && "Too few qubits for this number of ranks");
   num_ranks_per_node = qhipster::mpi::Environment::GetNumRanksPerNode();
   unsigned M = new_num_qubits - log2_nprocs;
 

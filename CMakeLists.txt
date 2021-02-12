@@ -47,6 +47,7 @@ option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" OFF)
 option(BuildExamples "Build the Examples" OFF)
+option(BuildInterface "Build the QASM Interface" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
 ################################################################################
@@ -275,7 +276,10 @@ endif()
 
 add_subdirectory(tutorials)
 add_subdirectory(benchmarks)
-add_subdirectory(interface)
+
+if (BuildInterface)
+    add_subdirectory(interface)
+endif()
 
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.
