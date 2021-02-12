@@ -63,7 +63,6 @@ PYBIND11_MODULE(intelqs_py, m)
     m.def("EnvFinalize", &EnvFinalize, "Finalize the MPI environemtn fo Intel-QS");
     m.def("EnvFinalizeDummyRanks", &EnvFinalizeDummyRanks, "Finalize the dummy ranks of the MPI environment");
 
-
 //////////////////////////////////////////////////////////////////////////////
 // Utilities
 //////////////////////////////////////////////////////////////////////////////
@@ -89,6 +88,77 @@ PYBIND11_MODULE(intelqs_py, m)
 #endif
         .def("__repr__", []() { return "<RandomNumberGenerator specialized for MKL.>"; } );
 
+
+    // Chi Matrix 4x4
+    py::class_<qhipster::ChiMatrix<ComplexDP, 4, 32>>(m, "CM4x4", py::buffer_protocol())
+        .def(py::init<>())
+        .def(py::init<>())
+        // Access element:
+        .def("__getitem__", [](const qhipster::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
+             if (i.first > 4) throw py::index_error();
+             if (i.second > 4) throw py::index_error();
+std::cout << "ciao\n";
+             return a(i.first, i.second);
+             }, py::is_operator())
+        // Set element:
+        .def("__setitem__", [](qhipster::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
+             if (i.first > 4) throw py::index_error();
+             if (i.second > 4) throw py::index_error();
+             a(i.first, i.second) = value;
+             }, py::is_operator())
+#if 0
+        .def_buffer([](qhipster::ChiMatrix<ComplexDP,4,32> &m) -> py::buffer_info {
+            return py::buffer_info(
+                m.GetPtrToData(),                      /* Pointer to buffer */
+                sizeof(ComplexDP),                     /* Size of one scalar */
+                py::format_descriptor<ComplexDP>::format(), /* Python struct-style format descriptor */
+                std::size_t(2),                                      /* Number of dimensions */
+                { 4, 4 },                 /* Buffer dimensions */
+                { 4*sizeof(ComplexDP), 4 });             /* Strides (in bytes) for each index */
+        })
+#endif
+#if 0
+        .def("ApplyChannel",
+             [](QubitRegister<ComplexDP> &a, unsigned qubit,
+                py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+               py::buffer_info buf = matrix.request();
+               if (buf.ndim != 2)
+                   throw std::runtime_error("Number of dimensions must be two.");
+               if (buf.shape[0] != 4 || buf.shape[1] != 4)
+                   throw std::runtime_error("The shape of the chi-matrix is not 4x4.");
+               // Create and initialize the custom chi-matrix used by Intel QS.
+               ComplexDP *ptr = (ComplexDP *) buf.ptr;
+               CM4x4<ComplexDP> m;
+               m(0,0)=ptr[0];  m(0,1)=ptr[1];  m(0,2)=ptr[2];  m(0,3)=ptr[3];
+               m(1,0)=ptr[4];  m(1,1)=ptr[5];  m(1,2)=ptr[6];  m(1,3)=ptr[7];
+               m(2,0)=ptr[8];  m(2,1)=ptr[9];  m(2,2)=ptr[10]; m(2,3)=ptr[11];
+               m(3,0)=ptr[12]; m(3,1)=ptr[13]; m(3,2)=ptr[14]; m(3,3)=ptr[15];
+               a.ApplyChannel(qubit, m);
+             }, "Apply 1-qubit channel provided via its chi-matrix.")
+#endif
+        .def("SolveEigenSystem", &qhipster::ChiMatrix<ComplexDP,4,32>::SolveEigenSystem)
+        .def("Print", &qhipster::ChiMatrix<ComplexDP,4,32>::Print)
+        .def("__repr__", []() { return "<ChiMatrix for 1-qubit channel>"; } );
+
+    // Chi Matrix 16x16
+    py::class_<qhipster::ChiMatrix<ComplexDP,16,32>>(m, "CM16x16")
+        .def(py::init<>())
+        .def(py::init<>())
+        // Access element:
+        .def("__getitem__", [](const qhipster::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
+             if (i.first > 16) throw py::index_error();
+             if (i.second > 16) throw py::index_error();
+             return a(i.first, i.second);
+             }, py::is_operator())
+        // Set element:
+        .def("__setitem__", [](qhipster::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
+             if (i.first > 16) throw py::index_error();
+             if (i.second > 16) throw py::index_error();
+             a(i.first, i.second) = value;
+             }, py::is_operator())
+        .def("SolveEigenSystem", &qhipster::ChiMatrix<ComplexDP,16,32>::SolveEigenSystem)
+        .def("Print", &qhipster::ChiMatrix<ComplexDP,16,32>::Print)
+        .def("__repr__", []() { return "<ChiMatrix for 2-qubit channel>"; } );
 
 //////////////////////////////////////////////////////////////////////////////
 // Intel-QS
@@ -174,7 +244,7 @@ PYBIND11_MODULE(intelqs_py, m)
                if (buf.ndim != 2)
                    throw std::runtime_error("Number of dimensions must be two.");
                if (buf.shape[0] != 2 || buf.shape[1] != 2)
-                   throw std::runtime_error("Input shape is not 2x2.");
+                   throw std::runtime_error("The shape of the unitary-matrix is not 2x2.");
                // Create and initialize the custom tiny-matrix used by Intel QS.
                ComplexDP *ptr = (ComplexDP *) buf.ptr;
                TM2x2<ComplexDP> m;
@@ -184,6 +254,57 @@ PYBIND11_MODULE(intelqs_py, m)
                m(1,1)=ptr[3];
                a.ApplyControlled1QubitGate(control, qubit, m);
              }, "Apply custom controlled-1-qubit gate.")
+        // Apply 1-qubit and 2-qubit channel.
+        .def("GetOverallSignOfChannels", &QubitRegister<ComplexDP>::GetOverallSignOfChannels)
+#if 1
+        .def("ApplyChannel",
+             [](QubitRegister<ComplexDP> &a, unsigned qubit, qhipster::ChiMatrix<ComplexDP,4,32> chi) {
+               a.ApplyChannel(qubit, chi);
+             }, "Apply 1-qubit channel provided via its chi-matrix.")
+        .def("ApplyChannel",
+             [](QubitRegister<ComplexDP> &a, unsigned qubit1, unsigned qubit2,
+                qhipster::ChiMatrix<ComplexDP,16,32> chi) {
+               a.ApplyChannel(qubit1, qubit2, chi);
+             }, "Apply 2-qubit channel provided via its chi-matrix.")
+#else
+        .def("ApplyChannel",
+             [](QubitRegister<ComplexDP> &a, unsigned qubit,
+                py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+               py::buffer_info buf = matrix.request();
+               if (buf.ndim != 2)
+                   throw std::runtime_error("Number of dimensions must be two.");
+               if (buf.shape[0] != 4 || buf.shape[1] != 4)
+                   throw std::runtime_error("The shape of the chi-matrix is not 4x4.");
+               // Create and initialize the custom chi-matrix used by Intel QS.
+               ComplexDP *ptr = (ComplexDP *) buf.ptr;
+               CM4x4<ComplexDP> m;
+               m(0,0)=ptr[0];  m(0,1)=ptr[1];  m(0,2)=ptr[2];  m(0,3)=ptr[3];
+               m(1,0)=ptr[4];  m(1,1)=ptr[5];  m(1,2)=ptr[6];  m(1,3)=ptr[7];
+               m(2,0)=ptr[8];  m(2,1)=ptr[9];  m(2,2)=ptr[10]; m(2,3)=ptr[11];
+               m(3,0)=ptr[12]; m(3,1)=ptr[13]; m(3,2)=ptr[14]; m(3,3)=ptr[15];
+               a.ApplyChannel(qubit, m);
+             }, "Apply 1-qubit channel provided via its chi-matrix.")
+        .def("ApplyChannel",
+             [](QubitRegister<ComplexDP> &a, unsigned qubit1, unsigned qubit2,
+                py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+               py::buffer_info buf = matrix.request();
+               if (buf.ndim != 2)
+                   throw std::runtime_error("Number of dimensions must be two.");
+               if (buf.shape[0] != 16 || buf.shape[1] != 16)
+                   throw std::runtime_error("The shape of the chi-matrix is not 16x16.");
+               // Create and initialize the custom chi-matrix used by Intel QS.
+               ComplexDP *ptr = (ComplexDP *) buf.ptr;
+               CM16x16<ComplexDP> m;
+               int index = 0;
+               for (int i=0; i<16; ++i)
+               for (int j=0; j<16; ++j)
+               {
+                   m(i,j)=ptr[index];
+                   index += 1;
+               }
+               a.ApplyChannel(qubit1, qubit2, m);
+             }, "Apply 1-qubit channel provided via its chi-matrix.")
+#endif
         // Three-qubit gates:
         .def("ApplyToffoli", &QubitRegister<ComplexDP>::ApplyToffoli)
         // State initialization:
