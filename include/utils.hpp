@@ -25,12 +25,16 @@
 using ComplexSP = std::complex<float>;
 using ComplexDP = std::complex<double>;
 
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// Structure to extract the value type of a template.
 template<typename T>
-struct extract_value_type //lets call it extract_value_type
+struct extract_value_type
 {
     typedef T value_type;
 };
 
+// Structure to extract the value type of a template of template.
 template<template<typename> class X, typename T>
 struct extract_value_type<X<T>>   //specialization
 {

@@ -136,33 +136,37 @@ void chimatrix_testassign()
 template <class T>
 void chimatrix_testeigen()
 {
-  qhipster::ChiMatrix<T, 2> chimat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
+  qhipster::ChiMatrix<T, 2> chimat2 = {{T(1.), T(3.)}, {T(3.), T(7.)}};
   
   chimat2.SolveEigenSystem();
-  
+
+  std::cout << chimat2.GetEigenVector(0)[0] << "  " << chimat2.GetEigenVector(0)[1] << "\n";
+  std::cout << chimat2.GetEigenVector(1)[0] << "  " << chimat2.GetEigenVector(1)[1] << "\n";
+
   float precision = 1e-7;
   // Eigenvals
-  ASSERT_LT( abs(chimat2.GetEigenValue(0) - -0.37228132) , precision);
-  ASSERT_LT( abs(chimat2.GetEigenValue(1) -  5.37228132) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenValue(0) - -0.24264069) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenValue(1) -  8.24264069) , precision);
   // Eigenvec 1
-  ASSERT_LT( abs(chimat2.GetEigenVector(0)[0] - -0.82456484) , precision);
-  ASSERT_LT( abs(chimat2.GetEigenVector(0)[1] -  0.56576746) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(0)[0] - -2.69121547) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(0)[1] -  1.11473795) , precision);
   // Eigenvec 2
-  ASSERT_LT( abs(chimat2.GetEigenVector(1)[0] - -0.41597356) , precision);
-  ASSERT_LT( abs(chimat2.GetEigenVector(1)[1] - -0.90937671) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(1)[0] - -1.11473795) , precision);
+  ASSERT_LT( abs(chimat2.GetEigenVector(1)[1] - -2.69121547) , precision);
   
   /*
   Ground truth:
-  >>> A = np.array([[1.,2],[3,4]])
+  >>> A = np.array([[1.,3],[3,7]])
   >>> la.eig(A)
-  (array([-0.37228132+0.j,  5.37228132+0.j]),
-  COLUMN eigenvectors:
-  array([[-0.82456484, -0.41597356],
-         [ 0.56576746, -0.90937671]]))
+  
+  Eigenvalues: [-0.24264069+0.j  8.24264069+0.j]
+  Eigenvectors: [-0.92387953  0.38268343]  and  [-0.38268343 -0.92387953] 
+
+  This eigenvectors are already standardized, but one still needs to normalize them:
+  (normalized) Eigenvectors: [-2.69121547  1.11473795]  and  [-1.11473795 -2.69121547] 
   */
 
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 // Test macros:

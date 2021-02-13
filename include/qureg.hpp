@@ -41,12 +41,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename T>
-struct extract_value_type //lets call it extract_value_type
-{
-    typedef T value_type;
-};
-
 template<class Type>
 using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
 

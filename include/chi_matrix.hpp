@@ -116,7 +116,7 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// Temporary function to run an example while the eigensystem library is not implemented.
+  /// Utility function to run an example of noiseless 1-qubit gate as quantum channel.
   // The Hadamard gate can be written as a linear combination of Pauli matrices:
   //   H = 1/sqrt(2) (X+Z)
   // The ideal Hadamard channel is the unitary transformation:
@@ -129,10 +129,11 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
   //                | . 1 . 1 |   <-- Z
   // Its eigevalues/eigenstats are:
   // * +1 --> {0,1,0,1}/sqrt(2) 
-  // *  0 with degeneracy 3 and any set of orthgoormaal vectors like {0,1,0,-1}/sqrt(2), {1,0,0,0}, {0,0,1,0}
+  // *  0 with degeneracy 3 and any set of representative orthonormal vectors like:
+  //    {0,1,0,-1}/sqrt(2), {1,0,0,0}, {0,0,1,0}
   //
   // Here: dummy, generic implementation.
-  // Specific implementation below (otherwise problem to ionitialize value_type as {1,0}.
+  // Specific implementation below (otherwise problem to initialize value_type as {1,0}.
   void EigensystemOfIdealHadamardChannel()
   {
       std::cout << "---- dummy version of EigensystemOfIdealHadamardChannel()\n";//FIXME delete
@@ -313,7 +314,6 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
   template <> inline
   void ChiMatrix<ComplexDP, 4, 32>::EigensystemOfIdealHadamardChannel ()
   {
-std::cout << "---- specialized version of EigensystemOfIdealHadamardChannel()\n";//FIXME delete
     unsigned M=4;
     // Verify the form of the chi matrix.
     for (size_type i = 0; i < M; ++i)
@@ -336,8 +336,10 @@ std::cout << "---- specialized version of EigensystemOfIdealHadamardChannel()\n"
     evectors_[1] = {zero, elem, zero, -elem};
     evectors_[2] = { one, zero, zero,  zero};
     evectors_[3] = {zero, zero,  one,  zero};
+    // Normalize the probabilities and renormalize the eigenvectors.
+    this->NormalizeEigenProbAndRenormalizeEigenVect();
   }
-
+  
 }	// end namespace qhipster
 
 /////////////////////////////////////////////////////////////////////////////////////////

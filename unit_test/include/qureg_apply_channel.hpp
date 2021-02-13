@@ -48,7 +48,6 @@ TEST_F(ApplyQuantumChannel, IdealHadamard)
   chi(3,0) = chi(3,2) = ComplexDP(0,0);
   chi(3,1) = chi(3,3) = ComplexDP(0.5, 0);
   chi.EigensystemOfIdealHadamardChannel();
-  chi.NormalizeEigenProb();
   // Initial state |0100>
   std::size_t index = 4;
   QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
@@ -85,7 +84,6 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
               chi(i, j) = ComplexDP(p/3,0);
       }
   chi.SolveEigenSystem();
-  chi.NormalizeEigenProb();
   // Initial state |00+1>
   std::size_t index = 1;
   QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
