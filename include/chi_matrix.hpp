@@ -177,6 +177,7 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
     //   <E_k| chi |E_k> = G_k
     // and rescaling the eigenvectors according to:
     //   |E'_k> = sqrt(E_k/G_k) |E_k>
+    // We call eigenvectors |E'_k> standardized.
 
     for (int k=0; k<M; ++k)
     {
