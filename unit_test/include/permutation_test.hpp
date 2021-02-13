@@ -31,7 +31,7 @@ class PermutationTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
   }
 
@@ -46,7 +46,7 @@ class PermutationTest : public ::testing::Test
 TEST_F(PermutationTest, InitializationToIdentitylPermutation)
 {
   num_bits_ = 6;
-  Permutation permutation(num_bits_);
+  iqs::Permutation permutation(num_bits_);
   ASSERT_EQ(permutation.num_elements, num_bits_);
 
   // The permutation is initialized to the trivial one.
@@ -64,7 +64,7 @@ TEST_F(PermutationTest, InitializationToIdentitylPermutation)
 TEST_F(PermutationTest, BasicUse)
 {
   num_bits_ = 6;
-  Permutation permutation(num_bits_);
+  iqs::Permutation permutation(num_bits_);
   ASSERT_EQ(permutation.num_elements, num_bits_);
 
   // Map from program qubits to data qubits.
@@ -96,7 +96,7 @@ TEST_F(PermutationTest, ExchangeTwoElements)
 {
 
   num_bits_ = 6;
-  Permutation permutation(num_bits_);
+  iqs::Permutation permutation(num_bits_);
   map_ = {1, 2, 0, 3, 5, 4};
   permutation.SetNewPermutationFromMap(map_, "direct");
 
@@ -128,7 +128,7 @@ TEST_F(PermutationTest, ExchangeTwoElements)
 TEST_F(PermutationTest, Program2Data)
 {
   num_bits_ = 3;
-  Permutation permutation(num_bits_);
+  iqs::Permutation permutation(num_bits_);
   map_ = {0, 1, 2};
   permutation.SetNewPermutationFromMap(map_, "direct");
   std::size_t dim = (0x1 << num_bits_);
@@ -176,7 +176,7 @@ TEST_F(PermutationTest, Program2Data)
 TEST_F(PermutationTest, Data2Program)
 {
   num_bits_ = 4;
-  Permutation permutation(num_bits_);
+  iqs::Permutation permutation(num_bits_);
   map_ = {0, 1, 2, 3};
   permutation.SetNewPermutationFromMap(map_, "direct");
   std::size_t dim = (0x1 << num_bits_);
@@ -219,7 +219,7 @@ TEST_F(PermutationTest, ObtainIntemediateInverseMaps)
   num_bits_ = 8;
   std::size_t M=5;
   map_ = {0, 1, 2, 3, 4, 5, 6, 7};
-  Permutation permutation(map_, "direct");
+  iqs::Permutation permutation(map_, "direct");
   std::vector<std::size_t> target_map = {1, 5, 2, 3, 6, 0, 7, 4};
   std::vector<std::size_t> expected_int_1_imap = {1, 0, 2, 3, 4, 5, 6, 7};
   std::vector<std::size_t> expected_int_2_imap = {1, 0, 2, 3, 4, 5, 7, 6};
@@ -278,12 +278,12 @@ namespace utest
    public:
 
     std::string name;
-    Permutation p;
+    iqs::Permutation p;
     std::vector<ComplexDP> state;
     bool do_print;
   
     // Creator of the state.
-    State(Permutation p_, std::string name_, bool do_print_=true)
+    State(iqs::Permutation p_, std::string name_, bool do_print_=true)
       : p(p_), name(name_), do_print(do_print_)
     {
         state.resize(1 << p.num_elements);
@@ -292,9 +292,9 @@ namespace utest
     }
  
     // Permute the order of the entries according to the Permutation pnew.
-    void permute(Permutation pnew)
+    void permute(iqs::Permutation pnew)
     {
-        Permutation pold = p;
+        iqs::Permutation pold = p;
         assert(pnew.num_elements == pold.num_elements);
         std::vector<ComplexDP> state_new(state.size(), 0);
     
@@ -363,13 +363,13 @@ TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
 {
   num_bits_ = 3;
 
-  utest::State s(Permutation({0, 1, 2}), "s", false);
+  utest::State s(iqs::Permutation({0, 1, 2}), "s", false);
   s.print();
   // Original order:
   for (std::size_t i=0; i<(1<<num_bits_); ++i)
       ASSERT_DOUBLE_EQ(s.state[i].imag(), double(i));
 
-  Permutation p({2, 0, 1});
+  iqs::Permutation p({2, 0, 1});
 //  p.Print();
   s.permute(p);
   s.print();
@@ -391,7 +391,7 @@ TEST_F(PermutationTest, PermutationOfSpecializedStateClass)
       ASSERT_DOUBLE_EQ(i, s.state[expected_program2data[i]].imag());
   }
 
-  s.permute(Permutation({0, 1, 2}));
+  s.permute(iqs::Permutation({0, 1, 2}));
   s.print();
   // Back to original order:
   for (std::size_t i=0; i<(1<<num_bits_); ++i)

@@ -20,7 +20,7 @@ class TinyMatrixTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
   }
 
@@ -33,8 +33,8 @@ template <class T, unsigned N, unsigned M>
 void tinymatrix_testsize()
 {
   // create an aligned and an unaligned matrix
-  qhipster::TinyMatrix<T, N, M> mat;
-  qhipster::TinyMatrix<T, N, M, 32> mata;
+  iqs::TinyMatrix<T, N, M> mat;
+  iqs::TinyMatrix<T, N, M, 32> mata;
 
   ASSERT_EQ(mat.numRows(), N);
   ASSERT_EQ(mat.numCols(), M);
@@ -51,7 +51,7 @@ void tinymatrix_testsize()
       }
 
   // test const versrion
-  qhipster::TinyMatrix<T, N, M> const& matc(mat);
+  iqs::TinyMatrix<T, N, M> const& matc(mat);
 
   // test assignment
   for (unsigned i = 0; i < mat.numRows(); ++i)
@@ -61,8 +61,8 @@ void tinymatrix_testsize()
   mata = mat;
 
   // test copy and comparison
-  qhipster::TinyMatrix<T, N, M> matb = matc;
-  qhipster::TinyMatrix<T, N, M, 32> matd = matc;
+  iqs::TinyMatrix<T, N, M> matb = matc;
+  iqs::TinyMatrix<T, N, M, 32> matd = matc;
 
   ASSERT_EQ(matb, mat);
   ASSERT_EQ(matb, mata);
@@ -78,8 +78,8 @@ void tinymatrix_testsize()
       ASSERT_EQ(&mat(0, 0), mat.getPtr());
 
   // test assignments
-  qhipster::TinyMatrix<T, N, M> mate;
-  qhipster::TinyMatrix<T, N, M> matf;
+  iqs::TinyMatrix<T, N, M> mate;
+  iqs::TinyMatrix<T, N, M> matf;
   mate = matc;
   matf = matc;
   ASSERT_EQ(mat, mate);
@@ -101,12 +101,12 @@ void tinymatrix_testassign()
 {
   double init[2][2] = {{1., 2.}, {3., 4.}};
 
-  qhipster::TinyMatrix<T, 2, 2> mat = init;
+  iqs::TinyMatrix<T, 2, 2> mat = init;
   for (unsigned i = 0; i < mat.numRows(); ++i)
       for (unsigned j = 0; j < mat.numCols(); ++j)
           ASSERT_EQ(mat(i, j), 1. + 2. * i + j);
 
-  qhipster::TinyMatrix<T, 2, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
+  iqs::TinyMatrix<T, 2, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
   for (unsigned i = 0; i < mat2.numRows(); ++i)
       for (unsigned j = 0; j < mat2.numCols(); ++j)
           ASSERT_EQ(mat2(i, j), 1. + 2. * i + j);

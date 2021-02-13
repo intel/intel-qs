@@ -17,11 +17,11 @@ class UtilityMethodsTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 2^3 ranks.
-    if (qhipster::mpi::Environment::GetStateSize() > 8)
+    if (iqs::mpi::Environment::GetStateSize() > 8)
       GTEST_SKIP();
   }
 
@@ -35,9 +35,9 @@ class UtilityMethodsTest : public ::testing::Test
 
 TEST_F(UtilityMethodsTest, DifferenceOfTwoStates)
 {
-  QubitRegister<ComplexDP> psi_a (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi_a (num_qubits_,"base",0);
   std::size_t index = 4;
-  QubitRegister<ComplexDP> psi_b (num_qubits_,"base",index);
+  iqs::QubitRegister<ComplexDP> psi_b (num_qubits_,"base",index);
   // |a> = |0000>
   // |b> = |0010> = |"4">
 
@@ -102,7 +102,7 @@ TEST_F(UtilityMethodsTest, DifferenceOfTwoStates)
 TEST_F(UtilityMethodsTest, SmallUtilityFunctions)
 {
   // Method 'check_bit' of class QubitRegister should return a bool.
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   std::size_t index = 5; // 5 = 0101 in 4-bit notation
   for (unsigned position = 0; position<num_qubits_; ++position)
       if (position%2==0)

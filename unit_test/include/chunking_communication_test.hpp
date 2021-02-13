@@ -17,13 +17,13 @@ class ChunkingCommunicationTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 14-qubit state is distributed in more than 2^11 ranks.
     // In fact the MPI version needs to allocate eighth-the-local-storage for communication.
     // If the local storage is a eight amplitudes, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 2048)
+    if (iqs::mpi::Environment::GetStateSize() > 2048)
       GTEST_SKIP();
   }
 
@@ -31,8 +31,8 @@ class ChunkingCommunicationTest : public ::testing::Test
   double accepted_error_ = 1e-15;
   double accepted_error_loose_ = 1e-12;
 
-  unsigned nprocs_ = qhipster::mpi::Environment::GetStateSize();
-  unsigned log2_nprocs_ = qhipster::ilog2( qhipster::floor_power_of_two(nprocs_));
+  unsigned nprocs_ = iqs::mpi::Environment::GetStateSize();
+  unsigned log2_nprocs_ = iqs::ilog2( iqs::floor_power_of_two(nprocs_));
   std::size_t local_size_ = std::size_t(1UL << std::size_t(num_qubits_ - log2_nprocs_));
   std::size_t tmp_spacesize_half_    = local_size_/2UL;
   std::size_t tmp_spacesize_quarter_ = local_size_/4UL;
@@ -46,9 +46,9 @@ TEST_F(ChunkingCommunicationTest, Initialization)
 {
   // Consider 3 different sizes for the tmp_spacesize:
   // 1/2 (default with MPI), 1/4 , 1/8 of the local_size.
-  QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 1, tmp_spacesize_half_   );
-  QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 10200, tmp_spacesize_quarter_);
-  QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 5003, tmp_spacesize_eighth_ );
+  iqs::QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 1, tmp_spacesize_half_   );
+  iqs::QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 10200, tmp_spacesize_quarter_);
+  iqs::QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 5003, tmp_spacesize_eighth_ );
 
   // Test the norm.
   ASSERT_LE( std::abs(psi_half.ComputeNorm()-1) , accepted_error_ );
@@ -66,7 +66,7 @@ TEST_F(ChunkingCommunicationTest, Initialization)
   for (unsigned qubit=0; qubit<num_qubits_; ++qubit)
       psi_half.ApplyHadamard(qubit);
   // Verify overlap with a newly initialized state.
-  QubitRegister<ComplexDP> psi (num_qubits_, "++++", 0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "++++", 0);
   ASSERT_COMPLEX_NEAR(psi_half.ComputeOverlap(psi), ComplexDP(1,0), accepted_error_);
 }
 
@@ -76,9 +76,9 @@ TEST_F(ChunkingCommunicationTest, HadamardGate)
 {
   // Consider 3 different sizes for the tmp_spacesize:
   // 1/2 (default with MPI), 1/4 , 1/8 of the local_size.
-  QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
-  QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
-  QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
+  iqs::QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
+  iqs::QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
+  iqs::QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
 
   // Test the norm.
   ASSERT_LE( std::abs(psi_half.ComputeNorm()-1) , accepted_error_ );
@@ -106,9 +106,9 @@ TEST_F(ChunkingCommunicationTest, CustomGate)
 {
   // Consider 3 different sizes for the tmp_spacesize:
   // 1/2 (default with MPI), 1/4 , 1/8 of the local_size.
-  QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
-  QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
-  QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
+  iqs::QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
+  iqs::QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
+  iqs::QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
 
   TM2x2<ComplexDP> G;
   G(0, 0) = {0.592056606032915, 0.459533060553574}; 
@@ -137,9 +137,9 @@ TEST_F(ChunkingCommunicationTest, CnotGate)
 {
   // Consider 3 different sizes for the tmp_spacesize:
   // 1/2 (default with MPI), 1/4 , 1/8 of the local_size.
-  QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
-  QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
-  QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
+  iqs::QubitRegister<ComplexDP> psi_half    (num_qubits_, "base", 0, tmp_spacesize_half_   );
+  iqs::QubitRegister<ComplexDP> psi_quarter (num_qubits_, "base", 0, tmp_spacesize_quarter_);
+  iqs::QubitRegister<ComplexDP> psi_eighth  (num_qubits_, "base", 0, tmp_spacesize_eighth_ );
 
   // Apply CNOT on all (ordered) qubit-pairs for the highest 6 indices.
   for (unsigned q0=num_qubits_-6; q0<num_qubits_; ++q0)
@@ -165,25 +165,25 @@ TEST_F(ChunkingCommunicationTest, CnotGate)
 TEST_F(ChunkingCommunicationTest, InitializeRandomlyButSame)
 {
   // |psi> = |00>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   // random number generator
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   rng.SetSeedStreamPtrs(rng_seed);
   psi.SetRngPtr(&rng);
   //
-  int num_states = qhipster::mpi::Environment::GetNumStates();
+  int num_states = iqs::mpi::Environment::GetNumStates();
   assert (num_states==1);
   psi.Initialize("rand",num_states);
   // |psi> = |rand>
 
   // Initilize the copy: |copy> = |psi>
-  QubitRegister<ComplexDP> psi_copy (psi);
+  iqs::QubitRegister<ComplexDP> psi_copy (psi);
   ASSERT_DOUBLE_EQ(psi_copy.MaxAbsDiff(psi), 0 );
   ASSERT_DOUBLE_EQ(psi_copy.MaxL2NormDiff(psi), 0 );
   //
   // Reinitialize |copy> by generating its amplitudes.
-  qhipster::RandomNumberGenerator<double> rng_copy;
+  iqs::RandomNumberGenerator<double> rng_copy;
   rng_copy.SetSeedStreamPtrs(rng_seed);
   psi_copy.SetRngPtr(&rng_copy);
   psi_copy.Initialize("rand",num_states);
@@ -195,7 +195,7 @@ TEST_F(ChunkingCommunicationTest, InitializeRandomlyButSame)
 
 TEST_F(ChunkingCommunicationTest, Hadamard)
 {
-  QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
   psi_0.ApplyHadamard(0);
   // |psi_0> = |+0> = |q0=+> x |q1=0>
   ASSERT_NEAR( psi_0.GetProbability(0), 0.5, accepted_error_ );
@@ -206,12 +206,12 @@ TEST_F(ChunkingCommunicationTest, Hadamard)
   // |psi_0> = |10> = |q0=1> x |q1=0>
   ASSERT_NEAR( psi_0.GetProbability(0), 1. , accepted_error_ );
 
-  QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
+  iqs::QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
   psi_1.ApplyHadamard(0);
   // |psi_1> = |-0> = |q0=-> x |q1=0>
   ASSERT_NEAR( psi_1.GetProbability(0), 0.5, accepted_error_ );
 
-  QubitRegister<ComplexDP> psi_2 (num_qubits_,"base",2);
+  iqs::QubitRegister<ComplexDP> psi_2 (num_qubits_,"base",2);
   psi_2.ApplyHadamard(1);
   // |psi_2> = |0-> = |q0=0> x |q1=->
   ComplexDP amplitude = ComplexDP(1./std::sqrt(2.), 0. );
@@ -220,7 +220,7 @@ TEST_F(ChunkingCommunicationTest, Hadamard)
   ASSERT_EQ(psi_2.GetGlobalAmplitude(2),-amplitude);
   ASSERT_DOUBLE_EQ(psi_2.GetGlobalAmplitude(3).imag(), 0.);
 
-  QubitRegister<ComplexDP> psi_3 (num_qubits_,"base",3);
+  iqs::QubitRegister<ComplexDP> psi_3 (num_qubits_,"base",3);
   psi_3.ApplyHadamard(0);
   psi_3.ApplyHadamard(1);
   // |psi_3> = |--> = |q0=-> x |q1=->

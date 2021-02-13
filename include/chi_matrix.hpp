@@ -48,7 +48,7 @@
 ///       Here we include such factor as a renormalization of the eigenvectors.
 ///       We call this procedure 'renormalization'.
 
-namespace qhipster {
+namespace iqs {
 
 /// @brief A small squared matrix with dimenstion fixed at compile time.
 /// Stored as a 2d vector in row-major ordering.
@@ -341,7 +341,7 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
     this->NormalizeEigenProbAndRenormalizeEigenVect();
   }
   
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

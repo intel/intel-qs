@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////
 
   // Create the MPI environment, passing the same argument to all the ranks.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
 
   // In IQS the noise is introduced using the Stochastic Schroedinger Equation,
   // implemented via noise gates. This means that a single (noisy) quantum circuit
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 #endif
   int num_pool_states = tot_num_ranks;
 
-  // NOTE: Why didn't we use the method 'qhipster::mpi::Environment::GetPoolSize()'?
+  // NOTE: Why didn't we use the method 'iqs::mpi::Environment::GetPoolSize()'?
   //       Because the initial environment cuts the number of ranks down to the closest
   //       power of 2.
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
   // To generate random numbers, IQS provides a wrapper around VSL random number generator.
   // If MKL is not available, a standard MT19937 generator is used.
   // We need to declare the (pseudo) random number generator...
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   // ... and initialize its seed:
   std::size_t rng_seed = 77777;
   rng.SetSeedStreamPtrs( rng_seed );
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
   rng.UniformRandomNumbers( z_angles.data(), z_angles.size(), 0., M_PI, "pool");
   // Ideal (i.e. noiseless) state.
   // |psi> = |00000000>
-  QubitRegister<ComplexDP> psi(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits);
   psi.Initialize("base",0);
 
   // At this point we have 5 copies of the ideal state. One for each state in the pool.
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////
 
   // State for slow decoherence.
-  QubitRegister<ComplexDP> psi_slow(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi_slow(num_qubits);
   // One can use the same random number generator for each state or a different one.
   // Here we use the same.
   psi_slow.SetRngPtr(&rng);
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
   psi_slow.SetNoiseTimescales(T_1_slow, T_2_slow);
 
   // State for fast decoherence.
-  QubitRegister<ComplexDP> psi_fast(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi_fast(num_qubits);
   // Here too we use the same random number generator.
   psi_fast.SetRngPtr(&rng);
   // T_1 and T_2 times for fast decoherence
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
  
 // ---------------- slow decoherence
   if (my_rank==0) std::cout << "\n---- slow decoherence \n\n";
-  qhipster::mpi::PoolBarrier();
+  iqs::mpi::PoolBarrier();
   double overlap_squared_slow = 0.;
   double probability_slow = 0.;
   for (int j=0; j<num_ensemble_states/num_pool_states; j++)
@@ -233,10 +233,10 @@ int main(int argc, char **argv)
 
   // Incoherent average across the pool.
   overlap_squared_slow = env.IncoherentSumOverAllStatesOfPool<double> (overlap_squared_slow);
-  overlap_squared_slow /= double(qhipster::mpi::Environment::GetNumStates());
+  overlap_squared_slow /= double(iqs::mpi::Environment::GetNumStates());
   //
   probability_slow = env.IncoherentSumOverAllStatesOfPool<double> (probability_slow);
-  probability_slow /= double(qhipster::mpi::Environment::GetNumStates());
+  probability_slow /= double(iqs::mpi::Environment::GetNumStates());
 
   // NOTE: For the noise model considered, noise gates can be fused with each other.
   //       In fact, the overall effect on the ensemble is the same for two consecutive
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 
 // ---------------- fast decoherence
   if (my_rank==0) std::cout << "---- fast decoherence \n\n";
-  qhipster::mpi::PoolBarrier();
+  iqs::mpi::PoolBarrier();
   double overlap_squared_fast = 0.;
   double probability_fast = 0.;
   for (int j=0; j<num_ensemble_states/num_pool_states; j++)

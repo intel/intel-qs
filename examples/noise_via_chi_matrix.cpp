@@ -27,7 +27,7 @@
 int main(int argc, char **argv)
 {
   int my_rank=0, tot_num_procs=1;
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
 #ifdef INTELQS_HAS_MPI
   MPI_Comm_size(MPI_COMM_WORLD, &tot_num_procs);
 #endif
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
   if (!my_rank) std::cout << "-- Run noiseless circuit\n";
 
   // State initialization.
-  QubitRegister<ComplexDP> psi0(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi0(num_qubits);
   psi0.Initialize("base",0);
 
   // Circuit formed by Hadamard gates:
@@ -120,12 +120,12 @@ int main(int argc, char **argv)
   // Noisy circuit. 
 
   // Declare the random number generator and initialize its seed.
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   std::size_t rng_seed = 77777;
   rng.SetSeedStreamPtrs( rng_seed );
 
   // State initialization.
-  QubitRegister<ComplexDP> psi1(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi1(num_qubits);
   psi1.SetRngPtr(&rng);
 
   // Circuit formed by Hadamard gates:

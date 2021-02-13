@@ -42,21 +42,22 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Type>
-using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
+using TM2x2 = iqs::TinyMatrix<Type, 2, 2, 32>;
 
 template<class Type>
-using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
+using TM4x4 = iqs::TinyMatrix<Type, 4, 4, 32>;
 
 
 template<class Type>
-using CM4x4 = qhipster::ChiMatrix<Type, 4, 32>;
+using CM4x4 = iqs::ChiMatrix<Type, 4, 32>;
 
 template<class Type>
-using CM16x16 = qhipster::ChiMatrix<Type, 16, 32>;
+using CM16x16 = iqs::ChiMatrix<Type, 16, 32>;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-// Preparation for MPI-related performance improvement
+// Preparation for MPI-related performance improvement.
+// TODO: not yet coded
 #if 0
 /// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
 /// This is also done recording their order in a Permutation object.
@@ -70,6 +71,8 @@ using CM16x16 = qhipster::ChiMatrix<Type, 16, 32>;
 ///
 /// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
 #endif
+
+namespace iqs {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // QubitRegister class declaration
@@ -201,7 +204,7 @@ class QubitRegister
   int GetDataRank (int comm_rank) const
     { return (*state_rank_permutation)[comm_rank]; }
   int GetMyDataRank () const
-    { return this->GetDataRank(qhipster::mpi::Environment::GetStateRank()); }
+    { return this->GetDataRank(iqs::mpi::Environment::GetStateRank()); }
   int GetCommRank (int data_rank) const
     { return state_rank_permutation->Find(data_rank); }
 #endif
@@ -211,13 +214,13 @@ class QubitRegister
   bool Apply1QubitGate_helper(unsigned qubit,  TM2x2<Type> const&m,
                               std::size_t sstate_ind, std::size_t estate_ind,
                               // For spec and angle, see the description in Apply1QubitGate below
-                              qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                              iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
                               BaseType angle=0);
 
   void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m,
                        // spec argument is for specifying the gate type in spec v2
                        // GateSpec1Q::None means there is no spec v2
-                       qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                       iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
                        // angle argument should be passed with rotation gates provided with spec v2.
                        // Passed internally by the gate functions.
                        BaseType angle=0);
@@ -227,7 +230,7 @@ class QubitRegister
                                         TM2x2<Type> const&m,
                                         std::size_t sind, std::size_t eind,
                                         // For spec and angle, see the description in ApplyControlled1QubitGate below
-                                        qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                        iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
                                         BaseType angle=0);
          
   void ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
@@ -235,7 +238,7 @@ class QubitRegister
                                  // spec argument is for specifying the controlled gate type in spec v2
                                  // GateSpec1Q::None means there is no spec v2.
                                  // spec argument is passed internally by the gate functions
-                                 qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                                 iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
                                  // angle argument is used with the controlled rotation gates in spec v2,
                                  // is spec is not None. Passes internally by the gate functions.
                                  BaseType angle=0);
@@ -355,25 +358,25 @@ class QubitRegister
   double HP_Distrpair(unsigned position, TM2x2<Type> const&m,
                       // See Apply1QubitGate declaration below 
                       // for the following specialize v2 parameters
-                      qhipster::GateSpec1Q spec=qhipster::GateSpec1Q::None,
+                      iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
                       BaseType angle=0);
   double HP_Distrpair(unsigned control_position, unsigned target_position, TM2x2<Type> const&m,
                       // See ApplyControlled1QubitGate declaration below
                       // for the following specialize v2 parameters
-                      qhipster::GateSpec2Q spec=qhipster::GateSpec2Q::None,
+                      iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
                       BaseType angle=0);
   double HP_DistrSwap(unsigned low_position, unsigned high_position, TM2x2<Type> const&m);
 
   // related to the internal random number generator.
-  qhipster::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
+  iqs::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
   void ResetRngPtr () {rng_ptr_=nullptr; }
-  void SetRngPtr (qhipster::RandomNumberGenerator<BaseType> * rng_ptr) {rng_ptr_=rng_ptr; }
+  void SetRngPtr (iqs::RandomNumberGenerator<BaseType> * rng_ptr) {rng_ptr_=rng_ptr; }
   void SetSeedRngPtr (std::size_t seed)
   {assert(rng_ptr_); rng_ptr_->SetSeedStreamPtrs(seed); }
 
   // Members
   std::size_t num_qubits;
-  std::vector<Type, qhipster::AlignedAllocator<Type, 256>> state_storage;
+  std::vector<Type, iqs::AlignedAllocator<Type, 256>> state_storage;
   Type *state;
   Permutation *qubit_permutation;
   Timer *timer;
@@ -400,7 +403,7 @@ class QubitRegister
   std::size_t tmp_spacesize_;
   static bool do_print_extra_info;
 
-  qhipster::RandomNumberGenerator<BaseType> * rng_ptr_ = nullptr;
+  iqs::RandomNumberGenerator<BaseType> * rng_ptr_ = nullptr;
   BaseType T_1_;	// T_1   given in terms of the chosen time unit
   BaseType T_2_;	// T_2   given in terms of the chosen time unit
   BaseType T_phi_;	// T_phi given in terms of the chosen time unit
@@ -415,12 +418,14 @@ bool QubitRegister<Type>::do_print_extra_info = false;
 template <typename Type>
 using BaseType = typename QubitRegister<Type>::BaseType;
 
-//
+}	// end namespace iqs
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 // Derived class of QubitRegister that allows measurement of qubit gate depth.
-//
 #include "QubitRegisterMetric.hpp"
-//
+
 // Derived class of QubitRegister that automatically implements noise gates.
-//
 #include "NoisyQureg.hpp"
 
+/////////////////////////////////////////////////////////////////////////////////////////

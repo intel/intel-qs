@@ -4,6 +4,8 @@
 #include "../include/qureg.hpp"
 #include "../include/highperfkernels.hpp"
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Arbitrary two-qubit gate.
 /// @param qubit_high index of the first qubit
@@ -14,16 +16,16 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
                                           TM4x4<Type> const&m)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 
   // TODO: The general case has not been implemented yet for distributed computation.
   assert(nprocs == 1);
 
   std::size_t n = GlobalSize();
-  assert(qhipster::isPowerOf2(n));
-  assert(qubit_low < qhipster::highestBit(n));
-  assert(qubit_high < qhipster::highestBit(n));
+  assert(iqs::isPowerOf2(n));
+  assert(qubit_low < iqs::highestBit(n));
+  assert(qubit_high < iqs::highestBit(n));
   assert(qubit_low != qubit_high);
 
   unsigned position_high = (*qubit_permutation)[qubit_high];
@@ -72,3 +74,5 @@ void QubitRegister<Type>::Apply2QubitGate(unsigned const qubit_high, unsigned co
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs

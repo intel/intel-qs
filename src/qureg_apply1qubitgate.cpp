@@ -13,6 +13,8 @@
 // - 'qubit' to refer to program qubits
 /////////////////////////////////////////////////////////////////////////////////////////
 
+namespace iqs {
+
 template <class Type>
 double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m, GateSpec1Q spec, BaseType angle)
 {
@@ -21,12 +23,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
   assert(0);
 #else
   MPI_Status status;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
 
   assert(position < num_qubits);
   int strideexp = position;
-  int memexp = num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  int memexp = num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   int pstrideexp = strideexp - memexp;
 
   //  Steps:     1.         2.           3.              4.
@@ -45,16 +47,16 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
   {
       itask = myrank;
       jtask = itask + (1 << pstrideexp);
-      // s = qhipster::toString(itask) + "==>" + qhipster::toString(jtask);
+      // s = iqs::toString(itask) + "==>" + iqs::toString(jtask);
   }
   else
   {
       jtask = myrank;
       itask = jtask - (1 << pstrideexp);
-      // s = qhipster::toString(jtask) + "==>" + qhipster::toString(itask);
+      // s = iqs::toString(jtask) + "==>" + iqs::toString(itask);
   }
 
-  // qhipster::mpi::StatePrint(s, true);
+  // iqs::mpi::StatePrint(s, true);
 
   if (specialize == true)
   { 
@@ -65,11 +67,11 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
       {
           // printf("Xgate: remaping MPI rank %d <==> %d\n", jtask, itask);
           if (check_bit(glb_start, UL(position)) == 0)
-              qhipster::mpi::Environment::RemapStateRank(jtask);
+              iqs::mpi::Environment::RemapStateRank(jtask);
           else
-              qhipster::mpi::Environment::RemapStateRank(itask);
+              iqs::mpi::Environment::RemapStateRank(itask);
           TODO(Fix problem when coming here from controlled gate)
-          qhipster::mpi::StateBarrier();
+          iqs::mpi::StateBarrier();
           if (timer)
               timer->record_cm(0., 0.);
           return 0.0;
@@ -81,15 +83,15 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
           // printf("Ygate: remaping MPI rank\n");
           if (check_bit(glb_start, UL(position)) == 0)
           {
-              qhipster::mpi::Environment::RemapStateRank(jtask);
+              iqs::mpi::Environment::RemapStateRank(jtask);
               ScaleState(0UL, LocalSize(), state, Type(0, 1.0), timer);
           }
           else
           {
-              qhipster::mpi::Environment::RemapStateRank(itask);
+              iqs::mpi::Environment::RemapStateRank(itask);
               ScaleState(0UL, LocalSize(), state, Type(0, -1.0), timer);
           }
-          qhipster::mpi::StateBarrier();
+          iqs::mpi::StateBarrier();
           if (timer)
               timer->record_cm(0., 0.);
           return 0.0;
@@ -118,7 +120,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
         // 2. src sends s1 to dst into dT
         //    dst sends d2 to src into dT
         t = sec();
-        qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
+        iqs::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
                                       &(tmp_state[0]), lcl_chunk, jtask, tag2,
                                       comm, &status);
         tnet += sec() - t;
@@ -130,7 +132,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
           Loop_SN(0L, lcl_chunk, &(state[c]), tmp_state, lcl_size_half, 0L, m, specialize, timer);
 
         t = sec();
-        qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
+        iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
                                       &(state[c])    , lcl_chunk, jtask, tag4,
                                       comm, &status);
         tnet += sec() - t;
@@ -140,7 +142,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
         // 2. src sends s1 to dst into dT
         //    dst sends d2 to src into dT
         t = sec();
-        qhipster::mpi::MPI_Sendrecv_x(&(state[lcl_size_half + c]), lcl_chunk, itask, tag2,
+        iqs::mpi::MPI_Sendrecv_x(&(state[lcl_size_half + c]), lcl_chunk, itask, tag2,
                                       &(tmp_state[0])            , lcl_chunk, itask, tag1,
                                       comm, &status);
         tnet += sec() - t;
@@ -150,7 +152,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
           Loop_SN(0L, lcl_chunk, tmp_state, &(state[c]), 0L, 0L, m, specialize, timer);
 
         t = sec();
-        qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])            , lcl_chunk, itask, tag4,
+        iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])            , lcl_chunk, itask, tag4,
                                       &(state[lcl_size_half + c]), lcl_chunk, itask, tag3,
                                       comm, &status);
         tnet += sec() - t;
@@ -180,9 +182,9 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   TODO(Add diagonal special case)
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
   std::size_t P = position;
 
@@ -191,7 +193,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   bool diagonal = (m[0][1].real() == 0. && m[0][1].imag() == 0. &&
                    m[1][0].real() == 0. && m[1][0].imag() == 0.);
 
-  std::string gate_name = "SQG("+qhipster::toString(P)+")::"+m.name;
+  std::string gate_name = "SQG("+iqs::toString(P)+")::"+m.name;
 
   if (timer)
       timer->Start(gate_name, P);
@@ -275,7 +277,7 @@ void QubitRegister<Type>::Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m, G
 template <class Type>
 void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> rx;
+  iqs::TinyMatrix<Type, 2, 2, 32> rx;
   rx(0, 1) = rx(1, 0) = Type(0, -std::sin(theta / 2.));
   rx(0, 0) = rx(1, 1) = std::cos(theta / 2.);
   Apply1QubitGate(qubit, rx, GateSpec1Q::RotationX, theta);
@@ -294,7 +296,7 @@ void QubitRegister<Type>::ApplyRotationX(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> ry;
+  iqs::TinyMatrix<Type, 2, 2, 32> ry;
   ry(0, 1) = Type(-std::sin(theta / 2.), 0.);
   ry(1, 0) = Type( std::sin(theta / 2.), 0.);
   ry(0, 0) = ry(1, 1) = std::cos(theta / 2.);
@@ -314,7 +316,7 @@ void QubitRegister<Type>::ApplyRotationY(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> rz;
+  iqs::TinyMatrix<Type, 2, 2, 32> rz;
   rz(0, 0) = Type(std::cos(theta / 2.), -std::sin(theta / 2.));
   rz(1, 1) = Type(std::cos(theta / 2.), std::sin(theta / 2.));
   rz(0, 1) = rz(1, 0) = Type(0., 0.);
@@ -331,7 +333,7 @@ void QubitRegister<Type>::ApplyRotationZ(unsigned const qubit, BaseType theta)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> px;
+  iqs::TinyMatrix<Type, 2, 2, 32> px;
   px(0, 0) = Type(0., 0.);
   px(0, 1) = Type(1., 0.);
   px(1, 0) = Type(1., 0.);
@@ -349,7 +351,7 @@ void QubitRegister<Type>::ApplyPauliX(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> px;
+  iqs::TinyMatrix<Type, 2, 2, 32> px;
   px(0, 0) = Type(0.5,  0.5);
   px(0, 1) = Type(0.5, -0.5);
   px(1, 0) = Type(0.5, -0.5);
@@ -367,7 +369,7 @@ void QubitRegister<Type>::ApplyPauliSqrtX(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> py;
+  iqs::TinyMatrix<Type, 2, 2, 32> py;
   py(0, 0) = Type(0., 0.);
   py(0, 1) = Type(0., -1.);
   py(1, 0) = Type(0., 1.);
@@ -385,7 +387,7 @@ void QubitRegister<Type>::ApplyPauliY(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> py;
+  iqs::TinyMatrix<Type, 2, 2, 32> py;
   py(0, 0) = Type(0.5,   0.5);
   py(0, 1) = Type(-0.5, -0.5);
   py(1, 0) = Type(0.5,   0.5);
@@ -403,7 +405,7 @@ void QubitRegister<Type>::ApplyPauliSqrtY(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> pz;
+  iqs::TinyMatrix<Type, 2, 2, 32> pz;
   pz(0, 0) = Type(1., 0.);
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
@@ -421,7 +423,7 @@ void QubitRegister<Type>::ApplyPauliZ(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> pz;
+  iqs::TinyMatrix<Type, 2, 2, 32> pz;
   pz(0, 0) = Type(1., 0.);
   pz(0, 1) = Type(0., 0.);
   pz(1, 0) = Type(0., 0.);
@@ -441,7 +443,7 @@ void QubitRegister<Type>::ApplyPauliSqrtZ(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> h;
+  iqs::TinyMatrix<Type, 2, 2, 32> h;
   BaseType f = 1. / std::sqrt(2.);
   h(0, 0) = h(0, 1) = h(1, 0) = Type(f, 0.);
   h(1, 1) = Type(-f, 0.);
@@ -459,7 +461,7 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 template <class Type>
 void QubitRegister<Type>::ApplyT(unsigned const qubit)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> t;
+  iqs::TinyMatrix<Type, 2, 2, 32> t;
   t(0, 0) = Type(1.0, 0.0);
   t(0, 1) = Type(0.0, 0.0);
   t(1, 0) = Type(0.0, 0.0);
@@ -470,3 +472,5 @@ void QubitRegister<Type>::ApplyT(unsigned const qubit)
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs

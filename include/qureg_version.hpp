@@ -18,6 +18,6 @@
 
 #include <string>
 
-#define QHIPSTER_VERSION_STRING "SDK-RC-1.1.2"
+#define QHIPSTER_VERSION_STRING "SDK-RC-2.1.0"
 
 std::string GetQhipsterVersion(void);

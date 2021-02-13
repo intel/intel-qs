@@ -75,7 +75,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 int main(int argc, char **argv)
 {
   // Initialize the MPI environmentk, if MPI exists.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   int my_rank_id = 0;
 #ifdef INTELQS_HAS_MPI
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_id);
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
       std::cout << "\n\n";
 
   // Finalize the MPI environment.
-//  qhipster::mpi::PoolBarrier();
+//  iqs::mpi::PoolBarrier();
 //  env.~Environment();
   return result;
 }

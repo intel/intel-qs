@@ -25,10 +25,10 @@ class QuregPermuteTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
     // Number of local qubits.
-    M_ = num_qubits_ - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+    M_ = num_qubits_ - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
     
   }
 
@@ -45,7 +45,7 @@ TEST_F(QuregPermuteTest, InitialPermutation)
 {
   // Initial state |0010...0>
   std::size_t index = 4;
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
   unsigned position;
   // Verify that the qubit permutation in psi is the identity.
   for (unsigned qubit=0; qubit<num_qubits_; ++qubit)
@@ -60,7 +60,7 @@ TEST_F(QuregPermuteTest, InitialPermutation)
 TEST_F(QuregPermuteTest, PermuteLocalQubits)
 {
   // Initial state |0000...0>
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
   psi[0]=0;
   // Set a few amplitudes:
   psi.SetGlobalAmplitude(2, ComplexDP(2,0)); // 2^1
@@ -84,7 +84,7 @@ TEST_F(QuregPermuteTest, PermuteLocalQubits)
   else
   {
       psi.PermuteLocalQubits(map_, "direct");
-      if (qhipster::mpi::Environment::GetStateRank() == 0)
+      if (iqs::mpi::Environment::GetStateRank() == 0)
       {
           ASSERT_EQ(psi[2].real(), 0);
           ASSERT_EQ(psi[1].real(), 2);
@@ -94,14 +94,14 @@ TEST_F(QuregPermuteTest, PermuteLocalQubits)
           ASSERT_EQ(psi[4096].real(), 1024);
       }
       else if (M_<num_qubits_ &&
-               qhipster::mpi::Environment::GetStateRank() == (1UL << (num_qubits_-1-M_)))
+               iqs::mpi::Environment::GetStateRank() == (1UL << (num_qubits_-1-M_)))
       {
           ASSERT_EQ(psi[512].imag(), 1);
           ASSERT_EQ(psi[1024].imag(), 0);
           ASSERT_EQ(psi[4096].imag(), 2);
       }
       else if (M_<num_qubits_-1 &&
-               qhipster::mpi::Environment::GetStateRank() == (1UL << (num_qubits_-2-M_)))
+               iqs::mpi::Environment::GetStateRank() == (1UL << (num_qubits_-2-M_)))
       {
           ASSERT_EQ(psi[512].imag(), 3);
           ASSERT_EQ(psi[1024].imag(), 0);
@@ -125,7 +125,7 @@ TEST_F(QuregPermuteTest, PermuteLocalQubits)
 TEST_F(QuregPermuteTest, PermuteGlobalQubits)
 {
   // Initial state |0000...0>
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
   psi[0]=0;
   // Set a few amplitudes:
   std::vector<std::size_t> indices = {             2,              8,           1024,           4096};
@@ -159,7 +159,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
   for (unsigned i=0; i<indices.size(); ++i)
       psi.SetGlobalAmplitude(indices[i], values[i]); 
 
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   std::size_t num_global_qubits = num_qubits_-M_;
 
   if (num_global_qubits >= 4)
@@ -170,7 +170,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
       for (unsigned i=0; i<indices.size(); ++i)
           ASSERT_EQ(psi.GetGlobalAmplitude(indices[i]), values[i]);
   }
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
   if (num_global_qubits >= 3)
   {
@@ -180,7 +180,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
       for (unsigned i=0; i<indices.size(); ++i)
           ASSERT_EQ(psi.GetGlobalAmplitude(indices[i]), values[i]);
   }
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
   if (num_global_qubits >= 2)
   {
@@ -190,7 +190,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
       for (unsigned i=0; i<indices.size(); ++i)
           ASSERT_EQ(psi.GetGlobalAmplitude(indices[i]), values[i]);
   }
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ TEST_F(QuregPermuteTest, PermuteGlobalQubits)
 TEST_F(QuregPermuteTest, PermuteQubits)
 {
   // Initial state |0000...0>
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", 0);
   psi[0]=0;
   // Set a few amplitudes:                       2^1             2^3            2^10            2^12
   std::vector<std::size_t> indices = {             2,              8,           1024,           4096};
@@ -227,9 +227,9 @@ TEST_F(QuregPermuteTest, PermuteQubits)
   // Code to print extra information.
 #if 0
   std::vector<std::size_t> int_1_imap, int_2_imap;
-  std::size_t M = num_qubits_ - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = num_qubits_ - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   psi.qubit_permutation->ObtainIntemediateInverseMaps(map_, M, int_1_imap, int_2_imap);
-  if (qhipster::mpi::Environment::GetStateRank()==0)
+  if (iqs::mpi::Environment::GetStateRank()==0)
   {
     std::cout << "original inverse map:\n";
     for (unsigned pos=0; pos<num_qubits_; ++pos)

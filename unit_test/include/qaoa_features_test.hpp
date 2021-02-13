@@ -18,13 +18,13 @@ class QaoaFeaturestest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
 
     // All tests are skipped if the 6-qubit state is distributed in more than 2^5 ranks.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 32)
+    if (iqs::mpi::Environment::GetStateSize() > 32)
         GTEST_SKIP();
   }
 
@@ -51,9 +51,9 @@ TEST_F(QaoaFeaturestest, qaoa_maxcut)
                                 0, 0, 1, 0, 1, 0,
                                 0, 0, 0, 1, 0, 1,
                                 1, 0, 0, 0, 1, 0};
-  QubitRegister<ComplexDP> diag (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> diag (num_qubits_,"base",0);
   int max_cut_value;
-  max_cut_value = qaoa::InitializeVectorAsMaxCutCostFunction(diag,adjacency);
+  max_cut_value = iqs::qaoa::InitializeVectorAsMaxCutCostFunction(diag,adjacency);
 
   // Among other properties, only two bipartition has cut=0.
   ComplexDP amplitude;
@@ -66,19 +66,19 @@ TEST_F(QaoaFeaturestest, qaoa_maxcut)
       ASSERT_GT( std::abs(diag[j].real()-1.), accepted_error_);
 
   // Perform QAOA simulation (p=1).
-  QubitRegister<ComplexDP> psi  (num_qubits_,"++++",0);
+  iqs::QubitRegister<ComplexDP> psi  (num_qubits_,"++++",0);
   double gamma = 0.4;
   double beta  = 0.3;
   // Emulation of the layer based on the cost function: 
-  qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma);
+  iqs::qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma);
   // Simulation of the layer based on the local transverse field: 
   for (int qubit=0; qubit<num_qubits_; ++qubit)
       psi.ApplyRotationX(qubit, beta);
   // Get average of cut value:
-  double expectation = qaoa::GetExpectationValueFromCostFunction( psi, diag);
+  double expectation = iqs::qaoa::GetExpectationValueFromCostFunction( psi, diag);
   
   // Get histogram of the cut values:
-  std::vector<double> histo = qaoa::GetHistogramFromCostFunction(psi, diag, max_cut_value);
+  std::vector<double> histo = iqs::qaoa::GetHistogramFromCostFunction(psi, diag, max_cut_value);
   ASSERT_EQ(histo.size(), max_cut_value+1);
   double average=0;
   for (int j=0; j<histo.size(); ++j)
@@ -88,9 +88,9 @@ TEST_F(QaoaFeaturestest, qaoa_maxcut)
 #if 0
   // If the permutation of diag and psi is different, then functions should fail.
   diag.EmulateSwap(0,1);
-  EXPECT_DEATH( qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
-  EXPECT_DEATH( qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
-  EXPECT_DEATH( qaoa::GetHistogramFromCostFunction(psi, diag, max_cut_value), "" );
+  EXPECT_DEATH( iqs::qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
+  EXPECT_DEATH( iqs::qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
+  EXPECT_DEATH( iqs::qaoa::GetHistogramFromCostFunction(psi, diag, max_cut_value), "" );
 #endif
 }
 
@@ -112,9 +112,9 @@ TEST_F(QaoaFeaturestest, qaoa_weighted_maxcut)
                                    0  , 0  , 1.4, 0  , 1  , 0  ,
                                    0  , 0  , 0  , 1  , 0  , 1  ,
                                    1.4, 0  , 0  , 0  , 1  , 0  };
-  QubitRegister<ComplexDP> diag (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> diag (num_qubits_,"base",0);
   double max_cut_value;
-  max_cut_value = qaoa::InitializeVectorAsWeightedMaxCutCostFunction(diag,adjacency);
+  max_cut_value = iqs::qaoa::InitializeVectorAsWeightedMaxCutCostFunction(diag,adjacency);
 
   // Among other properties, only two bipartition has cut=0.
   ComplexDP amplitude;
@@ -140,19 +140,19 @@ TEST_F(QaoaFeaturestest, qaoa_weighted_maxcut)
       ASSERT_GT( std::abs(diag[j].real()-1.), accepted_error_);
 
   // Perform QAOA simulation (p=1).
-  QubitRegister<ComplexDP> psi  (num_qubits_,"++++",0);
+  iqs::QubitRegister<ComplexDP> psi  (num_qubits_,"++++",0);
   double gamma = 0.4;
   double beta  = 0.3;
   // Emulation of the layer based on the cost function: 
-  qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma);
+  iqs::qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma);
   // Simulation of the layer based on the local transverse field: 
   for (int qubit=0; qubit<num_qubits_; ++qubit)
       psi.ApplyRotationX(qubit, beta);
   // Get average of cut value:
-  double expectation = qaoa::GetExpectationValueFromCostFunction(psi, diag);
+  double expectation = iqs::qaoa::GetExpectationValueFromCostFunction(psi, diag);
   
   // Histogram for rounded cutvals and check if it matches expval to the tolerance.
-  std::vector<double> histo = qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value);
+  std::vector<double> histo = iqs::qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value);
   ASSERT_EQ(histo.size(), (int)(floor(max_cut_value))+1);
   double average=0;
   for (int j=0; j<histo.size(); ++j)
@@ -162,7 +162,7 @@ TEST_F(QaoaFeaturestest, qaoa_weighted_maxcut)
     
   // Histogram for rounded cutvals and check if it matches expval to the tolerance.
   double bin_width = 0.1;
-  std::vector<double> histo2 = qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width);
+  std::vector<double> histo2 = iqs::qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width);
   ASSERT_EQ(histo2.size(), (int)(ceil(max_cut_value / bin_width)) + 1);
   average = 0.0;
   for (int j=0; j<histo2.size(); ++j)
@@ -173,10 +173,10 @@ TEST_F(QaoaFeaturestest, qaoa_weighted_maxcut)
 #if 0
   // If the permutation of diag and psi is different, then functions should fail.
   diag.EmulateSwap(0,1);
-  EXPECT_DEATH( qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
-  EXPECT_DEATH( qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
-  EXPECT_DEATH( qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value), "" );
-  EXPECT_DEATH( qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width), "" );
+  EXPECT_DEATH( iqs::qaoa::ImplementQaoaLayerBasedOnCostFunction(psi, diag, gamma), "" );
+  EXPECT_DEATH( iqs::qaoa::GetExpectationValueFromCostFunction( psi, diag), "" );
+  EXPECT_DEATH( iqs::qaoa::GetHistogramFromCostFunctionWithWeightsRounded(psi, diag, max_cut_value), "" );
+  EXPECT_DEATH( iqs::qaoa::GetHistogramFromCostFunctionWithWeightsBinned(psi, diag, max_cut_value, bin_width), "" );
 #endif
 }
 

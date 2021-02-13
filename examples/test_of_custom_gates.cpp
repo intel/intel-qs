@@ -23,7 +23,7 @@
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   unsigned myrank = env.GetStateRank();
 
@@ -69,8 +69,8 @@ int main(int argc, char **argv)
 // Initialize the qubit register in state |A>, then apply the custom one-qubit gate G
 // to each qubit sequentially.
 
-  QubitRegister<ComplexDP> psi_A(num_qubits, "base", 0);
-//  QubitRegister<ComplexDP> psi_A(num_qubits, "rand", -1);
+  iqs::QubitRegister<ComplexDP> psi_A(num_qubits, "base", 0);
+//  iqs::QubitRegister<ComplexDP> psi_A(num_qubits, "rand", -1);
 
   // with specialization
   psi_A.TurnOnSpecialize();
@@ -107,13 +107,13 @@ int main(int argc, char **argv)
       }
   }
 
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(7777);
-  QubitRegister<ComplexDP> psi_B(num_qubits, "base", 0 );
+  iqs::QubitRegister<ComplexDP> psi_B(num_qubits, "base", 0 );
   psi_B.SetRngPtr(&rnd_generator);
   psi_B.Initialize("rand",1);
 
-  QubitRegister<ComplexDP> psi_C(psi_B);
+  iqs::QubitRegister<ComplexDP> psi_C(psi_B);
 
   {
     // no specialization

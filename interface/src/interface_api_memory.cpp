@@ -8,7 +8,7 @@ using namespace std;
 
 // Global variables related to Psi-function .malloc/.free routines.
 using Type = ComplexDP;
-extern QubitRegister<Type> *psi1;
+extern iqs::QubitRegister<Type> *psi1;
 extern bool fPsiAllocated;
 
 
@@ -35,7 +35,7 @@ unsigned long qumalloc(string args) {
 
     // Ensure wavefunction register is in the allowed range.
     if ((num_qubits > 0) && (num_qubits <= 43)) {
-        psi1 = new QubitRegister<Type>(num_qubits);
+        psi1 = new iqs::QubitRegister<Type>(num_qubits);
 
         if (psi1) {
             (*psi1)[0] = 1;

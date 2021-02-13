@@ -12,7 +12,7 @@ double time_in_seconds(void)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void qhipster::WhatCompileDefinitions()
+void iqs::WhatCompileDefinitions()
 {
 std::cout << "Compiler flags:\n"
 

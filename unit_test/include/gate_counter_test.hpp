@@ -17,7 +17,7 @@ class GateCounterTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // Hadamard gate defined via its matrix representation.
@@ -48,10 +48,10 @@ class GateCounterTest : public ::testing::Test
 
 TEST_F(GateCounterTest, OnlyOneQubitGates)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   // Initilize state randomly.
   std::size_t rng_seed = 977;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   psi.SetRngPtr(&rnd_generator);
   psi.Initialize("rand",1);
@@ -83,7 +83,7 @@ TEST_F(GateCounterTest, ProvidedTwoQubitGates)
 {
   int expected_counter = 0;
   // |psi> = |1010010000> = |"1+4+32">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32);
   psi.EnableStatistics();
   for(int control = 0; control < num_qubits_; control++)
   {
@@ -133,12 +133,12 @@ TEST_F(GateCounterTest, ProvidedTwoQubitGates)
 TEST_F(GateCounterTest, CustomTwoQubitGates)
 {
   // Arbitrary two-qubit gates are implemented only when StateSize=1.
-  if (qhipster::mpi::Environment::GetStateSize() > 1)
+  if (iqs::mpi::Environment::GetStateSize() > 1)
       GTEST_SKIP();
 
   int expected_counter = 0;
   // |psi> = |1010010000> = |"1+4+32">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32);
   psi.EnableStatistics();
   psi.Apply2QubitGate(7,1,D_);
   expected_counter +=1;
@@ -152,7 +152,7 @@ TEST_F(GateCounterTest, ToffoliGate)
   GTEST_SKIP(); // FIXME: to check if action error comes from memory limits
   // |psi> = |0000000000> = |"0">
   std::cout << "Checkpoint A\n"; // FIXME: to check origin of github action error
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   // TODO: this test creates problem to the "C++ build with CMake" action in github
   //       despite it runs fine locally. It is difficult to debug since github
   //       actions cannot be manually triggered yet.

@@ -5,8 +5,9 @@
 #include "../include/highperfkernels.hpp"
 #include "../include/spec_kernels.hpp"
 
-using qhipster::ConvertSpec2to1;
+using iqs::ConvertSpec2to1;
 
+namespace iqs {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // General comment.
@@ -30,12 +31,12 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
   assert(0);
 #else
   MPI_Status status;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
 
   assert(target_position < num_qubits);
   assert(control_position < num_qubits);
-  std::size_t M = num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   std::size_t C = UL(control_position), T = UL(target_position);
   // Used when C < M <= T
 
@@ -98,7 +99,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             // 2. src sends s1 to dst into dT
             //    dst sends d2 to src into dT
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
+            iqs::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
                                           &(tmp_state[0]), lcl_chunk, jtask, tag2,
                                           comm, &status);
             tnet += sec() - t;
@@ -121,7 +122,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             }
     
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
+            iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
                                           &(state[c])    , lcl_chunk, jtask, tag4,
                                           comm, &status);
             tnet += sec() - t;
@@ -131,7 +132,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             // 2. src sends s1 to dst into dT
             //    dst sends d2 to src into dT
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(state[lcl_size_half+c]), lcl_chunk, itask, tag2,
+            iqs::mpi::MPI_Sendrecv_x(&(state[lcl_size_half+c]), lcl_chunk, itask, tag2,
                                           &(tmp_state[0])          , lcl_chunk, itask, tag1,
                                           comm, &status);
             tnet += sec() - t;
@@ -148,7 +149,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             }
 
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
+            iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
                                           &(state[lcl_size_half+c]), lcl_chunk, itask, tag3,
                                           comm, &status);
             tnet += sec() - t;
@@ -167,7 +168,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             // 2. src sends s1 to dst into dT
             //    dst sends d2 to src into dT
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
+            iqs::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
                                           &(tmp_state[0]), lcl_chunk, jtask, tag2,
                                           comm, &status);
             tnet += sec() - t;
@@ -181,7 +182,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
                       m, specialize, timer);
 
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
+            iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
                                           &(state[c])    , lcl_chunk, jtask, tag4,
                                           comm, &status);
             tnet += sec() - t;
@@ -191,7 +192,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
             // 2. src sends s1 to dst into dT
             //    dst sends d2 to src into dT
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(state[lcl_size_half+c]), lcl_chunk, itask, tag2,
+            iqs::mpi::MPI_Sendrecv_x(&(state[lcl_size_half+c]), lcl_chunk, itask, tag2,
                                           &(tmp_state[0])          , lcl_chunk, itask, tag1,
                                           comm, &status);
             tnet += sec() - t;
@@ -203,7 +204,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
                       m, specialize, timer);
 
             t = sec();
-            qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
+            iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_chunk, itask, tag4,
                                           &(state[lcl_size_half+c]), lcl_chunk, itask, tag3,
                                           comm, &status);
             tnet += sec() - t;
@@ -242,9 +243,9 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
 #endif
   unsigned M = num_qubits - log2_nprocs;
   bool HasDoneWork = false;
@@ -254,7 +255,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
   bool diagonal = (m[0][1].real() == 0. && m[0][1].imag() == 0. &&
                    m[1][0].real() == 0. && m[1][0].imag() == 0.);
   
-  std::string gate_name = "CSQG("+qhipster::toString(C)+","+qhipster::toString(T)+")::"+m.name;
+  std::string gate_name = "CSQG("+iqs::toString(C)+","+iqs::toString(T)+")::"+m.name;
 
   if (timer) timer->Start(gate_name, C, T);
 
@@ -265,7 +266,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
       m[1][0].real() == 0. && m[1][0].imag() == 0.)
   {
       Type one = Type(1., 0.);
-      qhipster::TinyMatrix<Type, 4, 4, 32> md;
+      iqs::TinyMatrix<Type, 4, 4, 32> md;
       md(0, 0) = Type(1., 0.);
       md(1, 1) = Type(1., 0.);
       md(2, 2) = m[0][0];
@@ -374,7 +375,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
             HasDoneWork = true;
           } else {
               TODO(Way to fix problem with X and Y specializaion)
-              // qhipster::mpi::Environment::RemapStateRank(myrank);
+              // iqs::mpi::Environment::RemapStateRank(myrank);
           }
       }
       else if (C < M && T >= M)
@@ -457,7 +458,7 @@ void QubitRegister<Type>::ApplyControlled1QubitGate(unsigned control_qubit, unsi
 template <class Type>
 void QubitRegister<Type>::ApplyCRotationX(unsigned const control, unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> rx;
+  iqs::TinyMatrix<Type, 2, 2, 32> rx;
   rx(0, 1) = rx(1, 0) = Type(0, -std::sin(theta / 2.));
   rx(0, 0) = rx(1, 1) = Type(std::cos(theta / 2.), 0);
   ApplyControlled1QubitGate(control, qubit, rx, GateSpec2Q::CRotationX, theta);
@@ -477,7 +478,7 @@ void QubitRegister<Type>::ApplyCRotationX(unsigned const control, unsigned const
 template <class Type>
 void QubitRegister<Type>::ApplyCRotationY(unsigned const control, unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> ry;
+  iqs::TinyMatrix<Type, 2, 2, 32> ry;
   ry(0, 1) = Type(-std::sin(theta / 2.), 0.);
   ry(1, 0) = Type( std::sin(theta / 2.), 0.);
   ry(0, 0) = ry(1, 1) = Type(std::cos(theta / 2.), 0);
@@ -498,7 +499,7 @@ void QubitRegister<Type>::ApplyCRotationY(unsigned const control, unsigned const
 template <class Type>
 void QubitRegister<Type>::ApplyCRotationZ(unsigned const control, unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> rz;
+  iqs::TinyMatrix<Type, 2, 2, 32> rz;
   rz(0, 0) = Type(std::cos(theta / 2.), -std::sin(theta / 2.));
   rz(1, 1) = Type(std::cos(theta / 2.), std::sin(theta / 2.));
   rz(0, 1) = rz(1, 0) = Type(0., 0.);
@@ -609,7 +610,7 @@ void QubitRegister<Type>::ApplyCHadamard(unsigned const control, unsigned const 
 template <class Type>
 void QubitRegister<Type>::ApplyCPhaseRotation(unsigned const control, unsigned const qubit, BaseType theta)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> phase_gate;
+  iqs::TinyMatrix<Type, 2, 2, 32> phase_gate;
   phase_gate(0, 1) = phase_gate(1, 0) = Type(0, 0);
   phase_gate(0, 0) = Type(1,0);
   phase_gate(1, 1) = Type(std::cos(theta), std::sin(theta));
@@ -620,3 +621,5 @@ void QubitRegister<Type>::ApplyCPhaseRotation(unsigned const control, unsigned c
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs

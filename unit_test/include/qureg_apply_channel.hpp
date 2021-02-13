@@ -17,17 +17,17 @@ class ApplyQuantumChannel : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 2^3 ranks.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 8)
+    if (iqs::mpi::Environment::GetStateSize() > 8)
         GTEST_SKIP();
 
-    std::cout << "state_rank_id = " << qhipster::mpi::Environment::GetStateRank() << "\n";//FIXME delete
-    qhipster::mpi::StateBarrier();
+    std::cout << "state_rank_id = " << iqs::mpi::Environment::GetStateRank() << "\n";//FIXME delete
+    iqs::mpi::StateBarrier();
   }
 
   const std::size_t num_qubits_ = 4;
@@ -50,10 +50,10 @@ TEST_F(ApplyQuantumChannel, IdealHadamard)
   chi.EigensystemOfIdealHadamardChannel();
   // Initial state |0100>
   std::size_t index = 4;
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
   // The application of quantum channels requires associating a RNG to psi.
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   psi.SetRngPtr(&rnd_generator);
   // Apply Hadamard on qubit 2, twice.
@@ -86,11 +86,11 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
   chi.SolveEigenSystem();
   // Initial state |00+1>
   std::size_t index = 1;
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
   psi.ApplyHadamard(1);
   // The application of quantum channels requires associating a RNG to psi.
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   psi.SetRngPtr(&rnd_generator);
   // Keepng the qubits idle, apply the depolarizing channel 300 times per qubit. 
@@ -100,7 +100,7 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
   std::vector<double> overlap_squared (num_time_steps);
   for (int s=0; s<num_ensemble_states; ++s)
   {
-      QubitRegister<ComplexDP> psi_s(psi);
+      iqs::QubitRegister<ComplexDP> psi_s(psi);
       overlap_squared[0] += std::norm( psi_s.ComputeOverlap(psi) );
       for (int t=1; t<num_time_steps; ++t)
       {

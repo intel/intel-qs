@@ -9,6 +9,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+namespace iqs {
+
 /// @brief SWAP gate
 /// @param qubit1 index of the first qubit
 /// @param qubit2 index of the second qubit
@@ -21,7 +23,7 @@
 template <class Type>
 void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> notg;
+  iqs::TinyMatrix<Type, 2, 2, 32> notg;
   notg(0, 0) = notg(1, 1) = {0, 0};
   notg(0, 1) = notg(1, 0) = {1, 0};
 #if 0
@@ -50,7 +52,7 @@ void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
 template <class Type>
 void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> g;
+  iqs::TinyMatrix<Type, 2, 2, 32> g;
   g(0, 0) = g(1, 1) = {0, 0};
   g(0, 1) = g(1, 0) = {0, 1};
   ApplySwap_helper(qubit1, qubit2, g);
@@ -69,7 +71,7 @@ void QubitRegister<Type>::ApplyISwap(unsigned qubit1, unsigned qubit2)
 template <class Type>
 void QubitRegister<Type>::ApplySqrtISwap(unsigned qubit1, unsigned qubit2)
 {
-  qhipster::TinyMatrix<Type, 2, 2, 32> g;
+  iqs::TinyMatrix<Type, 2, 2, 32> g;
   BaseType f = 1. / std::sqrt(2.);
   g(0, 0) = g(1, 1) = Type(f, 0);
   g(0, 1) = g(1, 0) = Type(0, f);
@@ -107,7 +109,7 @@ void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
   Type f0(a - b);
   Type f1(a + b);
 
-  qhipster::TinyMatrix<Type, 2, 2, 32> g;
+  iqs::TinyMatrix<Type, 2, 2, 32> g;
   g(0, 0) = f0;
   g(0, 1) = f1;
   g(1, 0) = f1;
@@ -155,9 +157,9 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   }
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
   // Consider the size of the local part of the state and of temporary buffers.
@@ -180,7 +182,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   std::size_t delta_1 = 1 << position_1 ;
   std::size_t delta_2 = 1 << position_2;
 
-  std::string gate_name = "TQG("+qhipster::toString(position_1)+","+qhipster::toString(position_2)+")::"+m.name;
+  std::string gate_name = "TQG("+iqs::toString(position_1)+","+iqs::toString(position_2)+")::"+m.name;
 
   if (timer)
       timer->Start(gate_name, position_1, position_2);
@@ -234,7 +236,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
 #ifndef INTELQS_HAS_MPI
     assert(0);
 #else
-    MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+    MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
     MPI_Status status;
     // HP_Distrpair(qubit1, qubit2);
 
@@ -280,7 +282,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
             assert((dst_glb_start % LocalSize()) == 0);
             itask = myrank;
             jtask = dst_glb_start / LocalSize();
-            // qhipster::mpi::Environment::RemapStateRank(jtask);
+            // iqs::mpi::Environment::RemapStateRank(jtask);
             assert(jtask > myrank);
             assert(jtask == myrank - (1UL << (position_1-M)) + (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
@@ -293,7 +295,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
             assert((dst_glb_start % LocalSize()) == 0);
             jtask = myrank;
             itask = dst_glb_start / LocalSize();
-            // qhipster::mpi::Environment::RemapStateRank(itask);
+            // iqs::mpi::Environment::RemapStateRank(itask);
             assert(itask < myrank);
             assert(jtask == myrank + (1UL << (position_1-M)) - (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
             // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
@@ -302,7 +304,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
         {
             // early return if no rank permutation
             return true;
-            //qhipster::mpi::Environment::RemapStateRank(myrank);
+            //iqs::mpi::Environment::RemapStateRank(myrank);
         }
     }
 
@@ -318,7 +320,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
        t = sec();
    
        std::size_t start_ind = (qubit1 + 1 != M) ? 0 : lcl_size_half;
-       qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, jtask, tag1,
+       iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, jtask, tag1,
                                      &(tmp_state[0])    , lcl_size_half, jtask, tag2,
                                      comm, &status);
 
@@ -347,7 +349,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
        t = sec();
        if (qubit1 + 1 != M)
        {
-         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half, jtask, tag1,
+         iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half, jtask, tag1,
                                        &(state[0])    , lcl_size_half, jtask, tag2,
                                        comm, &status);
        }
@@ -361,7 +363,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
        //    dst sends d2 to src into dT
        t = sec();
        std::size_t start_ind = (qubit1 + 1 == M) ? 0 : lcl_size_half;
-       qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
+       iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
                                      &(tmp_state[0])    , lcl_size_half, itask, tag1,
                                      comm, &status);
        tnet += sec() - t;
@@ -388,7 +390,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
 
        t = sec();
        if(qubit1 + 1 != M) {
-         qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])        , lcl_size_half, itask, tag2,
+         iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])        , lcl_size_half, itask, tag2,
                                        &(state[lcl_size_half]), lcl_size_half, itask, tag1,
                                        comm, &status);
        }
@@ -409,12 +411,12 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
     if(check_bit(glb_start, qubit2) == 0)
     {
        printf("%d ==> %d\n", myrank, myrank + (1 << (qubit2 - M)));
-       qhipster::mpi::Environment::RemapStateRank(myrank + (1 << (qubit2 - M)));
+       iqs::mpi::Environment::RemapStateRank(myrank + (1 << (qubit2 - M)));
     }
     else
     {
        printf("%d ==> %d\n", myrank, myrank - (1 << (qubit2 - M)));
-       qhipster::mpi::Environment::RemapStateRank(myrank - (1 << (qubit2 - M)));
+       iqs::mpi::Environment::RemapStateRank(myrank - (1 << (qubit2 - M)));
     }
     printf("here2\n");
 #endif
@@ -437,10 +439,10 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
   assert(0);
 #else
   MPI_Status status;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
 
-  std::size_t M = num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   std::size_t L = UL(low_position), H = UL(high_position);
   // Used when L < H and H >= M, while L may be < or >= M.
 
@@ -513,7 +515,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
                   // When L+1=M we can avoid a cycle of communication.
                   // In this special case, irank exchanges the second half (L=1, H=0) and jrank the first half (L=0, H=1).
                   std::size_t start_ind = (L != M-1) ? c : lcl_size_half+c;
-                  qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_chunk, jtask, tag1,
+                  iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_chunk, jtask, tag1,
                                                 &(tmp_state[0])    , lcl_chunk, jtask, tag2,
                                                 comm, &status);
                   tnet += sec() - t;
@@ -532,7 +534,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
                   t = sec();
                   if (L != M-1)
                   {
-                      qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])    , lcl_chunk, jtask, tag3,
+                      iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])    , lcl_chunk, jtask, tag3,
                                                     &(state[start_ind]), lcl_chunk, jtask, tag4,
                                                     comm, &status);
                   }
@@ -547,7 +549,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
                   // When L+1=M we can avoid a cycle of communication.
                   // In this special case, irank exchanges the second half (L=1, H=0) and jrank the first half (L=0, H=1).
                   std::size_t start_ind = (L != M-1) ? lcl_size_half+c : c;
-                  qhipster::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
+                  iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
                                                 &(tmp_state[0])    , lcl_size_half, itask, tag1,
                                                 comm, &status);
                   tnet += sec() - t;
@@ -566,7 +568,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
                   t = sec();
                   if (L != M-1)
                   {
-                      qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])    , lcl_size_half, itask, tag4,
+                      iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])    , lcl_size_half, itask, tag4,
                                                     &(state[start_ind]), lcl_size_half, itask, tag3,
                                                     comm, &status);
                   }
@@ -620,7 +622,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
               // 2. src sends s1 to dst into dT
               //    dst sends d2 to src into sT
               t = sec();
-              qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
+              iqs::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, jtask, tag1,
                                             &(tmp_state[0]), lcl_chunk, jtask, tag2,
                                             comm, &status);
               tnet += sec() - t;
@@ -632,7 +634,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
               // 4. src sends sT to dst into d2
               //    dst sends dT to src into s1
               t = sec();
-              qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
+              iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_chunk, jtask, tag3,
                                             &(state[c])    , lcl_chunk, jtask, tag4,
                                             comm, &status);
               tnet += sec() - t;
@@ -642,7 +644,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
               // 2. src sends s1 to dst into dT
               //    dst sends d2 to src into sT
               t = sec();
-              qhipster::mpi::MPI_Sendrecv_x(&(state[c+lcl_size_half]), lcl_size_half, itask, tag2,
+              iqs::mpi::MPI_Sendrecv_x(&(state[c+lcl_size_half]), lcl_size_half, itask, tag2,
                                             &(tmp_state[0])          , lcl_size_half, itask, tag1,
                                             comm, &status);
               tnet += sec() - t;
@@ -653,7 +655,7 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
               // 4. src sends sT to dst into d2
               //    dst sends dT to src into s1
               t = sec();
-              qhipster::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_size_half, itask, tag4,
+              iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])          , lcl_size_half, itask, tag4,
                                             &(state[lcl_size_half+c]), lcl_size_half, itask, tag3,
                                             comm, &status);
               tnet += sec() - t;
@@ -684,5 +686,7 @@ void QubitRegister<Type>::DebugSwap(unsigned b1, unsigned b2)
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

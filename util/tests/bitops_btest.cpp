@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: namespace changed from openqu to qhipster
+// FIXME: namespace changed from openqu to iqs
 // FIXME: most of the code is not necessary
 
 /// @file bitops_test.cpp
@@ -29,22 +29,22 @@
 
 BOOST_AUTO_TEST_CASE(highestBit)
 {
-  BOOST_CHECK(qhipster::highestBit(1) == 0);
-  BOOST_CHECK(qhipster::highestBit(2) == 1);
-  BOOST_CHECK(qhipster::highestBit(3) == 1);
-  BOOST_CHECK(qhipster::highestBit(4) == 2);
-  BOOST_CHECK(qhipster::highestBit(std::numeric_limits<int>::max()) == 30);
-  BOOST_CHECK(qhipster::highestBit(std::numeric_limits<unsigned>::max()) == 31);
+  BOOST_CHECK(iqs::highestBit(1) == 0);
+  BOOST_CHECK(iqs::highestBit(2) == 1);
+  BOOST_CHECK(iqs::highestBit(3) == 1);
+  BOOST_CHECK(iqs::highestBit(4) == 2);
+  BOOST_CHECK(iqs::highestBit(std::numeric_limits<int>::max()) == 30);
+  BOOST_CHECK(iqs::highestBit(std::numeric_limits<unsigned>::max()) == 31);
 }
 
 BOOST_AUTO_TEST_CASE(isPowerOf2)
 {
-  BOOST_CHECK(!qhipster::isPowerOf2(0));
-  BOOST_CHECK(qhipster::isPowerOf2(1));
-  BOOST_CHECK(qhipster::isPowerOf2(2));
-  BOOST_CHECK(!qhipster::isPowerOf2(3));
-  BOOST_CHECK(qhipster::isPowerOf2(4));
-  BOOST_CHECK(!qhipster::isPowerOf2(std::numeric_limits<int>::max()));
+  BOOST_CHECK(!iqs::isPowerOf2(0));
+  BOOST_CHECK(iqs::isPowerOf2(1));
+  BOOST_CHECK(iqs::isPowerOf2(2));
+  BOOST_CHECK(!iqs::isPowerOf2(3));
+  BOOST_CHECK(iqs::isPowerOf2(4));
+  BOOST_CHECK(!iqs::isPowerOf2(std::numeric_limits<int>::max()));
 }
 #endif
 int main(void) {

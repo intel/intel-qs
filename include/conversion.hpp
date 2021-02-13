@@ -26,7 +26,7 @@
 #include <sstream>
 #include <string>
 
-namespace qhipster {
+namespace iqs {
 
 /// @brief convert to a string
 ///
@@ -42,7 +42,7 @@ std::string toString(T const& val)
   return os.str();
 }
 
-}	// namespace qhipster
+}	// namespace iqs
 
 /// @}*/
 

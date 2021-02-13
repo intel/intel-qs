@@ -10,13 +10,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
-namespace qaoa
-{
+namespace iqs {
 
-/////////////////////////////////////////////////////////////////////////////////////////
+namespace qaoa {
 
-namespace utility
-{
+namespace utility {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +96,7 @@ int InitializeVectorAsMaxCutCostFunction(QubitRegister<Type> & diag,
   // Therefore:
   //   num_cut_edges = ( num_edges - x^T.ADJ.x /2 ) /2 
  
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   std::size_t glb_start = UL(myrank) * diag.LocalSize();
   int max_cut = 0;
 
@@ -138,7 +136,7 @@ int InitializeVectorAsMaxCutCostFunction(QubitRegister<Type> & diag,
 
 #ifdef INTELQS_HAS_MPI
   int lcl_max_cut = max_cut;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   MPI_Allreduce(&lcl_max_cut, &max_cut, 1, MPI_INT, MPI_MAX, comm);
 #endif
 
@@ -190,7 +188,7 @@ InitializeVectorAsWeightedMaxCutCostFunction(QubitRegister<Type> & diag,
   // Therefore:
   //   weight_cut_edges = ( total_weight - x^T.ADJ.x /2 ) /2 
  
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   std::size_t glb_start = UL(myrank) * diag.LocalSize();
   BaseType max_cut = 0;
 
@@ -233,8 +231,8 @@ InitializeVectorAsWeightedMaxCutCostFunction(QubitRegister<Type> & diag,
 
 #ifdef INTELQS_HAS_MPI
   BaseType lcl_max_cut = max_cut;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&lcl_max_cut, &max_cut, 1, MPI_MAX, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&lcl_max_cut, &max_cut, 1, MPI_MAX, comm);
 #endif
 
   return max_cut;
@@ -288,8 +286,8 @@ GetExpectationValueFromCostFunction(const QubitRegister<Type> & psi,
   }
 
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&local_expectation, &global_expectation, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&local_expectation, &global_expectation, 1, MPI_SUM, comm);
 #else
   global_expectation = local_expectation;
 #endif
@@ -319,8 +317,8 @@ GetExpectationValueSquaredFromCostFunction(const QubitRegister<Type> & psi,
   }
 
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&local_expectation, &global_expectation, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&local_expectation, &global_expectation, 1, MPI_SUM, comm);
 #else
   global_expectation = local_expectation;
 #endif
@@ -348,7 +346,7 @@ GetHistogramFromCostFunction( const QubitRegister<Type> & psi,
   assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
-  int my_rank = qhipster::mpi::Environment::GetStateRank();
+  int my_rank = iqs::mpi::Environment::GetStateRank();
 
   // Histogram of the specific MPI (state) rank.
   Basetype local_hist[max_value+1] ;	// Initialize all elements to 0 (only with C++)
@@ -384,8 +382,8 @@ GetHistogramFromCostFunction( const QubitRegister<Type> & psi,
   std::vector<Basetype> global_hist(max_value+1,0);
 #ifdef INTELQS_HAS_MPI
   // Sum local histograms into (state) global histogram.
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), max_value+1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), max_value+1, MPI_SUM, comm);
 #else
   for ( int n=0; n<=max_value; ++n)
       global_hist[n]=local_hist[n];
@@ -416,7 +414,7 @@ GetHistogramFromCostFunctionWithWeightsRounded( const QubitRegister<Type> & psi,
   assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
-  int my_rank = qhipster::mpi::Environment::GetStateRank();
+  int my_rank = iqs::mpi::Environment::GetStateRank();
 
   // Histogram of the specific MPI (state) rank.
   int num_bins = (int)(floor(max_value))+1;
@@ -453,8 +451,8 @@ GetHistogramFromCostFunctionWithWeightsRounded( const QubitRegister<Type> & psi,
   std::vector<Basetype> global_hist(num_bins, 0);
 #ifdef INTELQS_HAS_MPI
   // Sum local histograms into (state) global histogram.
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
 #else
   for ( int n=0; n<num_bins; ++n)
       global_hist[n]=local_hist[n];
@@ -485,7 +483,7 @@ GetHistogramFromCostFunctionWithWeightsBinned( const QubitRegister<Type> & psi,
   assert( psi.qubit_permutation->map == diag.qubit_permutation->map);
   assert(max_value>0);					// The max_value must be positive.
 
-  int my_rank = qhipster::mpi::Environment::GetStateRank();
+  int my_rank = iqs::mpi::Environment::GetStateRank();
 
   // Histogram of the specific MPI (state) rank.
   int num_bins = (int)(ceil(max_value / bin_width)) + 1;
@@ -521,8 +519,8 @@ GetHistogramFromCostFunctionWithWeightsBinned( const QubitRegister<Type> & psi,
   std::vector<Basetype> global_hist(num_bins, 0);
 #ifdef INTELQS_HAS_MPI
   // Sum local histograms into (state) global histogram.
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(local_hist, global_hist.data(), num_bins, MPI_SUM, comm);
 #else
   for ( int n=0; n<num_bins; ++n)
       global_hist[n]=local_hist[n];
@@ -538,6 +536,7 @@ template std::vector<float>  GetHistogramFromCostFunctionWithWeightsBinned<Compl
 /////////////////////////////////////////////////////////////////////////////////////////
 
 }	// close namespace qaoa
+}	// close namespace iqs
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////

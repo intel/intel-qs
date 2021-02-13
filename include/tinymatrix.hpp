@@ -27,7 +27,7 @@
 /// This header defines the class template @c TinyMatrix, which stores a matrix
 /// whose (small) dimensions are fixed at compile time
 
-namespace qhipster {
+namespace iqs {
 
 /// @brief A small matrix with dimensions fixed at compile time
 ///
@@ -307,7 +307,7 @@ class TinyMatrix
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /// @}*/
 

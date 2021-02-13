@@ -15,7 +15,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-namespace qhipster {
+namespace iqs {
 
 namespace mpi {
 
@@ -61,18 +61,18 @@ class Exception : public std::exception
 /////////////////////////////////////////////////////////////////////////////////////////
 
 /// Call the MPI routine MPIFunc with arguments Args (surrounded by parentheses).
-/// Checks the return value of MPIFunc call and throws a qhipster::mpi::exception
+/// Checks the return value of MPIFunc call and throws a iqs::mpi::exception
 /// if the result is not MPI_SUCCESS.
 #define QHIPSTER_MPI_CHECK_RESULT(MPIFunc, Args)                                           \
   {                                                                                        \
     int check_result = MPIFunc Args;                                                       \
-    if (check_result != MPI_SUCCESS) throw qhipster::mpi::Exception(#MPIFunc,check_result);\
+    if (check_result != MPI_SUCCESS) throw iqs::mpi::Exception(#MPIFunc,check_result);\
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 }	// end namespace mpi
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /// @}*/
 

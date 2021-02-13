@@ -22,7 +22,7 @@ class ChiMatrixTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
   }
 
@@ -35,8 +35,8 @@ template <class T, unsigned N>
 void chimatrix_testsize()
 {
   // Create an aligned and an unaligned matrix
-  qhipster::ChiMatrix<T, N> mat;
-  qhipster::ChiMatrix<T, N, 32> mata;
+  iqs::ChiMatrix<T, N> mat;
+  iqs::ChiMatrix<T, N, 32> mata;
 
   ASSERT_EQ(mat.numRows(), N);
   ASSERT_EQ(mat.numCols(), N);
@@ -53,7 +53,7 @@ void chimatrix_testsize()
       }
 
   // test const versrion
-  qhipster::ChiMatrix<T, N> const& matc(mat);
+  iqs::ChiMatrix<T, N> const& matc(mat);
 
   // test assignment
   for (unsigned i = 0; i < mat.numRows(); ++i)
@@ -63,8 +63,8 @@ void chimatrix_testsize()
   mata = mat;
 
   // test copy and comparison
-  qhipster::ChiMatrix<T, N> matb = matc;
-  qhipster::ChiMatrix<T, N, 32> matd = matc;
+  iqs::ChiMatrix<T, N> matb = matc;
+  iqs::ChiMatrix<T, N, 32> matd = matc;
 
   ASSERT_EQ(matb, mat);
   ASSERT_EQ(matb, mata);
@@ -80,8 +80,8 @@ void chimatrix_testsize()
       ASSERT_EQ(&mat(0, 0), mat.getPtr());
 
   // test assignments
-  qhipster::ChiMatrix<T, N> mate;
-  qhipster::ChiMatrix<T, N> matf;
+  iqs::ChiMatrix<T, N> mate;
+  iqs::ChiMatrix<T, N> matf;
   mate = matc;
   matf = matc;
   ASSERT_EQ(mat, mate);
@@ -103,12 +103,12 @@ void chimatrix_testassign()
 {
   double init[2][2] = {{1., 2.}, {3., 4.}};
 
-  qhipster::ChiMatrix<T, 2> mat = init;
+  iqs::ChiMatrix<T, 2> mat = init;
   for (unsigned i = 0; i < mat.numRows(); ++i)
       for (unsigned j = 0; j < mat.numCols(); ++j)
           ASSERT_EQ(mat(i, j), 1. + 2. * i + j);
 
-  qhipster::ChiMatrix<T, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
+  iqs::ChiMatrix<T, 2> mat2 = {{T(1.), T(2.)}, {T(3.), T(4.)}};
   for (unsigned i = 0; i < mat2.numRows(); ++i)
       for (unsigned j = 0; j < mat2.numCols(); ++j)
           ASSERT_EQ(mat2(i, j), 1. + 2. * i + j);
@@ -136,7 +136,7 @@ void chimatrix_testassign()
 template <class T>
 void chimatrix_testeigen()
 {
-  qhipster::ChiMatrix<T, 2> chimat2 = {{T(1.), T(3.)}, {T(3.), T(7.)}};
+  iqs::ChiMatrix<T, 2> chimat2 = {{T(1.), T(3.)}, {T(3.), T(7.)}};
   
   chimat2.SolveEigenSystem();
 

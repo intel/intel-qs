@@ -7,6 +7,8 @@
 /// @brief Define the @c QubitRegister methods related to implementing simulations
 /// in presence of noise using the chi matrix.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Apply 1-qubit channel.
 /// @param qubit the index of the involved qubit
@@ -106,5 +108,7 @@ void QubitRegister<Type>::ApplyChannel(const unsigned qubit1, const unsigned qub
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

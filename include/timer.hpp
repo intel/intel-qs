@@ -37,9 +37,9 @@ class Header
 
   std::string sprint()
   {
-    return "num_qubits:" + qhipster::toString(num_qubits)
-            + " " + "num_procs:" + qhipster::toString(num_procs)
-             + " " + "num_records:" + qhipster::toString(num_records);
+    return "num_qubits:" + iqs::toString(num_qubits)
+            + " " + "num_procs:" + iqs::toString(num_procs)
+             + " " + "num_records:" + iqs::toString(num_records);
   }
 };
 
@@ -194,7 +194,7 @@ class Timer
     curiter->second.tpos = tpos;
     curiter->second.ncalls++;
 
-    qhipster::mpi::Barrier();
+    iqs::mpi::Barrier();
     curiter->second.start = Wtime();
   }
 
@@ -235,7 +235,7 @@ class Timer
   {
     assert(timer_map);
     double start = curiter->second.start;
-    qhipster::mpi::Barrier();
+    iqs::mpi::Barrier();
     double now = Wtime();
     curiter->second.total += (now - start);
     curiter->second.flops += D(UL(1) << UL(num_qubits - 1)) * 38.0;
@@ -250,7 +250,7 @@ class Timer
 
 // TODO: this version is untested
 #if 0
-    int rank = qhipster::mpi::Environment::GetStateRank();
+    int rank = iqs::mpi::Environment::GetStateRank();
     std::vector<Time> tv;
     std::map<std::string, Time>::iterator iter;
     for(iter = timer_map->begin(); iter != timer_map->end(); iter++)
@@ -258,7 +258,7 @@ class Timer
         tv.push_back(iter->second);
     }
          
-    std::string fn = "gatestats_"+qhipster::toString(num_qubits)+"qbits_"+qhipster::toString(num_procs)+"sock.bin";
+    std::string fn = "gatestats_"+iqs::toString(num_qubits)+"qbits_"+iqs::toString(num_procs)+"sock.bin";
     MPI_Status status;
     MPI_File fh;
     MPI_File_open(MPI_COMM_WORLD, (char*)fn.c_str(),
@@ -295,8 +295,8 @@ class Timer
                MPI_CHAR, srcid, MPI_COMM_WORLD);
 
     if (my_rank == srcid) {
-      std::string s = "gatestats_" + qhipster::toString(num_qubits) + "qbits_" +
-                      qhipster::toString(num_procs) + "sock.bin";
+      std::string s = "gatestats_" + iqs::toString(num_qubits) + "qbits_" +
+                      iqs::toString(num_procs) + "sock.bin";
       FILE* fp = fopen(s.c_str(), "wb");
       Header h(num_qubits, num_procs, num_records);
       fwrite(&h, sizeof(h), 1, fp);
@@ -315,7 +315,7 @@ class Timer
       }
     }
     #endif
-    MPI_Barrier(qhipster::mpi::Environment::GetComm());
+    MPI_Barrier(iqs::mpi::Environment::GetComm());
 #else
     printf(" *** The statistics (i.e. time used in computation and bandwidth) are available only when MPI is used inside Intel QS.\n");
     printf(" *** This is not the case for this simulation. If needed, rebuild the IQS adding the CMake option '-DIqsMPI=ON'.\n");

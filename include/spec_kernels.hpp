@@ -4,8 +4,8 @@
 #include "qureg.hpp"
 #include "gate_spec.hpp"
 
-using qhipster::GateSpec1Q;
-using qhipster::GateSpec2Q;
+using iqs::GateSpec1Q;
+using iqs::GateSpec2Q;
 
 template< typename Type >
 __attribute__((noinline))

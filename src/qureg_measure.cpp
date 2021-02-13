@@ -6,6 +6,8 @@
 /// @file qureg_measure.cpp
 /// @brief Define the @c QubitRegister methods related to measurement operations.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return 'true' if qubit is separable and in a computational state.
 /// @param qubit the index of the involved qubit
@@ -18,9 +20,9 @@ template <class Type>
 bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) const
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
@@ -62,8 +64,8 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
       // printf("[%3d] up:%d down:%d\n", myrank, up, down);
       int glb_up, glb_down;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-      MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+      MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
       MPI_Allreduce(&up, &glb_up, 1, MPI_INT, MPI_LOR, comm);
       MPI_Allreduce(&down, &glb_down, 1, MPI_INT, MPI_LOR, comm);
 #else
@@ -72,7 +74,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
       // printf("[%3d] glb_up:%d glb_down:%d\n", myrank, glb_up, glb_down);
       if (glb_up && glb_down) return false;
 
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
   }
   // printf("[%d] here\n", myrank);
   return true;
@@ -91,9 +93,9 @@ template <class Type>
 void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
@@ -134,9 +136,9 @@ template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
@@ -166,8 +168,8 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
 
   BaseType global_P;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   MPI_Allreduce(&local_P, &global_P, 1, MPI_DOUBLE, MPI_SUM, comm);
 #else
   global_P = local_P;
@@ -182,9 +184,9 @@ template <class Type>
 bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) const
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
   assert(qubit<num_qubits);
@@ -240,8 +242,8 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   done:  
   int glb_bit_is_zero, glb_bit_is_one;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   MPI_Allreduce(&bit_is_zero, &glb_bit_is_zero, 1, MPI_INT, MPI_LOR, comm);
   MPI_Allreduce(&bit_is_one , &glb_bit_is_one , 1, MPI_INT, MPI_LOR, comm);
 #else
@@ -261,5 +263,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

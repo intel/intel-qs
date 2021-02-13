@@ -28,7 +28,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace py = pybind11;
-using Environment = qhipster::mpi::Environment;
+using Environment = iqs::mpi::Environment;
+
+namespace iqs {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,46 +70,46 @@ PYBIND11_MODULE(intelqs_py, m)
 //////////////////////////////////////////////////////////////////////////////
 
     // Random Number Generator
-    py::class_<qhipster::RandomNumberGenerator<double>>(m, "RandomNumberGenerator")
+    py::class_<iqs::RandomNumberGenerator<double>>(m, "RandomNumberGenerator")
         .def(py::init<>())
-        .def("GetSeed", &qhipster::RandomNumberGenerator<double>::GetSeed)
-        .def("SetSeedStreamPtrs", &qhipster::RandomNumberGenerator<double>::SetSeedStreamPtrs)
-        .def("SkipeAhead", &qhipster::RandomNumberGenerator<double>::SkipAhead)
-        .def("UniformRandomNumbers", &qhipster::RandomNumberGenerator<double>::UniformRandomNumbers)
-        .def("GaussianRandomNumbers", &qhipster::RandomNumberGenerator<double>::GaussianRandomNumbers)
-        .def("RandomIntegersInRange", &qhipster::RandomNumberGenerator<double>::RandomIntegersInRange)
+        .def("GetSeed", &iqs::RandomNumberGenerator<double>::GetSeed)
+        .def("SetSeedStreamPtrs", &iqs::RandomNumberGenerator<double>::SetSeedStreamPtrs)
+        .def("SkipeAhead", &iqs::RandomNumberGenerator<double>::SkipAhead)
+        .def("UniformRandomNumbers", &iqs::RandomNumberGenerator<double>::UniformRandomNumbers)
+        .def("GaussianRandomNumbers", &iqs::RandomNumberGenerator<double>::GaussianRandomNumbers)
+        .def("RandomIntegersInRange", &iqs::RandomNumberGenerator<double>::RandomIntegersInRange)
         .def("GetUniformRandomNumbers",
-             [](qhipster::RandomNumberGenerator<double> &rng, std::size_t size,
+             [](iqs::RandomNumberGenerator<double> &rng, std::size_t size,
                 double a, double b, std::string shared) {
                 std::vector<double> random_values(size);
                 rng.UniformRandomNumbers(random_values.data(), size, a, b, shared);
                 return random_values;
              }, "Return an array of 'size' random number from the uniform distribution [a,b[.")
 #ifdef WITH_MPI_AND_MKL
-        .def("SetRndStreamPtrs", &qhipster::RandomNumberGenerator<double>::SetRndStreamPtrs)
+        .def("SetRndStreamPtrs", &iqs::RandomNumberGenerator<double>::SetRndStreamPtrs)
 #endif
         .def("__repr__", []() { return "<RandomNumberGenerator specialized for MKL.>"; } );
 
 
     // Chi Matrix 4x4
-    py::class_<qhipster::ChiMatrix<ComplexDP, 4, 32>>(m, "CM4x4", py::buffer_protocol())
+    py::class_<iqs::ChiMatrix<ComplexDP, 4, 32>>(m, "CM4x4", py::buffer_protocol())
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const qhipster::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
              if (i.first > 4) throw py::index_error();
              if (i.second > 4) throw py::index_error();
 std::cout << "ciao\n";
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
-        .def("__setitem__", [](qhipster::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
+        .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
              if (i.first > 4) throw py::index_error();
              if (i.second > 4) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
 #if 0
-        .def_buffer([](qhipster::ChiMatrix<ComplexDP,4,32> &m) -> py::buffer_info {
+        .def_buffer([](iqs::ChiMatrix<ComplexDP,4,32> &m) -> py::buffer_info {
             return py::buffer_info(
                 m.GetPtrToData(),                      /* Pointer to buffer */
                 sizeof(ComplexDP),                     /* Size of one scalar */
@@ -136,28 +138,28 @@ std::cout << "ciao\n";
                a.ApplyChannel(qubit, m);
              }, "Apply 1-qubit channel provided via its chi-matrix.")
 #endif
-        .def("SolveEigenSystem", &qhipster::ChiMatrix<ComplexDP,4,32>::SolveEigenSystem)
-        .def("Print", &qhipster::ChiMatrix<ComplexDP,4,32>::Print)
+        .def("SolveEigenSystem", &iqs::ChiMatrix<ComplexDP,4,32>::SolveEigenSystem)
+        .def("Print", &iqs::ChiMatrix<ComplexDP,4,32>::Print)
         .def("__repr__", []() { return "<ChiMatrix for 1-qubit channel>"; } );
 
     // Chi Matrix 16x16
-    py::class_<qhipster::ChiMatrix<ComplexDP,16,32>>(m, "CM16x16")
+    py::class_<iqs::ChiMatrix<ComplexDP,16,32>>(m, "CM16x16")
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const qhipster::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
              if (i.first > 16) throw py::index_error();
              if (i.second > 16) throw py::index_error();
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
-        .def("__setitem__", [](qhipster::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
+        .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
              if (i.first > 16) throw py::index_error();
              if (i.second > 16) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
-        .def("SolveEigenSystem", &qhipster::ChiMatrix<ComplexDP,16,32>::SolveEigenSystem)
-        .def("Print", &qhipster::ChiMatrix<ComplexDP,16,32>::Print)
+        .def("SolveEigenSystem", &iqs::ChiMatrix<ComplexDP,16,32>::SolveEigenSystem)
+        .def("Print", &iqs::ChiMatrix<ComplexDP,16,32>::Print)
         .def("__repr__", []() { return "<ChiMatrix for 2-qubit channel>"; } );
 
 //////////////////////////////////////////////////////////////////////////////
@@ -258,12 +260,12 @@ std::cout << "ciao\n";
         .def("GetOverallSignOfChannels", &QubitRegister<ComplexDP>::GetOverallSignOfChannels)
 #if 1
         .def("ApplyChannel",
-             [](QubitRegister<ComplexDP> &a, unsigned qubit, qhipster::ChiMatrix<ComplexDP,4,32> chi) {
+             [](QubitRegister<ComplexDP> &a, unsigned qubit, iqs::ChiMatrix<ComplexDP,4,32> chi) {
                a.ApplyChannel(qubit, chi);
              }, "Apply 1-qubit channel provided via its chi-matrix.")
         .def("ApplyChannel",
              [](QubitRegister<ComplexDP> &a, unsigned qubit1, unsigned qubit2,
-                qhipster::ChiMatrix<ComplexDP,16,32> chi) {
+                iqs::ChiMatrix<ComplexDP,16,32> chi) {
                a.ApplyChannel(qubit1, qubit2, chi);
              }, "Apply 2-qubit channel provided via its chi-matrix.")
 #else
@@ -405,9 +407,9 @@ std::cout << "ciao\n";
         .def_static("GetStateId", &Environment::GetStateId)
         .def_static("GetNumStates", &Environment::GetNumStates)
 
-        .def_static("Barrier", &qhipster::mpi::Barrier)
-        .def_static("PoolBarrier", &qhipster::mpi::PoolBarrier)
-        .def_static("StateBarrier", &qhipster::mpi::StateBarrier)
+        .def_static("Barrier", &iqs::mpi::Barrier)
+        .def_static("PoolBarrier", &iqs::mpi::PoolBarrier)
+        .def_static("StateBarrier", &iqs::mpi::StateBarrier)
 
         .def_static("IncoherentSumOverAllStatesOfPool", &Environment::IncoherentSumOverAllStatesOfPool<double>)
         .def_static("UpdateStateComm", &Environment::UpdateStateComm);
@@ -415,3 +417,6 @@ std::cout << "ciao\n";
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+} // end namespace iqs
+

@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace iqs {
+
 template <class Type = ComplexDP>
 class QubitRegisterMetric: public QubitRegister<Type> {
   int iTotalQubitGateCount=0;
@@ -32,7 +34,7 @@ public:
   void ApplyRotationY(int, double);
   void ApplyRotationZ(int, double);
   void ApplyCPauliX(int, int);
-  void ApplyControlled1QubitGate(int, int, qhipster::TinyMatrix<Type, 2, 2, 32>);
+  void ApplyControlled1QubitGate(int, int, iqs::TinyMatrix<Type, 2, 2, 32>);
 };
 
 template <class Type>
@@ -103,9 +105,11 @@ void QubitRegisterMetric<Type>::ApplyCPauliX(int q1, int q2){
 }
 
 template <class Type>
-void QubitRegisterMetric<Type>::ApplyControlled1QubitGate(int q1, int q2, qhipster::TinyMatrix<Type, 2, 2, 32> V){
+void QubitRegisterMetric<Type>::ApplyControlled1QubitGate(int q1, int q2, iqs::TinyMatrix<Type, 2, 2, 32> V){
   QubitRegister<Type>::ApplyControlled1QubitGate(q1,q2,V);
   TwoQubitIncrements(q1,q2); 
 }
+
+} // end namespace iqs
 
 #endif	// header guard QUBIT_REGISTER_METRIC_HPP

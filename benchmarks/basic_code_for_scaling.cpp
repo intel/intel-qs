@@ -36,7 +36,7 @@
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   assert(env.GetNumStates()==1);
   int my_rank = env.GetStateRank();
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
   size_t tmp_spacesize = 0;
   if (num_qubits>30)
       tmp_spacesize = size_t(1L << 30);
-  QubitRegister<ComplexDP> psi(num_qubits, "base", 0, tmp_spacesize);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits, "base", 0, tmp_spacesize);
 if (false)  psi.TurnOnSpecialize();
   // Loop over the number of qubits and store the time elapsed in the computation.
   struct timeval time;
@@ -119,7 +119,7 @@ if (true) psi.EnableStatistics();
   for(int qubit = 0; qubit < num_qubits; qubit++)
   {
       // MPI barrier and start the timer.
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
       gettimeofday(&time, (struct timezone*)0);
       start =  time.tv_sec + time.tv_usec * 1.0e-6;
 
@@ -129,7 +129,7 @@ if (true) psi.EnableStatistics();
 //          psi.ApplyRotationZ(qubit, M_PI/3.);
 
       // MPI barrier and end the timer.
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
       gettimeofday(&time, (struct timezone*)0);
       end =  time.tv_sec + time.tv_usec * 1.0e-6;
       computational_cost.push_back( (end-start)/double(num_gates) );
