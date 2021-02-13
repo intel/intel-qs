@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ----
 
-## [ next ] - [ TBD ]
+## [ 2.1.0 ] - [ 2021-03-xx ]
 
 ### Added
 - Python bindings with MPI
@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 - distributed implementation of SWAP-type gates
 - class `Permutation` and `PermuteQubits` method to manipulate the representation
   of quantum states and possibly reduce the overhead from MPI communication
+- class `ChiMatrix` to define a quantum channel
+- methods related to the application of 1- and 2-qubit channels
+- online documentation generated via ReadTheDocs
 
 ### Changed
 - CMake build is now modular
@@ -20,11 +23,12 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - when compiling with GCC, the option `-O3` is used for performance improvement
-- several minor bugs
+- a few minor bugs
+- update examples to current syntax
 
 ----
 
-## [ 2.0.0 ] - [ 2020-12-12 ]
+## [ 2.0.0 ] - [ 2019-12-12 ]
 
 ### Added
 - pool of state functionality: parallel execution of multiple circuits
