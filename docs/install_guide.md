@@ -98,7 +98,7 @@ To disable the Python wrap, even without MPI, set the CMake option selection to
 `-DIqsPython=OFF`.
 
 
-### Unit test
+### Unit tests
 
 By default, with MPI either enabled or disabled, the building process includes a suite
 of unit tests written in the [googletest framework](https://github.com/google/googletest).

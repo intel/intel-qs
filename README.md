@@ -24,10 +24,10 @@ of the high-performance implementation of circuit simulations.
 The library can be built on a variety of different systems, from laptop to HPC server systems.
 
 The directory structure of the repository can be found in
-[intel-qs/docs/directory_structure.md](/docs/directory_structure.md).
+[docs/directory_structure.md](/docs/directory_structure.md).
 
 The complete guide to the installation can be found in
-[intel-qs/docs/install_guide.md](/docs/install_guide.md).
+[docs/install_guide.md](/docs/install_guide.md).
 
 At the end of the installation, the library object will be: `/builb/lib/libiqs.so`
 
@@ -129,7 +129,7 @@ When using Intel Quantum Simulator for research projects, please cite:
 
    Gian Giacomo Guerreschi, Justin Hogaboam, Fabio Baruffa, Nicolas P. D. Sawaya
    *Intel Quantum Simulator: A cloud-ready high-performance simulator of quantum circuits*
-   [QST 5, 034007 (2020)](https://doi.org/10.1088/2058-9565/ab8505)
+   [Quantum Sci. Technol. 5, 034007 (2020)](https://doi.org/10.1088/2058-9565/ab8505)
 
 The original implementation is described here: 
 
