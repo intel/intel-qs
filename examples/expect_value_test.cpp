@@ -43,7 +43,12 @@ int main(int argc, char **argv)
   if (env.IsUsefulRank()==false) return 0;
   myrank = iqs::mpi::Environment::GetStateRank();
   nprocs = iqs::mpi::Environment::GetStateSize();
-
+  if (nprocs > 1)
+  {
+      if (myrank==0)
+          fprintf(stderr, "example to be launched with a single process\n");
+      exit(1);
+  }
   double expectation;
 
   MPIout << "------------------\n"

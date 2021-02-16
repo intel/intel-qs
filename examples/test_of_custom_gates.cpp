@@ -24,17 +24,9 @@
 int main(int argc, char **argv)
 {
   iqs::mpi::Environment env(argc, argv);
-  if (env.IsUsefulRank() == false) return 0;
   unsigned myrank = env.GetStateRank();
+  unsigned nprocs = iqs::mpi::Environment::GetStateSize();
 
-#pragma omp parallel
-#pragma omp master
-  {
-    int nthreads = omp_get_num_threads();
-    fprintf(stdout, "OMP number of threads = %d \n", nthreads);
-  }
-
-  
 /// --- PARAMETERS ------------------------------------------- ///
   int num_qubits = 8;
   int num_gates = 1;
@@ -42,19 +34,27 @@ int main(int argc, char **argv)
   std::size_t tmp_size = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
-     exit(1);
+      if (!myrank)
+          fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
+      exit(1);
   }
   else
   {
-    int _qubits = atoi(argv[1]);
+      int _qubits = atoi(argv[1]);
+      if ((_qubits <= 0) || (_qubits > 1000000))
+      {
+          fprintf(stderr, "<num_qubits> was (%d) which is invalid or negative.\n", _qubits);
+          exit(1);
+      }
+      num_qubits = (unsigned)_qubits; 
+  }
+  if (env.IsUsefulRank() == false) return 0;
 
-    if ((_qubits <= 0) || (_qubits > 1000000)) {
-      fprintf(stderr, "<num_qubits> was (%d) which is invalid or negative.\n", _qubits);
-      exit(1);
-    }
-    
-    num_qubits = (unsigned)_qubits; 
+#pragma omp parallel
+#pragma omp master
+  {
+    int nthreads = omp_get_num_threads();
+    fprintf(stdout, "OMP number of threads = %d \n", nthreads);
   }
   
   TM2x2<ComplexDP> G;

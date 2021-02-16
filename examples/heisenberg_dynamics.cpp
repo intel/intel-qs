@@ -99,11 +99,14 @@ int main(int argc, char **argv)
   {
     expectval = 0.;
     expectval = psi.ExpectationValueZ(i);
-    printf("<Z> on qubit %d: %.12f \n",i,expectval);
+    if (myrank==0)
+      printf("<Z> on qubit %d: %.12f \n",i,expectval);
   }
-  printf("\n");
+  if (myrank==0)
+    printf("\n");
   
-  printf("Running one Trotter step.\n");
+  if (myrank==0)
+    printf("Running one Trotter step.\n");
   // Apply one Trotter step of Hamiltonian
   for(int i=0;i<num_qubits-1;i++)
   {
@@ -122,7 +125,8 @@ int main(int argc, char **argv)
   {
     expectval = 0.;
     expectval = psi.ExpectationValueZ(i);
-    printf("<Z> on qubit %d: %.12f \n",i,expectval);
+    if (myrank==0)
+      printf("<Z> on qubit %d: %.12f \n",i,expectval);
   }
 
 }

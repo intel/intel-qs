@@ -83,7 +83,8 @@ int main(int argc, char **argv)
 
   if(argc != 2)
   {
-      fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
+      if (!my_rank)
+          fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
       exit(1);
   }
   else
@@ -165,7 +166,8 @@ int main(int argc, char **argv)
                 << "Overlap-squared between ideal and noisy states = "
                 << overlap_squared_noisy << "\n"
                 << "Probability (of qubit 0 to be in |1>) in the noiseless case = " << probability << "\n"
-                << "Probability (...                 ...) with noise = " << probability_noisy << "\n\n";
+                << "Probability (...                 ...) with noise = " << probability_noisy << "\n"
+                << "(recall that the quantum channel is here an ideal hadamard, so no noise effects)\n\n";
 
   return 1;
 }

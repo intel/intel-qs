@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 - Python bindings with MPI
 - new gate specialization for OpenMP performance improvement
 - distributed implementation of SWAP-type gates
-- class `Permutation` and `PermuteQubits` method to manipulate the representation
+- class `Permutation` and method `PermuteQubits` to manipulate the representation
   of quantum states and possibly reduce the overhead from MPI communication
 - class `ChiMatrix` to define a quantum channel
 - methods related to the application of 1- and 2-qubit channels
@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - CMake build is now modular
+- the library is part of namespace `iqs`
 
 ### Removed
 
