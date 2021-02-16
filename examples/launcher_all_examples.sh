@@ -3,12 +3,25 @@
 echo -e "\n############################################################"
 echo -e   "######## launch all examples one after the other ###########"
 echo -e   "### (just to check that there are no compilation issues) ###"
-echo -e   "############################################################"
+echo -e   "############################################################\n"
 
 ##########################################################################
 
-flag_with_mpi=1
+# By default the launcher does not use MPI.
+# This can be changed by providing the argument "1"
+flag_with_mpi=0
 mpi_command="mpiexec.hydra"
+
+if [[ $# -eq 1 ]]; then
+    flag_with_mpi=$1
+    echo $flag_with_mpi
+fi
+
+if [ $flag_with_mpi == "1" ]; then
+    echo "Run executables with MPI."
+else
+    echo "Run executables without MPI."
+fi
 
 ##########################################################################
 
