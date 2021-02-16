@@ -396,7 +396,14 @@ std::cout << "ciao\n";
         .def(py::init<>())
         .def_static("GetRank", &Environment::GetRank)
         .def_static("IsUsefulRank", &Environment::IsUsefulRank)
-
+        .def_static("GetSizeWorldComm",
+             []() {
+               int world_size = 1;
+#ifdef INTELQS_HAS_MPI
+               MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+#endif
+               return world_size;
+             }, "Number of processes when the MPI environment was first created.")
         .def_static("GetPoolRank", &Environment::GetPoolRank)
         .def_static("GetStateRank", &Environment::GetStateRank)
         .def_static("GetPoolSize", &Environment::GetPoolSize)
