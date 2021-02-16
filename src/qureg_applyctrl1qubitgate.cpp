@@ -374,7 +374,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
             }
             HasDoneWork = true;
           } else {
-              TODO(Way to fix problem with X and Y specializaion)
+              // TODO: Way to fix problem with X and Y specialization.
               // iqs::mpi::Environment::RemapStateRank(myrank);
           }
       }
@@ -386,7 +386,7 @@ bool QubitRegister<Type>::ApplyControlled1QubitGate_helper(unsigned control_qubi
               md[0][0] = {1.0, 0};
               md[0][1] = md[1][0] = {0., 0.};
               md[1][1] = (check_bit(src_glb_start, T) == 0) ? m[0][0] : m[1][1];
-              TODO(Insert Loop_SN specialization for this case)
+              // TODO: Insert Loop_SN specialization for this case.
               Loop_DN(sind, eind, C, state, state, 0, 1UL<<C, md, specialize, timer);
           }
           else

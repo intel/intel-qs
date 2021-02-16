@@ -26,17 +26,7 @@ void QubitRegister<Type>::ApplySwap(unsigned qubit1, unsigned qubit2)
   iqs::TinyMatrix<Type, 2, 2, 32> notg;
   notg(0, 0) = notg(1, 1) = {0, 0};
   notg(0, 1) = notg(1, 0) = {1, 0};
-#if 0
-  TODO(Use this implementation of swap till we fix tmp buffer size issue with code below) 
-  TODO(    namely need to be able to use Send and Recv properly)
-  TODO(    The same problem with controlled gates was already solved. Import solution.)
-  unsigned b1 = qubit1, b2 = qubit2;
-  ApplyCPauliX(b1, b2);
-  ApplyCPauliX(b2, b1);
-  ApplyCPauliX(b1, b2);
-#else
   ApplySwap_helper(qubit1, qubit2, notg);
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -124,9 +114,6 @@ void QubitRegister<Type>::Apply4thRootISwap( unsigned qubit1, unsigned qubit2)
 template <class Type>
 bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, TM2x2<Type> const&m)
 {
-  TODO(Error with the tmp buffer size. The code  needs to be able to use Send and Recv properly.)
-  TODO(The same problem with controlled gates was already solved. Import solution.)
-
   // Update counter of the statistics.
   if (gate_counter != nullptr)
   {
@@ -221,185 +208,7 @@ bool QubitRegister<Type>::ApplySwap_helper(unsigned qubit_1, unsigned qubit_2, T
   }
   else
   {
-// FIXME FIXME TODO TODO
-#if 10
         HP_DistrSwap(position_1, position_2, m);
-// This is the old implementation by Misha. Remove it one the last case (global-global) has been tested.
-#else
-
-  // Old names of the same quantities
-  unsigned &qubit1 = position_1;
-  unsigned &qubit2 = position_2;
-  std::size_t &delta1 = delta_1;
-  std::size_t &delta2 = delta_2;
-
-#ifndef INTELQS_HAS_MPI
-    assert(0);
-#else
-    MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
-    MPI_Status status;
-    // HP_Distrpair(qubit1, qubit2);
-
-  //  Steps:     1.         2.           3.              4.
-  //          i    j   | i    j   |  i      j     |  i       j
-  //          s1   d1  | s1   d1  |  s1     d1&s1 |  s1&d1   d1&s1
-  //          s2   d2  | s2   d2  |  s2&d2  d2    |  s2&d2   d2&s2
-  //          T    T   | d2   s1  |  d2&s2  s1&d1 |  T       T
-
-    std::size_t src_glb_start = UL(myrank) * LocalSize();
-    if (position_1 < M) // position_2 >= M
-    {
-        // printf("here1\n");
-        if (check_bit(src_glb_start, position_2) == 0)
-        {
-            std::size_t dst_glb_start = set_bit(src_glb_start, position_2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
-            assert((dst_glb_start % LocalSize()) == 0);
-            itask = myrank;
-            jtask = dst_glb_start / LocalSize();
-            assert(jtask > myrank);
-            assert(jtask == myrank + (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
-            // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
-        } else if (check_bit(src_glb_start, position_2) == 1) {
-            std::size_t dst_glb_start = clear_bit(src_glb_start, qubit2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
-            assert((dst_glb_start % LocalSize()) == 0);
-            jtask = myrank;
-            itask = dst_glb_start / LocalSize();
-            assert(itask < myrank);
-            assert(jtask == myrank - (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
-            // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
-        }
-    }
-    else // position_1, position_2 >= M
-    {
-        // printf("here2\n");
-        if (check_bit(src_glb_start, positiopn_1) == 1 &&
-            check_bit(src_glb_start, position_2) == 0)
-        {
-            std::size_t dst_glb_start = set_bit(clear_bit(src_glb_start, position_1), positiion_2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
-            assert((dst_glb_start % LocalSize()) == 0);
-            itask = myrank;
-            jtask = dst_glb_start / LocalSize();
-            // iqs::mpi::Environment::RemapStateRank(jtask);
-            assert(jtask > myrank);
-            assert(jtask == myrank - (1UL << (position_1-M)) + (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
-            // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, jtask, dst_glb_start);
-        }
-        else if (check_bit(src_glb_start, position_1) == 0 &&
-                 check_bit(src_glb_start, position_2) == 1)
-        {
-            std::size_t dst_glb_start = clear_bit(set_bit(src_glb_start, position_1), position_2);
-            // printf("lcl_size=%lu dst_glb_start=%lu\n", LocalSize(), dst_glb_start);
-            assert((dst_glb_start % LocalSize()) == 0);
-            jtask = myrank;
-            itask = dst_glb_start / LocalSize();
-            // iqs::mpi::Environment::RemapStateRank(itask);
-            assert(itask < myrank);
-            assert(jtask == myrank + (1UL << (position_1-M)) - (1UL << (position_2-M))); // TODO: is this a good way to determine parner process?
-            // printf("%2d(%3lu) ==> %2d(%3lu)\n", myrank, src_glb_start, itask, dst_glb_start);
-        }
-        else
-        {
-            // early return if no rank permutation
-            return true;
-            //iqs::mpi::Environment::RemapStateRank(myrank);
-        }
-    }
-
-    // 1. allocate temp buffer
-    Type *tmp_state = TmpSpace();
-
-    Type *state0=nullptr, *state1=nullptr;
-    double t, tnet = 0;
-    if(itask == myrank)
-    {  // this is itask
-       // 2. src sends s1 to dst into dT
-       //    dst sends d2 to src into dT
-       t = sec();
-   
-       std::size_t start_ind = (qubit1 + 1 != M) ? 0 : lcl_size_half;
-       iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, jtask, tag1,
-                                     &(tmp_state[0])    , lcl_size_half, jtask, tag2,
-                                     comm, &status);
-
-       tnet += sec() - t;
-
-       // 3. src and dst compute
-       std::size_t indsht0 = lcl_size_half, indsht1 = 0;
-       state0 = (qubit1 < M - 1) ? (state + delta1): state;
-       state1 = tmp_state;
-       for (std::size_t j = 0; j < lcl_size_half; j += 2 * delta1)
-       {
-         for(std::size_t i = j; i < std::min(lcl_size_half, j + delta1); i++)
-         {
-             std::size_t i0 = i + indsht0;
-             std::size_t i1 = i + indsht1;
-#if 0
-             std::swap(state0[i0], state1[i1]);
-#else
-             Type in0 = state0[i0], in1 = state1[i1];
-             state0[i0] = m00 * in0 + m01 * in1;
-             state1[i1] = m10 * in0 + m11 * in1;
-#endif
-         }
-       }
-
-       t = sec();
-       if (qubit1 + 1 != M)
-       {
-         iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0]), lcl_size_half, jtask, tag1,
-                                       &(state[0])    , lcl_size_half, jtask, tag2,
-                                       comm, &status);
-       }
-       // what if qubit+1 == M ?? No second communication loop?
-       tnet += sec() - t;
-
-    }
-    else
-    {  // this is jtask
-       // 2. src sends s1 to dst into dT
-       //    dst sends d2 to src into dT
-       t = sec();
-       std::size_t start_ind = (qubit1 + 1 == M) ? 0 : lcl_size_half;
-       iqs::mpi::MPI_Sendrecv_x(&(state[start_ind]), lcl_size_half, itask, tag2,
-                                     &(tmp_state[0])    , lcl_size_half, itask, tag1,
-                                     comm, &status);
-       tnet += sec() - t;
-
-       // 3. src and dst compute
-       std::size_t indsht0 = 0, indsht1 = 0;
-       state0 = (qubit1 < M - 1) ? (tmp_state + delta1) : tmp_state;
-       state1 = state;
-       for (std::size_t j = 0; j < lcl_size_half; j += 2 * delta1)
-       {
-         for(std::size_t i = j; i < std::min(lcl_size_half, j + delta1); i++)
-         {
-             std::size_t i0 = i + indsht0;
-             std::size_t i1 = i + indsht1;
-#if 0
-             std::swap(state0[i0], state1[i1]);
-#else
-             Type in0 = state0[i0], in1 = state1[i1];
-             state0[i0] = m00 * in0 + m01 * in1;
-             state1[i1] = m10 * in0 + m11 * in1;
-#endif
-         }
-       }
-
-       t = sec();
-       if(qubit1 + 1 != M) {
-         iqs::mpi::MPI_Sendrecv_x(&(tmp_state[0])        , lcl_size_half, itask, tag2,
-                                       &(state[lcl_size_half]), lcl_size_half, itask, tag1,
-                                       comm, &status);
-       }
-       tnet += sec() - t;
-    }
-#endif
-
-#endif
-//FIXME TODO delete until here
   }
 
   if (timer)
@@ -670,19 +479,6 @@ double QubitRegister<Type>::HP_DistrSwap(unsigned low_position, unsigned high_po
   return 0.0;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-
-// Unnecessary method, used only to debug the ApplySwap.
-// FIXME TODO: remove after distributed implementation of ApplySwap has been tested.
-template <class Type>
-void QubitRegister<Type>::DebugSwap(unsigned b1, unsigned b2)
-{
-  assert(b1 < num_qubits);
-  assert(b2 < num_qubits);
-
-  ApplyCPauliX(b1, b2);
-  ApplyCPauliX(b2, b1);
-  ApplyCPauliX(b1, b2);
-}
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;

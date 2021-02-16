@@ -26,7 +26,6 @@ class ApplyQuantumChannel : public ::testing::Test
     if (iqs::mpi::Environment::GetStateSize() > 8)
         GTEST_SKIP();
 
-    std::cout << "state_rank_id = " << iqs::mpi::Environment::GetStateRank() << "\n";//FIXME delete
     iqs::mpi::StateBarrier();
   }
 
@@ -110,11 +109,14 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
       }
   }
   // Print the decaying overlap squared.
-  std::cout << "Decay of overlap while exposed to depolarizing channel (p=" << p << "):\n";
-  for (int t=0; t<num_time_steps; t+=10)
+  if (iqs::mpi::Environment::GetStateRank() == 0)
   {
-      std::cout << "t=" << t << ",\t|<psi(t)|psi(0)>|^2 = "
-                << overlap_squared[t]/double(num_ensemble_states) << "\n";
+      std::cout << "Decay of overlap while exposed to depolarizing channel (p=" << p << "):\n";
+      for (int t=0; t<num_time_steps; t+=10)
+      {
+          std::cout << "t=" << t << ",\t|<psi(t)|psi(0)>|^2 = "
+                    << overlap_squared[t]/double(num_ensemble_states) << "\n";
+      }
   }
 }
 

@@ -249,7 +249,6 @@ class QubitRegister
   void Apply4thRootISwap(unsigned qubit1, unsigned qubit2);
   void ApplySqrtISwap(unsigned qubit1, unsigned qubit2);
   void ApplyISwapRotation(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);
-  void DebugSwap(unsigned b1, unsigned b2);
   // diagonal gates
   void ApplyDiagSimp(unsigned qubit1, unsigned qubit2, TM4x4<Type> const&m);
   void ApplyDiag(unsigned qubit1, unsigned qubit2, TM4x4<Type> const&m);

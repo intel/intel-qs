@@ -136,7 +136,7 @@ namespace iqs {
   
 
 // specialized loops with autovectorization
-TODO(Not using ICC vectorization: need to rewrite in intrincics)
+// TODO: Not using ICC vectorization: need to rewrite in intrincics
 // #define SIMD _Pragma("simd vectorlength(2) assert")
 #define SIMD 
 #define KeyLoop_TTTT(simdpragma, from, to, indsht0, indsht1, state0, state1, t00, t01, t10, t11) \
@@ -292,7 +292,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              TM2x2<Type> const&m, 
              bool specialize, Timer *timer)
 {
-  TODO(Allow for case where state is not aligned: need SIMD ISA for un-aligned access);
+  // TODO: Allow for case where state is not aligned: need SIMD ISA for un-aligned access.
   if (specialize) // FIXME: this condition on the assertions was added later. Need to be validated.
   {
       assert((UL(state0) % 256) == 0);
@@ -320,8 +320,8 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
       nthreads = omp_get_num_threads();
   }
 #endif
-  TODO(Add nthreads check to clamp to smaller number if too little work)
-  TODO(Generalize for AVX3 cases so we check for pos <=1 etc)
+  // TODO: Add nthreads check to clamp to smaller number if too little work.
+  // TODO: Generalize for AVX3 cases so we check for pos <=1 etc.
 
   if(specialize == false)
   {

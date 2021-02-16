@@ -70,7 +70,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned position, TM2x2<Type> const&m,
               iqs::mpi::Environment::RemapStateRank(jtask);
           else
               iqs::mpi::Environment::RemapStateRank(itask);
-          TODO(Fix problem when coming here from controlled gate)
+          // TODO: Fix problem when coming here from controlled gate.
           iqs::mpi::StateBarrier();
           if (timer)
               timer->record_cm(0., 0.);
@@ -179,7 +179,7 @@ bool QubitRegister<Type>::Apply1QubitGate_helper(unsigned qubit_,  TM2x2<Type> c
   unsigned position = (*qubit_permutation)[qubit_]; 
   assert(position < num_qubits);
 
-  TODO(Add diagonal special case)
+  // TODO: Add diagonal special case.
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
   myrank = iqs::mpi::Environment::GetStateRank();
