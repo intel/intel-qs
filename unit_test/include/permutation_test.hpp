@@ -338,7 +338,7 @@ namespace utest
         printf("name::%s %s\n", name.c_str(), p.GetMapStr().c_str());
         printf("data  program  state[data]\n");
         for (std::size_t i = 0; i < state.size(); i++) {
-            printf("%i     %s      {%lf %lf}\n", i, p.data2program(i).c_str(), real(state[i]), imag(state[i]));
+            printf("%zu     %s      {%lf %lf}\n", i, p.data2program(i).c_str(), real(state[i]), imag(state[i]));
       }
     }
 

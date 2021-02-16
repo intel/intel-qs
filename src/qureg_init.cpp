@@ -347,7 +347,7 @@ if (beginning != end) printf( (buffer.str()).c_str() );
   // Balanced superposition of all basis states.
   else if (style == "++++")
   {
-      Type amplitude = {1./std::sqrt( GlobalSize() ),0.};
+      Type amplitude = {BaseType(1./std::sqrt( GlobalSize() )), 0.};
       std::size_t lcl = LocalSize();
 #pragma omp parallel for
       for (std::size_t i = 0; i < lcl; i++)

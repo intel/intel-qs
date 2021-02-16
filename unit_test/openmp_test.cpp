@@ -73,7 +73,7 @@ int main(int argc, char **argv)
          M_PI-pi,\
          std::chrono::duration_cast<std::chrono::milliseconds>(diff).count());
 #else
-  printf("This program was compiled for execution without OpenMP.\m");
+  printf("This program was compiled for execution without OpenMP.\n");
 #endif
 
   return 0;

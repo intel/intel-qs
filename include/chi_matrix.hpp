@@ -112,7 +112,7 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
 /////////////////////////////////////////////////////////////////////////////////////////
 
   /// Return non-constant pointer to data_.
-  ValueType * GetPtrToData () {return &data_[0][0];};
+  ValueType * GetPtrToData () {return &(this->data_[0][0]);};
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -323,7 +323,7 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
             if ( (i==1 || i==3) && (j==1 || j==3) )
                 assert(this->data_[i][j]==value_type(0.5,0));
             else
-                assert(std::norm(this->data_[i][j]==0));
+                assert(std::norm(this->data_[i][j])==0);
         }
     // Set eigensystem.
     std::vector<value_type> array_zeros(M, 0);

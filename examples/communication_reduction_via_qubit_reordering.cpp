@@ -60,6 +60,7 @@ int main(int argc, char **argv)
   }
 
 
+#ifdef _OPENMP
 #pragma omp parallel
 #pragma omp master
   {
@@ -67,6 +68,7 @@ int main(int argc, char **argv)
     if (myrank==0)
       fprintf(stdout, "OMP number of threads = %d \n", nthreads);
   }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 

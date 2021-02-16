@@ -13,12 +13,12 @@ namespace iqs {
 #define PARALLEL_FOR_2D                                   \
   _Pragma("omp parallel for collapse(2)")                 \
   for(std::size_t group = gstart; group < gend;           \
-      group += (1L << pos + 1L))                          \
+      group += (1L << (pos + 1L)))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
 #define SERIAL_FOR_2D                                     \
   for(std::size_t group = gstart; group < gend;           \
-      group += (1L << pos + 1L))                          \
+      group += (1L << (pos + 1L)))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
 #define PARALLEL_FOR_3D                             \

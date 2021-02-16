@@ -328,10 +328,10 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
       frac_of_state_accessed = 1.;
       label = "general";
 
-      if((gend - gstart) / (1L << pos+1L) >= nthreads)
+      if((gend - gstart) / (1L << (pos+1L)) >= nthreads)
       {
 #pragma omp parallel for 
-          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1L))
+          for(std::size_t group = gstart; group < gend; group += (1L << (pos + 1L)))
           {
               for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
               {
@@ -345,7 +345,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
       }
       else
       {
-          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1))
+          for(std::size_t group = gstart; group < gend; group += (1L << (pos + 1)))
           {
 #pragma omp parallel for
               for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)

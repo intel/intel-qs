@@ -16,7 +16,7 @@ double time_in_seconds(void)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void iqs::WhatCompileDefinitions()
+void WhatCompileDefinitions()
 {
 std::cout << "Compiler flags:\n"
 

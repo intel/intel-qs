@@ -53,7 +53,10 @@ int main(int argc, char **argv)
 #pragma omp parallel
 #pragma omp master
   {
-    int nthreads = omp_get_num_threads();
+    int nthreads = 1;
+#ifdef _OPENMP
+    nthreads = omp_get_num_threads();
+#endif
     fprintf(stdout, "OMP number of threads = %d \n", nthreads);
   }
   
