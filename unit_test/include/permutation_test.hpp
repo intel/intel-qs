@@ -311,7 +311,7 @@ namespace utest
         // printf("\n");
     
         std::uint64_t t0 = __rdtsc();
-        double s0 = sec();
+        double s0 = iqs::sec();
         for (std::size_t i = 0; i < state.size(); i++)
         {
             // 'i'  is the index in the old data representation.
@@ -323,7 +323,7 @@ namespace utest
             state_new[to] = state[i];
         }
         std::uint64_t t1 = __rdtsc();
-        double s1 = sec();
+        double s1 = iqs::sec();
         double bw = D(state.size()) * D(sizeof(state[0])) * 2.0 / D(s1 - s0);
         if (do_print) printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", D(t1 - t0) / D(state.size()), bw / 1e9);
     

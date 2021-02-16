@@ -1,5 +1,7 @@
 #include "../include/spec_kernels.hpp"
 
+namespace iqs {
+
 // Declare loops
 #define PARALLEL_FOR_1D                                   \
   _Pragma("omp parallel for")                             \
@@ -448,3 +450,5 @@ template void Loop_TN<ComplexDP>(ComplexDP *state,
                                  std::size_t c31, std::size_t c32, 
                                  std::size_t index_shift, GateSpec2Q spec, 
                                  Timer *timer, double angle);
+
+} // close namespace iqs

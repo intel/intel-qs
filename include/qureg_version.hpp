@@ -20,4 +20,6 @@
 
 #define QHIPSTER_VERSION_STRING "SDK-RC-2.1.0"
 
+namespace iqs {
 std::string GetQhipsterVersion(void);
+} // close namespace iqs

@@ -7,6 +7,10 @@
 using iqs::GateSpec1Q;
 using iqs::GateSpec2Q;
 
+namespace iqs {
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template< typename Type >
 __attribute__((noinline))
 void Loop_SN(std::size_t gstart, std::size_t gend,
@@ -29,5 +33,9 @@ void Loop_TN(Type *state,
              std::size_t c31, std::size_t c32, 
              std::size_t ind_shift, GateSpec2Q spec, Timer *timer, 
              double angle=0);
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+} // close namespace iqs
 
 #endif

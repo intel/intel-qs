@@ -25,6 +25,8 @@
 using ComplexSP = std::complex<float>;
 using ComplexDP = std::complex<double>;
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 // Structure to extract the value type of a template.
@@ -47,13 +49,11 @@ double time_in_seconds(void);
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-namespace iqs {
-
 /// Utility method to inform on the currently set compiler flags.
 void WhatCompileDefinitions();
 
-} // end namespace iqs
-
 /////////////////////////////////////////////////////////////////////////////////////////
+
+} // end namespace iqs
 
 #endif	// header guard IQS_UTILS_HPP

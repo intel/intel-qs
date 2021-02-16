@@ -1,5 +1,7 @@
 #include "../include/highperfkernels.hpp"
 
+namespace iqs {
+
 #define Specialization(MainLoop_) \
   frac_of_state_accessed = 1.; \
   /* Handling many special cases: should be easy to add  \
@@ -520,3 +522,5 @@ template void ScaleState<ComplexSP>(std::size_t start, std::size_t end,
                                     ComplexSP *state, const ComplexSP &s, Timer *timer);
 template void ScaleState<ComplexDP>(std::size_t start, std::size_t end, 
                                     ComplexDP *state, const ComplexDP &s, Timer *timer);
+
+} // close namespace iqs
