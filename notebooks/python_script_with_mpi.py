@@ -33,7 +33,10 @@ if __name__ == '__main__':
     state_vector = np.array(reg, copy=False)
 
     rank = iqs.MPIEnvironment.GetRank()
-    print('\nFinal state at rank {}: {}'.format(rank, state_vector))
+    if num_qubits<7:
+        print('\nFinal state at rank {}: {}'.format(rank, state_vector))
+    elif rank==0:
+        print('\nState too large to be printed, try 4 qubits :-)\n')
 
     iqs.EnvFinalize()
 
