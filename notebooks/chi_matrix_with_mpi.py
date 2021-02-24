@@ -11,7 +11,6 @@ sys.path.insert(0, '../build/lib')
 import intelqs_py as iqs    # Import IQS library
 import numpy as np          # Import NumPy library
 import pandas as pd         # Import library to store results in dataframes
-import pickle               # Import library to save dataframes
 
 # Name of files and directories.
 data_dir = './noise_via_chi_matrix/'
@@ -44,7 +43,7 @@ def get_chi_matrix(channel_type, parameter=0.01):
         chi[2,1] = +1j * p**2
         chi[2,2] = p**2
     else:
-        assert False
+        print('ERROR: unrecognized channel')
     chi.SolveEigenSystem()
     return chi
 

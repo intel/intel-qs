@@ -69,7 +69,8 @@ min_num_ensemble_states = 200
 num_ensemble_states = min_num_ensemble_states
 if min_num_ensemble_states%num_pool_states != 0:
     num_ensemble_states += num_pool_states-(min_num_ensemble_states%num_pool_states)
-assert num_ensemble_states%num_pool_states == 0
+if num_ensemble_states%num_pool_states != 0:
+    print('ERROR: the ensemble does not contain a number of states multiple of the pool')
 
 # IQS has functions that simplify some MPI instructions.
 # However, it is important to keep trace of the current rank.
