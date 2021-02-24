@@ -2,7 +2,7 @@
 
 Thanks for your interest in the project! 
 
-Any contribution, project participation and pull request from developers are welcome. Please follow this process:
+Any contribution, project participation and pull request from developers are welcome. All contributors agree to the Apache 2 license. Please follow this process:
 
 * Clone this repository or fork it. Create a new branch and add your modifications.
 * Remember to add unit tests to verify the desired behavior of the new features or methods.
