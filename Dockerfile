@@ -93,9 +93,8 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 RUN bash ~/miniconda.sh -b -p $HOME/miniconda
 ENV PATH="/root/miniconda/bin:$PATH"
 RUN /bin/bash -c ". ~/.bashrc && \
-	 	conda install -y notebook && \
-		conda install -y pybind11 && \
-		conda install -y numpy && \
-		conda install -y matplotlib"
+		conda install -y pybind11"
+# The user can consider installing in the conda environment other libraries like:
+# notebook (to access Jupyter notebooks), numpy or matplotlib.
 
 # Dockerfile Ends here
