@@ -94,7 +94,7 @@ RUN bash ~/miniconda.sh -b -p $HOME/miniconda
 ENV PATH="/root/miniconda/bin:$PATH"
 RUN /bin/bash -c ". ~/.bashrc && \
 		conda install -y pybind11"
-# The user can consider installing in the conda environment other libraries like:
+# The user may consider installing in the conda environment other libraries like:
 # notebook (to access Jupyter notebooks), numpy or matplotlib.
 
 # Dockerfile Ends here
