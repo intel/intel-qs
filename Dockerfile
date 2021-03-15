@@ -1,5 +1,5 @@
 ##------------------------------------------------------------------------------
-## Copyright 2019 Intel Corporation
+## Copyright 2021 Intel Corporation
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -64,18 +64,17 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 
-
 # Setup the local build environment for the simulation framework.
 WORKDIR /root/intelqs
 # Copy from docker host cwd everything (the git project files) into the container
 COPY . /root/intelqs
 
-#FIXME
-# For stability reasons, the container should not be used as 'root'.
-# A new user is created, named 'user':
-#RUN useradd --home-dir /home/user --create-home user
-#WORKDIR /home/user/intelqs
-#COPY . /home/user/intelqs
+# ------------------------------------------------------------------
+# If desired, a new user can be created in addition to 'root'.
+# Uncomment lines below to create a new user named 'tester':
+#RUN useradd --home-dir /home/tester --create-home tester
+#WORKDIR /home/tester/intelqs
+#COPY . /home/tester/intelqs
 
 # Install Intel Quantum Simulator
 RUN /bin/bash -c "source /opt/intel/mkl/bin/mklvars.sh intel64 ilp64"
@@ -89,13 +88,13 @@ LABEL mode="MPI" version="1.0" description="intel-qs built with MPI, no py inter
 # Install lib for missing pthread module [necessary?]
 RUN apt-get -y install libboost-all-dev
 
-# installing and configuring conda env
+# Install and configure conda env
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 RUN bash ~/miniconda.sh -b -p $HOME/miniconda
 ENV PATH="/root/miniconda/bin:$PATH"
 RUN /bin/bash -c ". ~/.bashrc && \
-	 	conda install -y notebook && \
-		conda install -y pybind11 && \
-		conda install -y numpy && \
-		conda install -y matplotlib"
+		conda install -y pybind11"
+# The user may consider installing in the conda environment other libraries like:
+# notebook (to access Jupyter notebooks), numpy or matplotlib.
+
 # Dockerfile Ends here
