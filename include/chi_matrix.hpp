@@ -12,7 +12,7 @@
 
 #include <typeinfo>
 
-#include <Dense>  // Eigen
+#include "Dense"  // Eigen
 
 #include "tinymatrix.hpp"
 #include "utils.hpp"

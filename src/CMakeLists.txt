@@ -17,7 +17,7 @@ ExternalProject_Add(deps-eigen
   GIT_SHALLOW 1
 )
 
-message(STATUS "Eigen library is downloaded in: ${CMAKE_BINARY_DIR}/deps/eigen-prefix/src/eigen/")
+message(STATUS "Eigen library is downloaded in: ${PROJECT_BINARY_DIR}/deps/eigen-prefix/src/eigen/")
 
 ################################################################################
 
