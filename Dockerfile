@@ -45,12 +45,8 @@ RUN wget "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUC
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN sh -c 'echo deb https://apt.repos.intel.com/mpi all main > /etc/apt/sources.list.d/intel-mpi.list'
-RUN sh -c 'echo deb https://apt.repos.intel.com/tbb all main > /etc/apt/sources.list.d/intel-tbb.list'
 RUN apt-get update
 RUN apt-get install -y intel-mkl-64bit-2019.2-057
-RUN apt-get install -y intel-mpi-2019.2-057
-RUN apt-get install -y intel-tbb-2019.2-057
 # Set the (global) environment variable MKLROOT to facilitate the build process.
 RUN echo 'export MKLROOT="/opt/intel/mkl"' >> /etc/bash.bashrc
 RUN export MKLROOT="/opt/intel/mkl"
