@@ -47,11 +47,11 @@ int main(int argc, char **argv)
   int num_qubits = 20;
   int num_gates = 1;
   // Recall that the executable will be located in:
-  //   <repository>/build/bin/
+  //   <repository>/benchmarks/bin/
   // but also that the script is launched from:
-  //   <repository>/examples/
+  //   <repository>/benchmarks/
   // Below we assume that the executable is run from:
-  //   <repository>/build/
+  //   <repository>/benchmarks/
   std::string out_directory = "../examples/output/";
   std::string out_filename_root = "basic_strong_scaling";
 
