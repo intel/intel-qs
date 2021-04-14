@@ -5,7 +5,6 @@
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=success)](https://arxiv.org/abs/1601.07195)
 
 
-
 # Intel Quantum Simulator
 
 Intel Quantum Simulator (Intel-QS), also known as qHiPSTER (The Quantum High Performance Software Testing Environment),
