@@ -92,9 +92,9 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
   iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   psi.SetRngPtr(&rnd_generator);
-  // Keepng the qubits idle, apply the depolarizing channel 300 times per qubit. 
+  // Keeping the qubits idle, apply the depolarizing channel 20 times per qubit. 
   // Take average over 100 realizations.
-  int num_time_steps = 200;
+  int num_time_steps = 20;
   int num_ensemble_states = 100;
   std::vector<double> overlap_squared (num_time_steps);
   for (int s=0; s<num_ensemble_states; ++s)

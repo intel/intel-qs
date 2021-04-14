@@ -137,7 +137,7 @@ int main(int argc, char **argv)
     {
        psi1.Apply1QubitGate(pos, g.second);
        psi2.Apply1QubitGate(pos, g.second);
-       assert(psi1 == psi2);
+       assert(std::abs(std::norm(psi1.ComputeOverlap(psi2))-1)<1e-13);
     }
   }
 
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         {
           psi1.ApplyControlled1QubitGate(q1, q2, m);
           psi2.ApplyControlled1QubitGate(q1, q2, m);
-          assert(psi1 == psi2);
+          assert(std::abs(std::norm(psi1.ComputeOverlap(psi2))-1)<1e-13);
         }
       }
     }

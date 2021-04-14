@@ -190,6 +190,10 @@ int main(int argc, char **argv)
   {
     num_qubits = atoi(argv[1]);
   }
+#ifndef USE_MKL
+  if (myrank==0)
+      std::cout << "Without MKL, the implementation of the classical FFT is slow\n";
+#endif
 
   // Single precision.
   {
