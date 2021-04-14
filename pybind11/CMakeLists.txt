@@ -6,7 +6,7 @@ find_package(pybind11 REQUIRED)
 if (NOT IqsMPI)
     set(NAME_PY_LIB intelqs_py)
 else()
-    set(NAME_PY_LIB intelqs_py_mpi)
+    set(NAME_PY_LIB intelqs_py)
 endif()
 
 pybind11_add_module(${NAME_PY_LIB} SHARED
