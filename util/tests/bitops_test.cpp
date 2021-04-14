@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: namespace changed from openqu to qhipster
+// FIXME: namespace changed from openqu to iqs
 // FIXME: most of the code is not necessary
 
 /// @file bitops_test.cpp
@@ -25,23 +25,23 @@
 
 int main()
 {
-  assert(qhipster::highestBit(1) == 0);
-  assert(qhipster::highestBit(2) == 1);
-  assert(qhipster::highestBit(3) == 1);
-  assert(qhipster::highestBit(4) == 2);
-  assert(qhipster::highestBit(std::numeric_limits<int>::max()) == 30);
-  assert(qhipster::highestBit(std::numeric_limits<unsigned>::max()) == 31);
+  assert(iqs::highestBit(1) == 0);
+  assert(iqs::highestBit(2) == 1);
+  assert(iqs::highestBit(3) == 1);
+  assert(iqs::highestBit(4) == 2);
+  assert(iqs::highestBit(std::numeric_limits<int>::max()) == 30);
+  assert(iqs::highestBit(std::numeric_limits<unsigned>::max()) == 31);
 
-  assert(qhipster::ilog2(1) == 0);
-  assert(qhipster::ilog2(2) == 1);
-  assert(qhipster::ilog2(4) == 2);
+  assert(iqs::ilog2(1) == 0);
+  assert(iqs::ilog2(2) == 1);
+  assert(iqs::ilog2(4) == 2);
 
-  assert(!qhipster::isPowerOf2(0));
-  assert(qhipster::isPowerOf2(1));
-  assert(qhipster::isPowerOf2(2));
-  assert(!qhipster::isPowerOf2(3));
-  assert(qhipster::isPowerOf2(4));
-  assert(!qhipster::isPowerOf2(std::numeric_limits<int>::max()));
+  assert(!iqs::isPowerOf2(0));
+  assert(iqs::isPowerOf2(1));
+  assert(iqs::isPowerOf2(2));
+  assert(!iqs::isPowerOf2(3));
+  assert(iqs::isPowerOf2(4));
+  assert(!iqs::isPowerOf2(std::numeric_limits<int>::max()));
 
   return 0;
 }

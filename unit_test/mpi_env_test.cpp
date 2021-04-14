@@ -44,10 +44,10 @@ do { \
 int main(int argc, char** argv)
 {
   // Initialize the MPI environmentk, if MPI exists.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   // These should work even without MPI.
-  int pool_rank = qhipster::mpi::Environment::GetPoolRank();
-  int pool_size  = qhipster::mpi::Environment::GetPoolSize();
+  int pool_rank = iqs::mpi::Environment::GetPoolRank();
+  int pool_size  = iqs::mpi::Environment::GetPoolSize();
 
   // When MPI is used, obtain rank and size of MPI_COMM_WORLD.
   int world_rank = 0, world_size = 1;
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
   // Verify that a single state has been created.
   if (env.IsUsefulRank()==true)
   {
-      ASSERT(pool_rank==qhipster::mpi::Environment::GetStateRank(),"Consistency check."); 
-      ASSERT( pool_size>=qhipster::mpi::Environment::GetStateSize(),"Consistency check."); 
+      ASSERT(pool_rank==iqs::mpi::Environment::GetStateRank(),"Consistency check."); 
+      ASSERT( pool_size>=iqs::mpi::Environment::GetStateSize(),"Consistency check."); 
   }
   else
       std::cout << "\nDummy pool: world rank = " << world_rank << "\n"
@@ -76,22 +76,22 @@ int main(int argc, char** argv)
 
   std::string buffer;
   if (env.IsUsefulRank()==true)
-    buffer = "Pool rank " + std::to_string(qhipster::mpi::Environment::GetPoolRank())
-             + "/" + std::to_string(qhipster::mpi::Environment::GetPoolSize()) + " , "
-             + "State rank " + std::to_string(qhipster::mpi::Environment::GetStateRank())
-             + "/" + std::to_string(qhipster::mpi::Environment::GetStateSize()) + " , "
-             + "Node id " + std::to_string(qhipster::mpi::Environment::GetNodeId())
-             + "/" + std::to_string(qhipster::mpi::Environment::GetNumNodes());
+    buffer = "Pool rank " + std::to_string(iqs::mpi::Environment::GetPoolRank())
+             + "/" + std::to_string(iqs::mpi::Environment::GetPoolSize()) + " , "
+             + "State rank " + std::to_string(iqs::mpi::Environment::GetStateRank())
+             + "/" + std::to_string(iqs::mpi::Environment::GetStateSize()) + " , "
+             + "Node id " + std::to_string(iqs::mpi::Environment::GetNodeId())
+             + "/" + std::to_string(iqs::mpi::Environment::GetNumNodes());
   else
-    buffer = "Pool rank " + std::to_string(qhipster::mpi::Environment::GetPoolRank())
-             + "/" + std::to_string(qhipster::mpi::Environment::GetPoolSize()) + " , "
-             + "Node id " + std::to_string(qhipster::mpi::Environment::GetNodeId())
-             + "/" + std::to_string(qhipster::mpi::Environment::GetNumNodes());
+    buffer = "Pool rank " + std::to_string(iqs::mpi::Environment::GetPoolRank())
+             + "/" + std::to_string(iqs::mpi::Environment::GetPoolSize()) + " , "
+             + "Node id " + std::to_string(iqs::mpi::Environment::GetNodeId())
+             + "/" + std::to_string(iqs::mpi::Environment::GetNumNodes());
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  qhipster::mpi::PoolPrint("Hello Pool (printed only from pool_rank=0)!", false);
+  iqs::mpi::PoolPrint("Hello Pool (printed only from pool_rank=0)!", false);
   
   WORLD_BARRIER;
 
@@ -99,16 +99,16 @@ int main(int argc, char** argv)
 
   if (env.IsUsefulRank()==true)
   {
-      qhipster::mpi::PoolPrint("\n --------- print once at a time, useful ranks.\n");
-      qhipster::mpi::PoolPrint(buffer, true);
+      iqs::mpi::PoolPrint("\n --------- print once at a time, useful ranks.\n");
+      iqs::mpi::PoolPrint(buffer, true);
   }
 
   WORLD_BARRIER;
 
   if (env.IsUsefulRank()==false)
   {
-      qhipster::mpi::PoolPrint("\n --------- print once at a time, dummy ranks.\n");
-      qhipster::mpi::PoolPrint(buffer, true);
+      iqs::mpi::PoolPrint("\n --------- print once at a time, dummy ranks.\n");
+      iqs::mpi::PoolPrint(buffer, true);
   }
 
   WORLD_BARRIER;
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
 // test of the exception handling for the MPI environment
 
 #ifdef INTELQS_HAS_MPI
-  QHIPSTER_MPI_CHECK_RESULT(MPI_Errhandler_set,(MPI_COMM_WORLD, MPI_ERRORS_RETURN))
+  QHIPSTER_MPI_CHECK_RESULT(MPI_Comm_set_errhandler,(MPI_COMM_WORLD, MPI_ERRORS_RETURN))
   // test if exceptions work
   try {
     int data;
@@ -154,15 +154,15 @@ int main(int argc, char** argv)
 
       WORLD_BARRIER;
 
-      buffer = "Pool rank " + std::to_string(qhipster::mpi::Environment::GetPoolRank())
-               + "/" + std::to_string(qhipster::mpi::Environment::GetPoolSize()) + " , "
-               + "State rank " + std::to_string(qhipster::mpi::Environment::GetStateRank())
-               + "/" + std::to_string(qhipster::mpi::Environment::GetStateSize()) + " , "
-               + "Node id " + std::to_string(qhipster::mpi::Environment::GetNodeId())
-               + "/" + std::to_string(qhipster::mpi::Environment::GetNumNodes());
+      buffer = "Pool rank " + std::to_string(iqs::mpi::Environment::GetPoolRank())
+               + "/" + std::to_string(iqs::mpi::Environment::GetPoolSize()) + " , "
+               + "State rank " + std::to_string(iqs::mpi::Environment::GetStateRank())
+               + "/" + std::to_string(iqs::mpi::Environment::GetStateSize()) + " , "
+               + "Node id " + std::to_string(iqs::mpi::Environment::GetNodeId())
+               + "/" + std::to_string(iqs::mpi::Environment::GetNumNodes());
 
       if (env.IsUsefulRank()==true)
-          qhipster::mpi::PoolPrint(buffer, true);
+          iqs::mpi::PoolPrint(buffer, true);
       else
           std::cout << "[dummy world rank = " << world_rank << "] pool size = "
                     << env.GetPoolSize() << "\n";
@@ -184,12 +184,12 @@ int main(int argc, char** argv)
   if (env.IsUsefulRank()==false)
       return 0;
 
-  qhipster::mpi::PoolBarrier();
+  iqs::mpi::PoolBarrier();
 
   // Verify that the PoolBarrier works.
-  qhipster::mpi::PoolPrint(" -- before the PoolBarrier()\n");
-  qhipster::mpi::PoolBarrier();
-  qhipster::mpi::PoolPrint(" --  after the PoolBarrier()\n\n");
+  iqs::mpi::PoolPrint(" -- before the PoolBarrier()\n");
+  iqs::mpi::PoolBarrier();
+  iqs::mpi::PoolPrint(" --  after the PoolBarrier()\n\n");
  
 /////////////////////////////////////////////////////////////////////////////////////////
 

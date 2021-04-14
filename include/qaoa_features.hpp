@@ -5,8 +5,9 @@
 
 #include "qureg.hpp"
 
-namespace qaoa
-{
+namespace iqs {
+
+namespace qaoa {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // This function uses the IQS vector not as a quantum state but as a vector of size
@@ -32,6 +33,8 @@ namespace qaoa
 //     |psi> <== exp(-i C gamma) |psi>
 // for classical Hamiltonian C.
 // The diagonal of C is provided as a (not-normalized) IQS vector.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -41,6 +44,8 @@ namespace qaoa
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Return the expectation value of the cost function.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -50,6 +55,8 @@ namespace qaoa
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Return the expectation value of the (cost function)^2.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -60,6 +67,8 @@ namespace qaoa
 /////////////////////////////////////////////////////////////////////////////////////////
 // Return the histogram with the probability of measuring a graph coloring
 // associated to a specific value of the cost function.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -70,6 +79,8 @@ namespace qaoa
 /////////////////////////////////////////////////////////////////////////////////////////
 // Return the histogram with the probability of measuring a graph coloring
 // associated to a specific value of the cost function for a weighted graph with cutvals rounded down.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -82,6 +93,8 @@ namespace qaoa
 // Return the histogram with the probability of measuring a graph coloring
 // associated to a specific value of the cost function for a weighted graph binned
 // to a specified bin_width.
+//
+// The permutation of both QubitRegister objects must be the same.
 /////////////////////////////////////////////////////////////////////////////////////////
 
   template<typename Type>
@@ -92,6 +105,8 @@ namespace qaoa
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-}		// namespace 'qaoa'
+}		// end namespace qaoa
+}		// end namespace iqs
+
 
 #endif		// end of guards QAOA_EXTRA_FEATURES_HPP

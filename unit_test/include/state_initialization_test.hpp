@@ -17,11 +17,11 @@ class StateInitializationTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 10-qubit state is distributed in more than 512 ranks.
-    if (qhipster::mpi::Environment::GetStateSize() > 512)
+    if (iqs::mpi::Environment::GetStateSize() > 512)
       GTEST_SKIP();
 
     G_(0, 0) = {0.592056606032915, 0.459533060553574}; 
@@ -33,6 +33,7 @@ class StateInitializationTest : public ::testing::Test
   const std::size_t num_qubits_ = 10;
   TM2x2<ComplexDP> G_;
   double accepted_error_ = 1e-15;
+  bool do_print_info_ = false;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ TEST_F(StateInitializationTest, ComputationalBasisState)
 {
   // Recall that the qubits read from left to right, with the most significant
   // bit on the right (contrary to usual decimal representation).
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
   // |psi> = |1010010001> = |"1+4+32+512">
   ASSERT_DOUBLE_EQ( psi.ComputeNorm(), 1.);
   ASSERT_EQ(psi.GetProbability(0),1);
@@ -77,10 +78,10 @@ TEST_F(StateInitializationTest, ComputationalBasisState)
 TEST_F(StateInitializationTest, RandomState)
 {
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator_1;
+  iqs::RandomNumberGenerator<double> rnd_generator_1;
   rnd_generator_1.SetSeedStreamPtrs(rng_seed);
   // The "rand" style cannot be used directly in the creation of the state.
-  QubitRegister<ComplexDP> psi_1(num_qubits_, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi_1(num_qubits_, "base", 0);
   psi_1.SetRngPtr(&rnd_generator_1);
   // |psi_1> = |random>
   psi_1.Initialize("rand", 1);
@@ -88,7 +89,7 @@ TEST_F(StateInitializationTest, RandomState)
   ASSERT_DOUBLE_EQ(psi_1.ComputeNorm(), 1);
 
   // Copy |psi_1> into |psi_2>
-  QubitRegister<ComplexDP> psi_2(psi_1);
+  iqs::QubitRegister<ComplexDP> psi_2(psi_1);
   // Check that the max abs difference amplitude by amplitude.
   ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
 
@@ -130,17 +131,18 @@ TEST_F(StateInitializationTest, RandomState)
 
   // Create a new RNG initialized to the same seed.
   // if used to initialize |psi_2>, it should recreate |psi_1>.
-  qhipster::RandomNumberGenerator<double> rnd_generator_2;
+  iqs::RandomNumberGenerator<double> rnd_generator_2;
   rnd_generator_2.SetSeedStreamPtrs(rng_seed);
   psi_2.SetRngPtr(&rnd_generator_2);
   psi_2.Initialize("rand", 1);
-// FIXME
-#if 0
-for (size_t j=0; j<psi_2.GlobalSize(); ++j)
-  if (psi_1[j] != psi_2[j])
-    std::cout << "@@ psi_1[" << j << "] = " << psi_1[j] << "\n"
-              << "@@ psi_2[" << j << "] = " << psi_2[j] << "\n";
-#endif
+  // For visual inspection, if required:
+  if (do_print_info_)
+  {
+      for (size_t j=0; j<psi_2.GlobalSize(); ++j)
+          if (psi_1[j] != psi_2[j])
+              std::cout << "@@ psi_1[" << j << "] = " << psi_1[j] << "\n"
+                        << "@@ psi_2[" << j << "] = " << psi_2[j] << "\n";
+  }
 
   EXPECT_NEAR(psi_2.MaxAbsDiff(psi_1), 0, accepted_error_ );
   EXPECT_NEAR(psi_2.MaxL2NormDiff(psi_1), 0, accepted_error_ );
@@ -152,31 +154,34 @@ TEST_F(StateInitializationTest, RandomStateSameSeed)
 {
   // random number generator
   std::size_t rng_seed = 7315;
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   rng.SetSeedStreamPtrs(rng_seed);
   //
-  int num_states = qhipster::mpi::Environment::GetNumStates();
+  int num_states = iqs::mpi::Environment::GetNumStates();
   assert (num_states==1);
   //
   // |psi> = |0000>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   psi.SetRngPtr(&rng);
   psi.Initialize("rand",num_states);
   // |psi> = |rand>
 
   // Initilize the copy: |copy> = |psi>
-  QubitRegister<ComplexDP> psi_copy (psi);
+  iqs::QubitRegister<ComplexDP> psi_copy (psi);
   ASSERT_DOUBLE_EQ(psi_copy.MaxAbsDiff(psi), 0 );
   ASSERT_DOUBLE_EQ(psi_copy.MaxL2NormDiff(psi), 0 );
   //
-  qhipster::RandomNumberGenerator<double> rng_copy;
+  iqs::RandomNumberGenerator<double> rng_copy;
   rng_copy.SetSeedStreamPtrs(rng_seed);
   psi_copy.SetRngPtr(&rng_copy);
   psi_copy.Initialize("rand",num_states);
 
-//FIXME
-//psi.Print("|random psi> = ");
-//psi_copy.Print("|copy psi> = ");
+  // For visual inspection, if required:
+  if (do_print_info_)
+  {
+      psi.Print("|random psi> = ");
+      psi_copy.Print("|copy psi> = ");
+  }
 
   ASSERT_NEAR(psi_copy.MaxAbsDiff(psi), 0., accepted_error_ );
   ASSERT_NEAR(psi_copy.MaxL2NormDiff(psi), 0., accepted_error_ );
@@ -187,7 +192,7 @@ TEST_F(StateInitializationTest, RandomStateSameSeed)
 TEST_F(StateInitializationTest, SuperpositionOfAllComputationalStates)
 {
   // |psi> = |++++++++++>
-  QubitRegister<ComplexDP> psi (num_qubits_,"++++");
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"++++");
 
   ASSERT_DOUBLE_EQ(psi.ComputeNorm(), 1);
 
@@ -207,14 +212,14 @@ TEST_F(StateInitializationTest, DeathTest)
 #endif
 
   // Skip death-tests if MPI size > 1.
-  if (qhipster::mpi::Environment::GetStateSize() > 1)
+  if (iqs::mpi::Environment::GetStateSize() > 1)
       GTEST_SKIP();
 
   // To switch off the warning message about DEATH test not being thread safe.
   ::testing::FLAGS_gtest_death_test_style = "threadsafe"; 
 
   // |psi> = |0000000000> = |"0">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   // Index outside the global range.
   std::size_t index;
   index = UL(1L << UL(num_qubits_));

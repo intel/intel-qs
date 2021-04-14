@@ -1,5 +1,5 @@
 ##------------------------------------------------------------------------------
-## Copyright 2019 Intel Corporation
+## Copyright 2021 Intel Corporation
 ##
 ## Licensed under the Apache License, Version 2.0 (the "License");
 ## you may not use this file except in compliance with the License.
@@ -17,15 +17,17 @@
 # Use an official Ubuntu linux image as the run time environment.
 FROM ubuntu:latest
 
-# Setup the proxy server environment.
-ENV http_proxy http://proxy-chain.intel.com:911
-ENV https_proxy http://proxy-chain.intel.com:911
+# Set timezone persistent
+#ENV TZ=Europe/Berlin
+
+# Set apt-get non-interactive for build
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Fetch and install the GNU Make utility.
 RUN apt-get update && apt-get install -y build-essential g++ make
 
 # Fetch and install a generic MPI implementation.
-RUN apt-get update && apt-get install -y mpich
+RUN apt-get update && DEBIAN_FRONTEND=nonitneractive apt-get install -y mpich
 
 # Fetch and install OpenSSH (client/server) for interacting between
 # nodes of the cluster in a Docker swarm configuration.
@@ -43,12 +45,8 @@ RUN wget "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUC
 RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-RUN sh -c 'echo deb https://apt.repos.intel.com/mpi all main > /etc/apt/sources.list.d/intel-mpi.list'
-RUN sh -c 'echo deb https://apt.repos.intel.com/tbb all main > /etc/apt/sources.list.d/intel-tbb.list'
 RUN apt-get update
 RUN apt-get install -y intel-mkl-64bit-2019.2-057
-RUN apt-get install -y intel-mpi-2019.2-057
-RUN apt-get install -y intel-tbb-2019.2-057
 # Set the (global) environment variable MKLROOT to facilitate the build process.
 RUN echo 'export MKLROOT="/opt/intel/mkl"' >> /etc/bash.bashrc
 RUN export MKLROOT="/opt/intel/mkl"
@@ -62,22 +60,37 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 
-# Install VIM to edit files.
-RUN apt-get install -y vim
-
 # Setup the local build environment for the simulation framework.
 WORKDIR /root/intelqs
+# Copy from docker host cwd everything (the git project files) into the container
 COPY . /root/intelqs
 
-#FIXME
-# For stability reasons, the container should not be used as 'root'.
-# A new user is created, named 'tester':
+# ------------------------------------------------------------------
+# If desired, a new user can be created in addition to 'root'.
+# Uncomment lines below to create a new user named 'tester':
 #RUN useradd --home-dir /home/tester --create-home tester
 #WORKDIR /home/tester/intelqs
 #COPY . /home/tester/intelqs
 
-#FIXME
 # Install Intel Quantum Simulator
-#RUN source /opt/intel/mkl/bin/mklvars.sh intel64 ilp64
-#RUN mkdir build; cd build; CXX=g++ cmake -DIqsMPI=OFF -DIqsUtest=ON -DIqsPython=OFF ..
+RUN /bin/bash -c "source /opt/intel/mkl/bin/mklvars.sh intel64 ilp64"
+RUN /bin/bash -c "mkdir build; cd build; CXX=g++ cmake -DIqsMPI=ON -DBuildExamples=ON -DIqsUtest=ON -DIqsPython=OFF .."
+WORKDIR /root/intelqs/build
+RUN make
+WORKDIR /root/intelqs
 
+LABEL mode="MPI" version="1.0" description="intel-qs built with MPI, no py interface, with Examples"
+
+# Install lib for missing pthread module [necessary?]
+RUN apt-get -y install libboost-all-dev
+
+# Install and configure conda env
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+RUN bash ~/miniconda.sh -b -p $HOME/miniconda
+ENV PATH="/root/miniconda/bin:$PATH"
+RUN /bin/bash -c ". ~/.bashrc && \
+		conda install -y pybind11"
+# The user may consider installing in the conda environment other libraries like:
+# notebook (to access Jupyter notebooks), numpy or matplotlib.
+
+# Dockerfile Ends here

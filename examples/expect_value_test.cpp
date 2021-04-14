@@ -30,7 +30,7 @@ using namespace std;
 
 // Definition of a utility macro to print only from the main rank.
 #define MPIout \
-if (qhipster::mpi::Environment::GetStateRank()==0) std::cout
+if (iqs::mpi::Environment::GetStateRank()==0) std::cout
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -39,18 +39,23 @@ if (qhipster::mpi::Environment::GetStateRank()==0) std::cout
 int main(int argc, char **argv)
 {
   unsigned myrank=0, nprocs=1;
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank()==false) return 0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  if (nprocs > 1)
+  {
+      if (myrank==0)
+          fprintf(stderr, "example to be launched with a single process\n");
+      exit(1);
+  }
   double expectation;
 
   MPIout << "------------------\n"
          << "   Single qubit   \n"
          << "------------------\n\n";
 
-  QubitRegister<ComplexDP> psi(1,"base",1);
+  iqs::QubitRegister<ComplexDP> psi(1,"base",1);
   psi.EnableStatistics();  
   psi.ApplyHadamard(0);
 
@@ -87,7 +92,7 @@ int main(int argc, char **argv)
          << "     4 qubits     \n"
          << "------------------\n\n";
 
-  QubitRegister<ComplexDP> phi(4,"base",0);
+  iqs::QubitRegister<ComplexDP> phi(4,"base",0);
   phi.ApplyPauliX(1);
   phi.ApplyHadamard(2);
   phi.ApplyPauliX(3);

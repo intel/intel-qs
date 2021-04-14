@@ -17,11 +17,11 @@ class ExpectationValuesTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 8 ranks.
-    if (qhipster::mpi::Environment::GetStateSize() > 8)
+    if (iqs::mpi::Environment::GetStateSize() > 8)
       GTEST_SKIP();
   }
 
@@ -42,19 +42,19 @@ TEST_F(ExpectationValuesTest, YZBaseChange)
   ComplexDP amplitude_0, amplitude_1;
   // In the implementation, the matrix G is used.
   // G is matrix from change of basis Y --> Z, such that Ginv.Z.G = Y 
-  qhipster::TinyMatrix<ComplexDP, 2, 2, 32> G;
+  iqs::TinyMatrix<ComplexDP, 2, 2, 32> G;
   double f = 1. / std::sqrt(2.);
   G(0, 0) = G(1, 0) = ComplexDP(f , 0.);
   G(0, 1) = ComplexDP(0.,-f);
   G(1, 1) = ComplexDP(0., f);
   // G^dagger = G^-1
-  qhipster::TinyMatrix<ComplexDP, 2, 2, 32> Ginv;
+  iqs::TinyMatrix<ComplexDP, 2, 2, 32> Ginv;
   Ginv(0, 0) = Ginv(0, 1) = ComplexDP(f , 0.);
   Ginv(1, 0) = ComplexDP(0., f);
   Ginv(1, 1) = ComplexDP(0.,-f);
 
   // Test from Y to Z basis (using matrix G).
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
   psi.ApplyRotationX(0,-M_PI/2.);
   // |psi> = |+y>|00000>
   psi.Apply1QubitGate(0,G);
@@ -120,7 +120,7 @@ TEST_F(ExpectationValuesTest, YZBaseChange)
 
 TEST_F(ExpectationValuesTest, ExpectationOneQubit)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
   // |psi> = |010100> = |"2+8">
   psi.ApplyHadamard(2);
   psi.ApplyHadamard(3);
@@ -153,7 +153,7 @@ TEST_F(ExpectationValuesTest, ExpectationOneQubit)
 
 TEST_F(ExpectationValuesTest, ExpectationTwoQubits)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
   // |psi> = |010100> = |"2+8">
   psi.ApplyHadamard(2);
   psi.ApplyHadamard(3);
@@ -189,7 +189,7 @@ TEST_F(ExpectationValuesTest, ExpectationTwoQubits)
 
 TEST_F(ExpectationValuesTest, GeneralMethod)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",2+8);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",2+8);
   // |psi_0> = |010100> = |"2+8">
   ASSERT_EQ(psi.GetProbability(0),0);
   ASSERT_EQ(psi.GetProbability(1),1);

@@ -12,6 +12,8 @@
 
 using namespace std;
 
+namespace iqs {
+
 /// @brief Class that expand @c QubitRegister states by adding noise between "logical" gates.
 ///
 /// @param num_qubit is the number of qubits
@@ -94,13 +96,13 @@ class NoisyQureg : public QubitRegister<Type>
     void NoiseGate_OLD(unsigned const);
 
     // Perform gates
-    void Apply1QubitGate(unsigned const, qhipster::TinyMatrix<Type, 2, 2, 32>);
+    void Apply1QubitGate(unsigned const, iqs::TinyMatrix<Type, 2, 2, 32>);
     void ApplyHadamard(unsigned const);
     void ApplyRotationX(unsigned const, BaseType);
     void ApplyRotationY(unsigned const, BaseType);
     void ApplyRotationZ(unsigned const, BaseType);
     void ApplyCPauliX(unsigned const, unsigned const);
-    void ApplyControlled1QubitGate(unsigned const, unsigned const, qhipster::TinyMatrix<Type, 2, 2, 32>);
+    void ApplyControlled1QubitGate(unsigned const, unsigned const, iqs::TinyMatrix<Type, 2, 2, 32>);
 
 };
 
@@ -286,7 +288,7 @@ void NoisyQureg<Type>::NoiseGate(unsigned const qubit )
   B = { std::cos(v_X)*std::cos(v_Y) , -std::sin(v_X)*std::sin(v_Y) };
   C = { std::cos(v_X)*std::sin(v_Y) , -std::sin(v_X)*std::cos(v_Y) };
 
-  qhipster::TinyMatrix<Type, 2, 2, 32> U_noise;
+  iqs::TinyMatrix<Type, 2, 2, 32> U_noise;
   U_noise(0, 0) = A*B;
   U_noise(0, 1) = -std::conj(A)*std::conj(C);
   U_noise(1, 0) = A*C;
@@ -432,7 +434,7 @@ void NoisyQureg<Type>::NoiseGate_OLD(unsigned const qubit )
   //    sigma_axis
   // and use it to implement the single-qubit rotation :
   //    rot = exp( i * angle * sigma_axis )
-  qhipster::TinyMatrix<Type, 2, 2, 32> rot;
+  iqs::TinyMatrix<Type, 2, 2, 32> rot;
   BaseType s(std::sin(angle/2.)) , c(std::cos(angle/2.)) ;
   rot(0, 0) = Type(  c         ,  s*axis[2] );
   rot(0, 1) = Type(  s*axis[1] ,  s*axis[0] );
@@ -451,7 +453,7 @@ void NoisyQureg<Type>::NoiseGate_OLD(unsigned const qubit )
 
 template <class Type>
 void NoisyQureg<Type>::Apply1QubitGate(unsigned const q,
-                                       qhipster::TinyMatrix<Type, 2, 2, 32> V)
+                                       iqs::TinyMatrix<Type, 2, 2, 32> V)
 {
   AddNoiseOneQubitGate(q); 
   QubitRegister<Type>::Apply1QubitGate(q,V);
@@ -494,11 +496,13 @@ void NoisyQureg<Type>::ApplyCPauliX(unsigned const q1, unsigned const q2)
 
 template <class Type>
 void NoisyQureg<Type>::ApplyControlled1QubitGate(unsigned const q1, unsigned const q2,
-                                                 qhipster::TinyMatrix<Type, 2, 2, 32> V)
+                                                 iqs::TinyMatrix<Type, 2, 2, 32> V)
 {
   AddNoiseTwoQubitGate(q1,q2); 
   QubitRegister<Type>::ApplyControlled1QubitGate(q1,q2,V);
 }
+
+} // end namespace iqs
 
 /// @}
 

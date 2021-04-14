@@ -36,7 +36,7 @@
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   assert(env.GetNumStates()==1);
   int my_rank = env.GetStateRank();
@@ -47,36 +47,36 @@ int main(int argc, char **argv)
   int num_qubits = 20;
   int num_gates = 1;
   // Recall that the executable will be located in:
-  //   <repository>/build/bin/
+  //   <repository>/benchmarks/bin/
   // but also that the script is launched from:
-  //   <repository>/examples/
+  //   <repository>/benchmarks/
   // Below we assume that the executable is run from:
-  //   <repository>/build/
+  //   <repository>/benchmarks/
   std::string out_directory = "../examples/output/";
   std::string out_filename_root = "basic_strong_scaling";
 
   // Parse input parameters:
   for (int i = 1; i < argc; ++i)
   {
-      if (argv[i] == std::string ("-nq")) {
+      if (argv[i] == std::string ("-nq")) {		// number of qubits.
           ++i;
-          assert(i<argc);	// Unspecified number of qubits.
+          assert(i<argc);
           num_qubits = std::atoi(argv[i]);
-      } else if (argv[i] == std::string ("-ng")) {
+      } else if (argv[i] == std::string ("-ng")) {	// number of gates.
           ++i;
-          assert(i<argc);	// Unspecified number of gates.
+          assert(i<argc);
           num_gates = std::atoi(argv[i]);
-      } else if (argv[i] == std::string ("-nt")) {
+      } else if (argv[i] == std::string ("-nt")) {	// number of threads per rank.
           ++i;
-          assert(i<argc);	// Unspecified number of threads per rank.
+          assert(i<argc);
           num_threads = std::atoi(argv[i]);
-      } else if (argv[i] == std::string ("-od")) {
+      } else if (argv[i] == std::string ("-od")) {	// output directory.
           ++i;
-          assert(i<argc);	// Unspecified output directory.
+          assert(i<argc);
           out_directory = argv[i];
-      } else if (argv[i] == std::string ("-of")) {
+      } else if (argv[i] == std::string ("-of")) {	// output filename root.
           ++i;
-          assert(i<argc);	// Unspecified output filename root.
+          assert(i<argc);
           out_filename_root = argv[i];
       } else {
           std::cout << "Wrong arguments. They should be:\n"
@@ -104,7 +104,11 @@ int main(int argc, char **argv)
   G(1, 1) = {0.649564427121402, 0.373855203932477};
 
   // Initialize the qubit register and turn on specialization.
-  QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
+  // Since this code may use very large number of qubits, we limit it to 2^30.
+  size_t tmp_spacesize = 0;
+  if (num_qubits>30)
+      tmp_spacesize = size_t(1L << 30);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits, "base", 0, tmp_spacesize);
 if (false)  psi.TurnOnSpecialize();
   // Loop over the number of qubits and store the time elapsed in the computation.
   struct timeval time;
@@ -115,7 +119,7 @@ if (true) psi.EnableStatistics();
   for(int qubit = 0; qubit < num_qubits; qubit++)
   {
       // MPI barrier and start the timer.
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
       gettimeofday(&time, (struct timezone*)0);
       start =  time.tv_sec + time.tv_usec * 1.0e-6;
 
@@ -125,7 +129,7 @@ if (true) psi.EnableStatistics();
 //          psi.ApplyRotationZ(qubit, M_PI/3.);
 
       // MPI barrier and end the timer.
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
       gettimeofday(&time, (struct timezone*)0);
       end =  time.tv_sec + time.tv_usec * 1.0e-6;
       computational_cost.push_back( (end-start)/double(num_gates) );

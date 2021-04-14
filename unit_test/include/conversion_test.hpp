@@ -3,6 +3,8 @@
 
 #include "../../include/conversion.hpp"
 
+#include <string>
+
 //////////////////////////////////////////////////////////////////////////////
 // Test fixture class: compiler flags
 //////////////////////////////////////////////////////////////////////////////
@@ -17,7 +19,7 @@ class ConversionTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
   }
 };
@@ -27,8 +29,12 @@ class ConversionTest : public ::testing::Test
 
 TEST_F(ConversionTest, BasicUse)
 {
-  ASSERT_TRUE(qhipster::toString(1)  =="1");
-  ASSERT_TRUE(qhipster::toString('a')=="a");
+  ASSERT_TRUE(iqs::toString(1)  =="1");
+  ASSERT_TRUE(iqs::toString('a')=="a");
+  int var = 25;
+  ASSERT_TRUE(iqs::toString(var)=="25");
+  std::string s = "I have 2 apples";
+  ASSERT_EQ(iqs::toString(s), s);
 }
 
 //////////////////////////////////////////////////////////////////////////////

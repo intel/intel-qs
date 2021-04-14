@@ -28,7 +28,6 @@ using namespace std;
 
 
 /* 
-
 Dynamics of a transverse Heisenberg model. Single first-order Trotter step.
 Hamiltonian:
 H = -J_z \sum Z_j Z_{j+1} - g J_z \sum X_j
@@ -45,57 +44,43 @@ H = -J_z \sum Z_j Z_{j+1} - g J_z \sum X_j
 In the code below, the initial condition is set such that spins
 are rotated in X-Z plane, with the first spin 180 degrees counter
 to the others.
-
 */
-
-
 
 
 
 int main(int argc, char **argv)
 {
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // Setting the MPI environment
 /////////////////////////////////////////////////////////////////////////////////////////
   
-  
-  
-
-
   unsigned myrank=0, nprocs=1;
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank()==false) return 0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-
-  
-
-  
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 
   int num_qubits;
 
   std::size_t tmp_size = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
-     exit(1);
+    fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
+    exit(1);
   }
   else
   {
-     num_qubits = atoi(argv[1]);
-     fprintf(stderr, "Number of qubits: %i \n",num_qubits);
+    num_qubits = atoi(argv[1]);
+    fprintf(stderr, "Number of qubits: %i \n",num_qubits);
   }
   
   double expectval = 0.;
   
   
-  
-  QubitRegister<ComplexDP> psi(num_qubits,"base",1);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits,"base",1);
   // 1 means zeroth qubit is flipped. 0 means none are flipped.
   psi.EnableStatistics();
- 
 
   // Set model parameters
   double J = 1.;
@@ -104,47 +89,45 @@ int main(int argc, char **argv)
  
   // Initial state before Trotter step:
   // Rotated slightly in X-Z plane, with first spin 180deg from others
-  for(int i=0;i<num_qubits;i++){
+  for(int i=0;i<num_qubits;i++)
+  {
     psi.ApplyRotationY(i,3.14159/6.);
   }
   
   // Expectation value on each qubit, before simulation
-  for(int i=0;i<num_qubits;i++){
+  for(int i=0;i<num_qubits;i++)
+  {
     expectval = 0.;
     expectval = psi.ExpectationValueZ(i);
-    printf("<Z> on qubit %d: %.12f \n",i,expectval);
+    if (myrank==0)
+      printf("<Z> on qubit %d: %.12f \n",i,expectval);
   }
-  printf("\n");
+  if (myrank==0)
+    printf("\n");
   
-  printf("Running one Trotter step.\n");
+  if (myrank==0)
+    printf("Running one Trotter step.\n");
   // Apply one Trotter step of Hamiltonian
-  for(int i=0;i<num_qubits-1;i++){
-    
+  for(int i=0;i<num_qubits-1;i++)
+  {
     psi.ApplyRotationX(i,g*J*dt);
     
     psi.ApplyCPauliX(i,i+1);
     psi.ApplyRotationZ(i+1,J*dt);
     psi.ApplyCPauliX(i,i+1);
-
   }
   
   // Last qubit must also have an Rx rotation
   psi.ApplyRotationX(num_qubits-1,g*J*dt);
   
   // Expectation value on each qubit
-  for(int i=0;i<num_qubits;i++){
-    
+  for(int i=0;i<num_qubits;i++)
+  {
     expectval = 0.;
     expectval = psi.ExpectationValueZ(i);
-    printf("<Z> on qubit %d: %.12f \n",i,expectval);
-    
+    if (myrank==0)
+      printf("<Z> on qubit %d: %.12f \n",i,expectval);
   }
 
-
-
 }
-
-
-
-
 

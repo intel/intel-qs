@@ -9,6 +9,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
+namespace iqs {
+
 /// \class GateCounter
 /// The GateCounter class serves two main purposes:
 /// 1) To count the number of gates applied, divided by kind.
@@ -80,7 +82,7 @@ class GateCounter
   /// Print the values of counters and depth.
   void Breakdown()
   {
-    if (qhipster::mpi::Environment::GetStateRank() == 0)
+    if (iqs::mpi::Environment::GetStateRank() == 0)
     {
         printf("The quantum circuit is composed of %d one-qubit gates and "
                "%d two-qubitgates, for a total of %d gates.\nThe greedy depth "
@@ -93,5 +95,7 @@ class GateCounter
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
+}	// end namespace iqs
 
 #endif	// header guard IQS_GATE_COUNTER_HPP

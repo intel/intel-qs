@@ -3,6 +3,10 @@
 
 #include "qureg.hpp"
 
+namespace iqs {
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
 template< typename Type >
 __attribute__((noinline))
 void Loop_SN(std::size_t start, std::size_t end, Type *state0, Type *state1,
@@ -32,5 +36,9 @@ void ScaleState(std::size_t start, std::size_t end, Type *state,
 // for debugging purposes
 static __attribute__((noinline)) void LOOP_START() {printf("\n");}
 static __attribute__((noinline)) void LOOP_END() {printf("\n");}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+} // close namespace iqs
 
 #endif	// header guard HIGH_PERF_KERNELS_HPP

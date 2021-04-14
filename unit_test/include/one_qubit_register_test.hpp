@@ -17,13 +17,13 @@ class OneQubitRegisterTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 1-qubit state is distributed in more than 1 rank.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 1)
+    if (iqs::mpi::Environment::GetStateSize() > 1)
       GTEST_SKIP();
   }
 
@@ -41,7 +41,7 @@ TEST_F(OneQubitRegisterTest, InitializeInComputationalBasis)
 {
   ComplexDP amplitude;
 
-  QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
   // |psi_0> = |0>
   amplitude = psi_0.GetGlobalAmplitude(0);
   ASSERT_DOUBLE_EQ(amplitude.real(), 1.);
@@ -50,7 +50,7 @@ TEST_F(OneQubitRegisterTest, InitializeInComputationalBasis)
   ASSERT_DOUBLE_EQ(amplitude.real(), 0.);
   ASSERT_DOUBLE_EQ(amplitude.imag(), 0.);
 
-  QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
+  iqs::QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
   // |psi_1> = |1>
   amplitude = psi_1.GetGlobalAmplitude(0);
   ASSERT_DOUBLE_EQ(amplitude.real(), 0.);
@@ -74,13 +74,13 @@ TEST_F(OneQubitRegisterTest, InitializeRandomly)
 
 TEST_F(OneQubitRegisterTest, GetCorrectProbability)
 {
-  QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi_0 (num_qubits_,"base",0);
   ASSERT_DOUBLE_EQ(psi_0.GetProbability(0), 0.);
   psi_0.ApplyHadamard(0);
   // |psi_0> = |+>
   ASSERT_LE( std::abs(psi_0.GetProbability(0)-0.5) , accepted_error_ );
 
-  QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
+  iqs::QubitRegister<ComplexDP> psi_1 (num_qubits_,"base",1);
   ASSERT_DOUBLE_EQ(psi_1.GetProbability(0), 1.);
   psi_1.ApplyPauliX(0);
   // |psi_1> = |0>

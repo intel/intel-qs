@@ -46,7 +46,7 @@ fi
 exec_args=" -nq "$num_qubits" -ng "$num_gates" -od "$out_directory" -of "$out_filename_root\
 " -nt "$num_threads_per_rank
 
-exec_file="../build/bin/basic_code_for_scaling.exe"
+exec_file="./bin/basic_code_for_scaling.exe"
 
 ##########################################################################
 

@@ -19,7 +19,7 @@ class RandomNumberGeneratorTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
   }
 
@@ -36,7 +36,7 @@ TEST_F(RandomNumberGeneratorTest, BasicUse)
 {
   std::size_t num_samples = 10;
   double random [num_samples];
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   std::size_t seed = 777;
   rng.SetSeedStreamPtrs(seed);
 
@@ -49,7 +49,7 @@ TEST_F(RandomNumberGeneratorTest, BasicUse)
   ASSERT_EQ(rng.GetNumGeneratedOrSkippedPoolNumbers() , 0 );
 
   // New stream, it should be a copy of the previous one since seed is the same.
-  qhipster::RandomNumberGenerator<double> rng_copy;
+  iqs::RandomNumberGenerator<double> rng_copy;
   rng_copy.SetSeedStreamPtrs(seed);
   double random_copy [num_samples];
   // Generate the samples.
@@ -65,12 +65,12 @@ TEST_F(RandomNumberGeneratorTest, BasicUse)
 
 TEST_F(RandomNumberGeneratorTest, Visualization)
 {
-  if (qhipster::mpi::Environment::GetStateRank() != 0)
+  if (iqs::mpi::Environment::GetStateRank() != 0)
       GTEST_SKIP();
 
   std::size_t num_samples = 20*2000;
   double random [num_samples];
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   std::size_t seed = 777;
   rng.SetSeedStreamPtrs(seed);
 
@@ -95,7 +95,7 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
 {
   std::size_t num_samples = 100;
   double random [num_samples];
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   std::size_t seed = 717;
   rng.SetSeedStreamPtrs(seed);
   // Generate the samples.
@@ -103,7 +103,7 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
   ASSERT_TRUE(random[0] != random[num_samples-1]);
 
   // New stream, it should be different.
-  qhipster::RandomNumberGenerator<double> rng_2;
+  iqs::RandomNumberGenerator<double> rng_2;
   rng_2.SetSeedStreamPtrs(seed+1);
   double random_2 [num_samples];
   // Generate the samples.
@@ -116,19 +116,38 @@ TEST_F(RandomNumberGeneratorTest, DifferentSeed)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(RandomNumberGeneratorTest, LargeRandomVectors)
+{
+  // A large vector size gave errors with GCC when running on github servers.
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+  std::size_t num_samples = (1UL << 22);
+#else
+  std::size_t num_samples = (1UL << 16);
+#endif
+  double random [num_samples];
+  iqs::RandomNumberGenerator<double> rng;
+  std::size_t seed = 717;
+  rng.SetSeedStreamPtrs(seed);
+  // Generate the samples.
+  rng.UniformRandomNumbers(random, num_samples, 0., 1., "local");
+  ASSERT_TRUE(random[0] != random[num_samples-1]);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 TEST_F(RandomNumberGeneratorTest, SkipMethod)
 {
   std::size_t half_samples = 40;
   std::size_t num_samples = 2*half_samples;
   double random [num_samples];
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   std::size_t seed = 717;
   rng.SetSeedStreamPtrs(seed);
   // Generate the samples.
   rng.UniformRandomNumbers(random, num_samples, 0., 1., "local");
 
   // New stream, it should corresponds to the second half of the previous stream.
-  qhipster::RandomNumberGenerator<double> rng_2;
+  iqs::RandomNumberGenerator<double> rng_2;
   double random_2 [half_samples];
   rng_2.SetSeedStreamPtrs(seed);
   rng_2.SkipAhead(half_samples,"local");

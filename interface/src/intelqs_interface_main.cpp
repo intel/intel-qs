@@ -11,12 +11,12 @@ using namespace std;
 
 // Global variables related to Psi-function .malloc/.free routines.
 using Type = ComplexDP;
-QubitRegister<Type> *psi1 = nullptr;
+iqs::QubitRegister<Type> *psi1 = nullptr;
 bool fPsiAllocated = false;
 
 int main(int argc, char*argv[])
 {
-    qhipster::mpi::Environment env(argc, argv);
+    iqs::mpi::Environment env(argc, argv);
     string line = "";
     string token = "";
 

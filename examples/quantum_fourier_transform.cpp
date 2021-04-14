@@ -26,18 +26,34 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename Type>
-void qft(QubitRegister<Type> &psi)
+void qft(iqs::QubitRegister<Type> &psi)
 {
-  int my_rank = qhipster::mpi::Environment::GetStateRank();
-  int n = qhipster::ilog2(psi.size());
+  int my_rank = iqs::mpi::Environment::GetStateRank();
+  int n = iqs::ilog2(psi.size());
 
   // main computation
+  //
+  //  6  -H--*----*------*--------...--*----------------x------  6
+  //  5  ----R-H--|-*----|-*------...--|-*--------------|-x----  5
+  //  4  ---------R-R-H--|-|-*----...--|-|-*------------|-|-x--  4
+  //  3  ----------------R-R-R-H--...--|-|-|-*----------|-|-|--  3
+  //  2  -------------------------...--|-|-|-|-*--------|-|-x--  2
+  //  1  -------------------------...--|-|-|-|-|-*------|-x----  1
+  //  0  -------------------------...--R-R-R-R-R-R-H----x------  0
+  //
+  // See: https://en.wikipedia.org/wiki/Quantum_Fourier_transform#Circuit_implementation
+  //
+  // Note that:
+  // 1. the qubit indices are inverted since the quantum-information convention has
+  //    qubit 0 corresponding to the highest-significance bit, while IQS convention has
+  //    qubit 0 corresponding to the lowest-significance bit (as standard in computer science).
+  // 2. in the phase-shift gate, the role of target and control is interchangeable.
   for (int i = n - 1; i >= 0; i--)
   {
     for (int j = n - 1; j > i; j--)
     {
       int k = j - i;
-      qhipster::TinyMatrix<Type, 2, 2, 32> phaseshift;
+      iqs::TinyMatrix<Type, 2, 2, 32> phaseshift;
       phaseshift(0, 0) = {1, 0};
       phaseshift(0, 1) = {0, 0};
       phaseshift(1, 0) = {0, 0};
@@ -60,31 +76,31 @@ void qft(QubitRegister<Type> &psi)
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename Type>
-static void cfft(QubitRegister<Type> &x)
+static void cfft(iqs::QubitRegister<Type> &x)
 {
   
-  int nprocs = qhipster::mpi::Environment::GetStateSize();
+  int nprocs = iqs::mpi::Environment::GetStateSize();
 #ifdef USE_MKL
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   DFTI_DESCRIPTOR_DM_HANDLE desc;
   MKL_LONG v;
 
   // Create descriptor for 1D FFT
   MKL_LONG status =
-      (sizeof(BaseType<Type>) == 8) ? 
+      (sizeof(iqs::BaseType<Type>) == 8) ? 
       DftiCreateDescriptorDM(comm, &desc, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize()) :
       DftiCreateDescriptorDM(comm, &desc, DFTI_SINGLE, DFTI_COMPLEX, 1, x.GlobalSize());
   assert(status==0);
 
-  // qhipster::mpi::barrier(); exit(0);
+  // iqs::mpi::barrier(); exit(0);
   DftiGetValueDM(desc, CDFT_LOCAL_SIZE, &v);
   assert(status==0);
   std::vector <Type> work(v);
   status = DftiSetValueDM(desc, CDFT_WORKSPACE, work.data());
   assert(status==0);
   status = DftiSetValueDM(desc, DFTI_BACKWARD_SCALE,
-                          1.0 / std::sqrt((BaseType<Type>)x.GlobalSize()));
+                          1.0 / std::sqrt((iqs::BaseType<Type>)x.GlobalSize()));
   assert(status==0);
   status = DftiCommitDescriptorDM(desc);
   assert(status==0);
@@ -95,7 +111,7 @@ static void cfft(QubitRegister<Type> &x)
 #else
   DFTI_DESCRIPTOR_HANDLE descriptor;
   MKL_LONG status =
-      (sizeof(BaseType<Type>) == 8) ? 
+      (sizeof(iqs::BaseType<Type>) == 8) ? 
       DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize()) :
       DftiCreateDescriptor(&descriptor, DFTI_SINGLE, DFTI_COMPLEX, 1, x.GlobalSize());
   assert(status==0);
@@ -155,7 +171,7 @@ static void cfft(QubitRegister<Type> &x)
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   int myrank = env.GetStateRank();
   if (myrank==0)
@@ -174,18 +190,22 @@ int main(int argc, char **argv)
   {
     num_qubits = atoi(argv[1]);
   }
+#ifndef USE_MKL
+  if (myrank==0)
+      std::cout << "Without MKL, the implementation of the classical FFT is slow\n";
+#endif
 
   // Single precision.
   {
     using Type = ComplexSP;
 
     if (myrank == 0) std::cout << "state initialization (single precision)\n";
-    qhipster::RandomNumberGenerator<float> rng_sp;
+    iqs::RandomNumberGenerator<float> rng_sp;
     rng_sp.SetSeedStreamPtrs(777);
-    QubitRegister<Type> psi1(num_qubits, "base", 0);
+    iqs::QubitRegister<Type> psi1(num_qubits, "base", 0);
     psi1.SetRngPtr(&rng_sp);
     psi1.Initialize("rand",1);
-    QubitRegister<Type> psi2(psi1);
+    iqs::QubitRegister<Type> psi2(psi1);
   
     if (myrank == 0) std::cout << "CFFT (single precision)\n";
     cfft<Type>(psi1);
@@ -206,13 +226,13 @@ int main(int argc, char **argv)
     using Type = ComplexDP;
 
     if (myrank == 0) std::cout << "state initialization (double precision)\n";
-    qhipster::RandomNumberGenerator<double> rng_dp;
+    iqs::RandomNumberGenerator<double> rng_dp;
     rng_dp.SetSeedStreamPtrs(777);
-    QubitRegister<Type> psi1(num_qubits, "base", 0);
+    iqs::QubitRegister<Type> psi1(num_qubits, "base", 0);
     psi1.SetRngPtr(&rng_dp);
     psi1.Initialize("rand",1);
     assert( std::abs(psi1.ComputeNorm()-1.)<1e-10);
-    QubitRegister<Type> psi2(psi1);
+    iqs::QubitRegister<Type> psi2(psi1);
 
     if (myrank == 0) std::cout << "CFFT (double precision)\n";
     cfft<Type>(psi1);

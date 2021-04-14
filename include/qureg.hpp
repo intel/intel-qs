@@ -1,6 +1,9 @@
+/// @file qureg.hpp
+/// @brief Declare the @c QubitRegister class.
+
 #pragma once
 
-#include <algorithm>	// for std::swap
+#include <algorithm>	// for std::swap, std::iota
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -21,8 +24,8 @@
 #include <omp.h>
 #endif
 
-#include "permute.hpp"
 // utility files
+#include "permutation.hpp"
 #include "utils.hpp"
 #include "mpi_utils.hpp"
 #include "rng_utils.hpp"
@@ -33,70 +36,122 @@
 #include "bitops.hpp"
 #include "conversion.hpp"
 #include "tinymatrix.hpp"
+#include "chi_matrix.hpp"
+#include "gate_spec.hpp"
 
-/// \addtogroup qureg
-/// @{
+/////////////////////////////////////////////////////////////////////////////////////////
 
-/// @file qureg.hpp
-/// @brief Declare the @c QubitRegister class.
+template<class Type>
+using TM2x2 = iqs::TinyMatrix<Type, 2, 2, 32>;
 
-template<typename T>
-struct extract_value_type //lets call it extract_value_type
-{
-    typedef T value_type;
-};
-
-
-template<template<typename> class X, typename T>
-struct extract_value_type<X<T>>   //specialization
-{
-    typedef T value_type;
-};
+template<class Type>
+using TM4x4 = iqs::TinyMatrix<Type, 4, 4, 32>;
 
 
 template<class Type>
-using TM2x2 = qhipster::TinyMatrix<Type, 2, 2, 32>;
-
+using CM4x4 = iqs::ChiMatrix<Type, 4, 32>;
 
 template<class Type>
-using TM4x4 = qhipster::TinyMatrix<Type, 4, 4, 32>;
+using CM16x16 = iqs::ChiMatrix<Type, 16, 32>;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// Qubitregister class declaration
+
+// Preparation for MPI-related performance improvement.
+// TODO: not yet coded
+#if 0
+/// In the distributed implementation, data movement can be reduced by reordering the MPI processes.
+/// This is also done recording their order in a Permutation object.
+///
+///    rank_id from COMM  -->  rank_id for data storage
+///           0                        map(0)
+///           1                        map(1)
+///           2                        map(2)
+///          ...                        ...
+///       num_ranks                    map(num_ranks-1)
+///
+/// To distinguish the two kind of rank_id, we use the terms 'comm_rank' and 'data_rank' respectively.
+#endif
+
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
+// QubitRegister class declaration
+/////////////////////////////////////////////////////////////////////////////////////////
+// General comment:
+// To distinguish between program qubits (used in the algorithm) and data qubits
+// (used in the representation of the quantum state), we use the term:
+// - 'position' to refer to data qubits
+// - 'qubit' ro refer to program qubits
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/// @class QubitRegister
+/// Represent the state of N qubits and update it due to quantum operations.
+///
+/// The N-qubit quantum state |psi> is stored as a 2^N complex vector.
+/// The global index i corresponds to the entry:
+///   state[i] = |i0>_pos0 * |i1>_pos1 * |i2>_pos2 * ...
+/// where ik is the k-th bit of i in its N-bit representation (with i0 being the
+/// least significant bit) and posk corresponds to the k-th qubit according to the
+/// order in which they are stored.
+///
+/// The quantum algorithm is written in terms of gates (or other quantum operations)
+/// acting on 'program qubits'. Instead, the way IQS represents a quantum register state
+/// is based on 'qubit positions', which are in 1:1 correspondence with program qubits
+/// but may be in a different order. The qubit positions determine which qubit
+/// is 'local' and which is 'global' from the point of view of teh MPI communication.
+///
+/// When a QubitRegister is initialized, data qubits and program qubits correspond trivially:
+///    qubit  -->  position
+///      0            0
+///      1            1
+///      2            2
+///     ...          ...
+///     N-1          N-1
+///
+/// This can be changed by using Permutations. Specifically one has:
+///    qubit  -->  position
+///      0          map(0)
+///      1          map(1)
+///      2          map(2)
+///     ...          ...
+///     N-1         map(N-1)
+///
+/// and its inverse:
+///   position -->  qubit
+///      0         imap(0)
+///      1         imap(1)
+///      2         imap(2)
+///     ...          ...
+///     N-1        imap(N-1)
 
 template <class Type = ComplexDP>
 class QubitRegister
 {
   public:
-    using value_type = Type;
-    typedef typename extract_value_type<Type>::value_type BaseType;
 
-  // constructors / destructors
-    QubitRegister();
-    QubitRegister(std::size_t num_qubits, std::string style = "", 
-                 std::size_t base_index = 0, std::size_t tmp_spacesize_ = 0);
-    QubitRegister(const QubitRegister &in);
-    QubitRegister(std::size_t num_qubits, Type *state, std::size_t tmp_spacesize_ = 0);
-    ~QubitRegister();
+  using value_type = Type;
+  typedef typename extract_value_type<Type>::value_type BaseType;
+
+  // Constructors and destructors.
+  QubitRegister();
+  QubitRegister(std::size_t num_qubits, std::string style = "", 
+                std::size_t base_index = 0, std::size_t tmp_spacesize_ = 0);
+  QubitRegister(const QubitRegister &in);
+  QubitRegister(std::size_t num_qubits, Type *state, std::size_t tmp_spacesize_ = 0);
+  ~QubitRegister();
 
   // allocation & initialization
   void AllocateAdditionalQubit();
   void Allocate(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
   void Initialize(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
-  // The 'style' of initialization can be:
-  // - 'rand': real and imag part of each amplitudes are uniformly random,
-  //           using either the **local** or **pool** RNG stream,
-  //           then state is normalized.
-  // - 'base': state of the computational basis, only a non-zero amplitude.
-  // - '++++': the balanced superposition of all computational basis states.
   void Initialize(std::string style, std::size_t base_index);
 
-  // overload [] operator to return the amplitude stored at the local index.
+  /// Overload [] operator to return the amplitude stored at the local index.
   inline Type& operator[] (std::size_t index) { return state[index]; }
   inline Type& operator[] (std::size_t index) const { return state[index]; }
-  // get the amplitude corresponding to a global index (with MPI broadcast).
+  // Set/get a single amplitude identified by its global index (expressed in terms of the program qubits).
   Type GetGlobalAmplitude(std::size_t index) const;
+  void SetGlobalAmplitude(std::size_t index, Type value);
 
   std::size_t LocalSize() const { return local_size_; }
   std::size_t GlobalSize() const { return global_size_; }
@@ -106,6 +161,9 @@ class QubitRegister
   std::size_t NumQubits() const { return num_qubits; }
   Type *TmpSpace() const { return state + LocalSize(); }
   size_t TmpSize() const {return tmp_spacesize_;}
+  
+  // Useful for python/numpy bindings and other buffer protocols
+  Type *RawState() { return state; }
 
   // bit manipulation
   inline bool check_bit(std::size_t variable, std::size_t position) const
@@ -123,25 +181,67 @@ class QubitRegister
      return (variable & ~(UL(1) << UL(position)));
   }
 
+
+  // In the statistics, the term 'qubit' corresponds to the program qubit.
+  // When a non-identity permutation is considered, one has to be careful to
+  // interpret a certain qubit as 'local' or 'global' w.r.t. MPI communication.
   void EnableStatistics();
   void GetStatistics();
   void DisableStatistics();
   void ResetStatistics();
 
-  void Permute(std::vector<std::size_t> permutation_new_vec);
+  // Permutation of the qubit order
+  void PermuteQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteLocalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteGlobalQubits(std::vector<std::size_t> new_map, std::string style_of_map="direct");
+  void PermuteByLocalGlobalExchangeOfQubitPairs(std::vector<std::size_t> new_map,
+                                                std::string style_of_map="direct");
+  void EmulateSwap(unsigned qubit1, unsigned qubit2);
 
+#if 0
+  Permutation *state_rank_permutation;
+  // Permutation of the state_rank order
+  int GetDataRank (int comm_rank) const
+    { return (*state_rank_permutation)[comm_rank]; }
+  int GetMyDataRank () const
+    { return this->GetDataRank(iqs::mpi::Environment::GetStateRank()); }
+  int GetCommRank (int data_rank) const
+    { return state_rank_permutation->Find(data_rank); }
+#endif
 
   // Generic gates
   // single qubit gates
   bool Apply1QubitGate_helper(unsigned qubit,  TM2x2<Type> const&m,
-                              std::size_t sstate_ind, std::size_t estate_ind);
-  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m);
+                              std::size_t sstate_ind, std::size_t estate_ind,
+                              // For spec and angle, see the description in Apply1QubitGate below
+                              iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
+                              BaseType angle=0);
+
+  void Apply1QubitGate(unsigned qubit, TM2x2<Type> const&m,
+                       // spec argument is for specifying the gate type in spec v2
+                       // GateSpec1Q::None means there is no spec v2
+                       iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
+                       // angle argument should be passed with rotation gates provided with spec v2.
+                       // Passed internally by the gate functions.
+                       BaseType angle=0);
+
   // constrolled gates
   bool ApplyControlled1QubitGate_helper(unsigned control_qubit, unsigned target_qubit,
                                         TM2x2<Type> const&m,
-                                        std::size_t sind, std::size_t eind);
+                                        std::size_t sind, std::size_t eind,
+                                        // For spec and angle, see the description in ApplyControlled1QubitGate below
+                                        iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
+                                        BaseType angle=0);
+         
   void ApplyControlled1QubitGate(unsigned control_qubit, unsigned target_qubit,
-                                 TM2x2<Type> const&m);
+                                 TM2x2<Type> const&m,
+                                 // spec argument is for specifying the controlled gate type in spec v2
+                                 // GateSpec1Q::None means there is no spec v2.
+                                 // spec argument is passed internally by the gate functions
+                                 iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
+                                 // angle argument is used with the controlled rotation gates in spec v2,
+                                 // is spec is not None. Passes internally by the gate functions.
+                                 BaseType angle=0);
   // swap gates
   bool ApplySwap_helper(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);
   void ApplySwap(unsigned qubit1, unsigned qubit2);
@@ -149,7 +249,6 @@ class QubitRegister
   void Apply4thRootISwap(unsigned qubit1, unsigned qubit2);
   void ApplySqrtISwap(unsigned qubit1, unsigned qubit2);
   void ApplyISwapRotation(unsigned qubit1, unsigned qubit2, TM2x2<Type> const&m);
-  void Swap(unsigned b1, unsigned b2);
   // diagonal gates
   void ApplyDiagSimp(unsigned qubit1, unsigned qubit2, TM4x4<Type> const&m);
   void ApplyDiag(unsigned qubit1, unsigned qubit2, TM4x4<Type> const&m);
@@ -195,6 +294,9 @@ class QubitRegister
   void TurnOnSpecialize();
   void TurnOffSpecialize();
 
+  void TurnOnSpecializeV2();
+  void TurnOffSpecializeV2();
+
   // measurement
   bool GetClassicalValue(unsigned qubit, BaseType tolerance = 1.e-13) const;
   bool IsClassicalBit(unsigned qubit, BaseType tolerance = 1.e-13) const;
@@ -233,6 +335,9 @@ class QubitRegister
   BaseType GetTphi () {return T_phi_; }
   void SetNoiseTimescales(BaseType T1, BaseType T2);
   void ApplyNoiseGate(const unsigned qubit, const BaseType duration);
+  void ApplyChannel(const unsigned qubit, CM4x4<Type> & chi);
+  void ApplyChannel(const unsigned qubit1, const unsigned qubit2, CM16x16<Type> & chi);
+  BaseType GetOverallSignOfChannels() {return overall_sign_of_channels; }
 //FIXME DELETE  BaseType IncoherentAverageOverAllStatesOfPool (BaseType local_value);
 
 
@@ -249,26 +354,38 @@ class QubitRegister
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});
 
-  double HP_Distrpair(unsigned pos, TM2x2<Type> const&m);
-  double HP_Distrpair(unsigned control, unsigned qubit, TM2x2<Type> const&m);
+  double HP_Distrpair(unsigned position, TM2x2<Type> const&m,
+                      // See Apply1QubitGate declaration below 
+                      // for the following specialize v2 parameters
+                      iqs::GateSpec1Q spec=iqs::GateSpec1Q::None,
+                      BaseType angle=0);
+  double HP_Distrpair(unsigned control_position, unsigned target_position, TM2x2<Type> const&m,
+                      // See ApplyControlled1QubitGate declaration below
+                      // for the following specialize v2 parameters
+                      iqs::GateSpec2Q spec=iqs::GateSpec2Q::None,
+                      BaseType angle=0);
+  double HP_DistrSwap(unsigned low_position, unsigned high_position, TM2x2<Type> const&m);
 
   // related to the internal random number generator.
-  qhipster::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
+  iqs::RandomNumberGenerator<BaseType> * GetRngPtr () {return rng_ptr_; }
   void ResetRngPtr () {rng_ptr_=nullptr; }
-  void SetRngPtr (qhipster::RandomNumberGenerator<BaseType> * rng_ptr) {rng_ptr_=rng_ptr; }
+  void SetRngPtr (iqs::RandomNumberGenerator<BaseType> * rng_ptr) {rng_ptr_=rng_ptr; }
   void SetSeedRngPtr (std::size_t seed)
   {assert(rng_ptr_); rng_ptr_->SetSeedStreamPtrs(seed); }
 
   // Members
   std::size_t num_qubits;
-  std::vector<Type, qhipster::AlignedAllocator<Type, 256>> state_storage;
+  std::vector<Type, iqs::AlignedAllocator<Type, 256>> state_storage;
   Type *state;
-  Permutation *permutation;
+  Permutation *qubit_permutation;
   Timer *timer;
-  GateCounter *gate_counter;
+  GateCounter *gate_counter;	// Count how many gates acted on given program qubits.
   std::size_t llc_watermarkbit;
   bool imported_state;
   bool specialize;
+  bool specialize2 = false;
+  // Related to the simulation of quantum channels:
+  BaseType overall_sign_of_channels = 1;
 
   // temporary buffer for fusion
   bool fusion;
@@ -285,7 +402,7 @@ class QubitRegister
   std::size_t tmp_spacesize_;
   static bool do_print_extra_info;
 
-  qhipster::RandomNumberGenerator<BaseType> * rng_ptr_ = nullptr;
+  iqs::RandomNumberGenerator<BaseType> * rng_ptr_ = nullptr;
   BaseType T_1_;	// T_1   given in terms of the chosen time unit
   BaseType T_2_;	// T_2   given in terms of the chosen time unit
   BaseType T_phi_;	// T_phi given in terms of the chosen time unit
@@ -300,14 +417,14 @@ bool QubitRegister<Type>::do_print_extra_info = false;
 template <typename Type>
 using BaseType = typename QubitRegister<Type>::BaseType;
 
-/// @}
+}	// end namespace iqs
 
-//
+/////////////////////////////////////////////////////////////////////////////////////////
+
 // Derived class of QubitRegister that allows measurement of qubit gate depth.
-//
 #include "QubitRegisterMetric.hpp"
-//
+
 // Derived class of QubitRegister that automatically implements noise gates.
-//
 #include "NoisyQureg.hpp"
 
+/////////////////////////////////////////////////////////////////////////////////////////

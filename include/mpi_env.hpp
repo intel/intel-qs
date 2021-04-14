@@ -15,6 +15,7 @@
 
 #include <string>
 #include <unistd.h>
+#include <stdexcept>
 
 #ifdef INTELQS_HAS_MPI
 #include "mpi_exception.hpp"
@@ -26,7 +27,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-namespace qhipster {
+namespace iqs {
 
 namespace mpi {
 
@@ -51,6 +52,7 @@ class Environment
   /// If MPI is present, but has not been initialized, then MPI_Init will be called.
 
   Environment(int& argc, char**& argv);
+  Environment();
 
   /// Finalize the MPI Environment
   ///
@@ -110,7 +112,20 @@ class Environment
   static MPI_Comm GetComm();
 #endif
 
+
+/// The singleton interface that is used for global management of MPI resources.
+  static void Init();
+  static void Init(int &argc, char**&argv);
+  static void Finalize();
+  static Environment *GetSharedInstance() {return shared_instance;}
+
  private:
+// Shared helper for constructor overload
+#ifdef INTELQS_HAS_MPI
+  void CommonInit(int flag);
+#endif
+
+  static Environment *shared_instance;
 
   bool inited_;
   static bool useful_rank;
@@ -161,7 +176,7 @@ void Print(std::string s, MPI_Comm comm, bool all=true);
 /////////////////////////////////////////////////////////////////////////////////////////
 
 }	// end namespace mpi
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /// @}*/
 

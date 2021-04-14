@@ -3,21 +3,17 @@
 #include "../include/qureg_version.hpp"
 #include "../include/interface_api_version.h"
 
+unsigned long quiversion(std::string args) {
 
-using namespace std;
-
-
-unsigned long quiversion(string args) {
-
-    cout << INTERFACE_VERSION_STRING << endl;
+    std::cout << INTERFACE_VERSION_STRING << std::endl;
 
     return 0;
 }
 
 
-unsigned long quversion(string args) {
+unsigned long quversion(std::string args) {
 
-    cout << GetQhipsterVersion() << endl;
+    std::cout << iqs::GetQhipsterVersion() << std::endl;
 
     return 0;
 }

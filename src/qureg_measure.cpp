@@ -6,6 +6,8 @@
 /// @file qureg_measure.cpp
 /// @brief Define the @c QubitRegister methods related to measurement operations.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Return 'true' if qubit is separable and in a computational state.
 /// @param qubit the index of the involved qubit
@@ -18,14 +20,18 @@ template <class Type>
 bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) const
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
 
-  if (qubit < M)
+  std::size_t delta = 1UL << position;
+
+  if (position < M)
   {
       bool up = false, down = false;
       for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
@@ -43,7 +49,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
   {
       int up = 0, down = 0;
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0)
+      if (check_bit(src_glb_start, position) == 0)
       {
         down = 0;
         for (std::size_t j = 0; j < LocalSize(); ++j) 
@@ -58,8 +64,8 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
       // printf("[%3d] up:%d down:%d\n", myrank, up, down);
       int glb_up, glb_down;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-      MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+      MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
       MPI_Allreduce(&up, &glb_up, 1, MPI_INT, MPI_LOR, comm);
       MPI_Allreduce(&down, &glb_down, 1, MPI_INT, MPI_LOR, comm);
 #else
@@ -68,7 +74,7 @@ bool QubitRegister<Type>::IsClassicalBit(unsigned qubit, BaseType tolerance) con
       // printf("[%3d] glb_up:%d glb_down:%d\n", myrank, glb_up, glb_down);
       if (glb_up && glb_down) return false;
 
-      qhipster::mpi::StateBarrier();
+      iqs::mpi::StateBarrier();
   }
   // printf("[%d] here\n", myrank);
   return true;
@@ -87,14 +93,18 @@ template <class Type>
 void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
 
-  if (qubit < M)
+  std::size_t delta = 1UL << position;
+
+  if (position < M)
   { 
       for (std::size_t i = value ? 0 : delta; i < LocalSize(); i += 2 * delta)
           for (std::size_t j = 0; j < delta; ++j) state[i + j] = 0.;
@@ -102,12 +112,12 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0 && value == true)
+      if (check_bit(src_glb_start, position) == 0 && value == true)
       {
           for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
       }
-      else if (check_bit(src_glb_start, qubit) == 1 && value == false)
+      else if (check_bit(src_glb_start, position) == 1 && value == false)
       {
           for (std::size_t j = 0; j < LocalSize(); ++j)
               state[j] = 0.;
@@ -126,15 +136,20 @@ template <class Type>
 typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
+
+  std::size_t delta = 1UL << position;
   BaseType local_P = 0.;
-  if (qubit < M)
-  { // if '0' and '1' for qubit state are witin the same rank
+  if (position < M)
+  {
+      // here, '0' and '1' for qubit state are within the same rank
       for (std::size_t i = delta; i < LocalSize(); i += 2 * delta)
       {
           for (std::size_t j = 0; j < delta; ++j)
@@ -144,7 +159,7 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 1)
+      if (check_bit(src_glb_start, position) == 1)
       {
         for (std::size_t j = 0; j < LocalSize(); ++j)
             local_P += std::norm(state[j]);
@@ -153,8 +168,8 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsig
 
   BaseType global_P;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   MPI_Allreduce(&local_P, &global_P, 1, MPI_DOUBLE, MPI_SUM, comm);
 #else
   global_P = local_P;
@@ -169,14 +184,18 @@ template <class Type>
 bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) const
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned M = num_qubits - log2_nprocs;
 
-  std::size_t delta = 1UL << qubit;
+  assert(qubit<num_qubits);
+  unsigned position = (*qubit_permutation)[qubit];
+  assert(position<num_qubits);
+
+  std::size_t delta = 1UL << position;
   int bit_is_zero = 0, bit_is_one = 0; 
-  if (qubit < M)
+  if (position < M)
   {
       for (std::size_t i = 0; i < LocalSize(); i += 2 * delta)
       {
@@ -198,7 +217,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   else
   {
       std::size_t src_glb_start = UL(myrank) * LocalSize();
-      if (check_bit(src_glb_start, qubit) == 0)
+      if (check_bit(src_glb_start, position) == 0)
       {
           for (std::size_t j = 0; j < LocalSize(); j++)
           {
@@ -223,8 +242,8 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
   done:  
   int glb_bit_is_zero, glb_bit_is_one;
 #ifdef INTELQS_HAS_MPI
-// MPI_COMM_WORLD has been changed to qhipster::mpi::Environment::GetStateComm()
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+// MPI_COMM_WORLD has been changed to iqs::mpi::Environment::GetStateComm()
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   MPI_Allreduce(&bit_is_zero, &glb_bit_is_zero, 1, MPI_INT, MPI_LOR, comm);
   MPI_Allreduce(&bit_is_one , &glb_bit_is_one , 1, MPI_INT, MPI_LOR, comm);
 #else
@@ -244,5 +263,7 @@ bool QubitRegister<Type>::GetClassicalValue(unsigned qubit, BaseType tolerance) 
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

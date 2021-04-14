@@ -45,8 +45,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
-option(IqsUtest "Enable unit test?" ON)
+option(IqsUtest "Enable unit test?" OFF)
 option(BuildExamples "Build the Examples" OFF)
+option(BuildInterface "Build the QASM Interface" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
 ################################################################################
@@ -57,8 +58,7 @@ if(IqsMPI)
     message(STATUS "MPI functionality: enabled.")
 
     if(IqsPython)
-        message(STATUS "Python not compatible with MPI: disabled.")
-        set(IqsPython OFF)
+        message(STATUS "Python interface with MPI: enabled." )
     endif()
 
     if(IqsUtest)
@@ -140,6 +140,13 @@ if (IqsNative)
     endif()
 endif()
 
+
+################################################################################
+# Enable compiler optimizations to fix GCC performance.
+################################################################################
+if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+   add_compile_options(-O3)
+endif()
 
 ################################################################################
 # Locate MKL if it is already configured through Intel (mklvars.sh) scripts.
@@ -230,7 +237,22 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES Intel)
                         $ENV{MKLROOT}/lib/intel64/libmkl_core.a
                         -Wl,--end-group -liomp5 -lpthread -lm -ldl)
     endif()
+
+elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    # Ad-hoc modifications to compile and link with clang++.
+    add_compile_options(-O3)
+    add_compile_options(-m64)
+    if (IqsMKL)
+        message(FATAL_ERROR "Currently, the code does not provide MKL support with clang.")
+    endif()
+    if (IqsMPI)
+        message(FATAL_ERROR "Currently, the code does not provide MPI support with clang.")
+    endif()
+    link_libraries( -lgomp -lpthread -lm -ldl)
+    link_libraries( -lstdc++)
+
 else()
+    message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
     message(FATAL_ERROR "Currently, unsupported compiler environment.")
 endif()
 
@@ -243,6 +265,8 @@ if (OpenMP_CXX_FOUND)
     message(STATUS "OpenMP LIBS = ${OpenMP_CXX_LIBRARIES} FLAGS=${OpenMP_CXX_FLAGS}")
     add_compile_options("${OpenMP_CXX_FLAGS}")
     link_libraries("${OpenMP_CXX_LIBRARIES}")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+    message(STATUS "TODO: untested OpenMP with clang")
 else()
     message(FATAL_ERROR "Unable to locate OpenMP in any standard locations.")
 endif()
@@ -261,12 +285,18 @@ add_compile_definitions(USE_MM_MALLOC)
 add_subdirectory(src)
 
 if(BuildExamples)
+    message(STATUS "Build examples : enabled.")
     add_subdirectory(examples)
+else()
+    message(STATUS "Build examples : disabled.")
 endif()
 
 add_subdirectory(tutorials)
 add_subdirectory(benchmarks)
-add_subdirectory(interface)
+
+if (BuildInterface)
+    add_subdirectory(interface)
+endif()
 
 
 # INFO: when below flag is defined, checks of the form "assert(condition)" are skipped.

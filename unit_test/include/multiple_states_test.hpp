@@ -26,7 +26,7 @@ class MultipleStatesTest : public ::testing::Test
     pool_rank_id_ = 0;
 #endif
     // To ensure that each of two states has at least 2 amplitude per rank.
-    int min_num_qubits = qhipster::ilog2( qhipster::floor_power_of_two( num_ranks_) ) + 1;
+    int min_num_qubits = iqs::ilog2( iqs::floor_power_of_two( num_ranks_) ) + 1;
     if (num_qubits_ < min_num_qubits)
         num_qubits_ = min_num_qubits;
   }
@@ -42,11 +42,11 @@ class MultipleStatesTest : public ::testing::Test
   // Just before the 'destructor'.
   void TearDown() override
   {
-     if (qhipster::mpi::Environment::GetNumStates() != 1)
-         qhipster::mpi::Environment::UpdateStateComm(1,false);
+     if (iqs::mpi::Environment::GetNumStates() != 1)
+         iqs::mpi::Environment::UpdateStateComm(1,false);
   }
 
-  int num_qubits_= 6;
+  int num_qubits_= 8;
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
@@ -58,32 +58,32 @@ class MultipleStatesTest : public ::testing::Test
 
 TEST_F(MultipleStatesTest, OneStatePerRank)
 {
-  ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
+  ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Currently pool=state, but not always pool=MPI_COMM_WORLD since pool is
   // defined only for the useful ranks.
 
-  if ( qhipster::mpi::Environment::IsUsefulRank() )
+  if ( iqs::mpi::Environment::IsUsefulRank() )
   {
-    ASSERT_EQ( qhipster::mpi::Environment::GetPoolSize(),
-               qhipster::mpi::Environment::GetStateSize() );
-    ASSERT_EQ( qhipster::mpi::Environment::GetPoolRank(),
-               qhipster::mpi::Environment::GetStateRank() );
+    ASSERT_EQ( iqs::mpi::Environment::GetPoolSize(),
+               iqs::mpi::Environment::GetStateSize() );
+    ASSERT_EQ( iqs::mpi::Environment::GetPoolRank(),
+               iqs::mpi::Environment::GetStateRank() );
   }
   
   // Update state commutator.
   int num_states = num_ranks_;
-  qhipster::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
-  ASSERT_EQ( qhipster::mpi::Environment::GetStateRank(), 0 );
-  ASSERT_EQ( qhipster::mpi::Environment::GetStateSize(), 1 );
-  ASSERT_EQ( qhipster::mpi::Environment::GetPoolRank(), pool_rank_id_ );
+  iqs::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
+  ASSERT_EQ( iqs::mpi::Environment::GetStateRank(), 0 );
+  ASSERT_EQ( iqs::mpi::Environment::GetStateSize(), 1 );
+  ASSERT_EQ( iqs::mpi::Environment::GetPoolRank(), pool_rank_id_ );
 
   // Initialize all states in different computational basis states (if possible).
-  int my_state_id = qhipster::mpi::Environment::GetStateId();
+  int my_state_id = iqs::mpi::Environment::GetStateId();
   ASSERT_EQ( my_state_id , pool_rank_id_);
 
-  if ( qhipster::mpi::Environment::IsUsefulRank() )
+  if ( iqs::mpi::Environment::IsUsefulRank() )
   {
-      QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+      iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
       ASSERT_EQ( psi.GlobalSize(), psi.LocalSize() );
       std::size_t index = my_state_id % psi.GlobalSize();
       psi.Initialize("base",index);
@@ -113,35 +113,35 @@ TEST_F(MultipleStatesTest, OneStatePerRank)
 
 TEST_F(MultipleStatesTest, TwoStates)
 {
-  ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
+  ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = 2;
 
-  qhipster::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
+  iqs::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
 
-  ASSERT_EQ( num_states, qhipster::mpi::Environment::GetNumStates() );
+  ASSERT_EQ( num_states, iqs::mpi::Environment::GetNumStates() );
 
-  int my_state_id = qhipster::mpi::Environment::GetStateId();
+  int my_state_id = iqs::mpi::Environment::GetStateId();
   int num_useful_ranks = 0;
   int num_dummy_ranks  = 0;
 
-  if (qhipster::mpi::Environment::IsUsefulRank() == true)
+  if (iqs::mpi::Environment::IsUsefulRank() == true)
   {
-      num_useful_ranks =   qhipster::mpi::Environment::GetNumStates()
-                           * qhipster::mpi::Environment::GetStateSize();
+      num_useful_ranks =   iqs::mpi::Environment::GetNumStates()
+                           * iqs::mpi::Environment::GetStateSize();
 #if 0
 std::cout << "state_id= " << my_state_id << " over "
-          << qhipster::mpi::Environment::GetNumStates()
-          << "  ,  pool_size = " << qhipster::mpi::Environment::GetPoolSize() << "\n";
+          << iqs::mpi::Environment::GetNumStates()
+          << "  ,  pool_size = " << iqs::mpi::Environment::GetPoolSize() << "\n";
 #endif
       ASSERT_LE(num_useful_ranks, num_ranks_ );
-      ASSERT_EQ(num_useful_ranks, qhipster::mpi::Environment::GetPoolSize() );
+      ASSERT_EQ(num_useful_ranks, iqs::mpi::Environment::GetPoolSize() );
   }
   else
   {
-      num_dummy_ranks = qhipster::mpi::Environment::GetPoolSize();
+      num_dummy_ranks = iqs::mpi::Environment::GetPoolSize();
       ASSERT_LE(num_dummy_ranks, num_ranks_ );
-      ASSERT_LE(num_dummy_ranks, qhipster::mpi::Environment::GetPoolSize() );
+      ASSERT_LE(num_dummy_ranks, iqs::mpi::Environment::GetPoolSize() );
   }
 
   // The tests are executed only if there are at least 2 MPI ranks.
@@ -166,10 +166,10 @@ std::cout << "state_id= " << my_state_id << " over "
 #endif
 
   // Execute simple quantum computations.
-  if ( qhipster::mpi::Environment::IsUsefulRank() )
+  if ( iqs::mpi::Environment::IsUsefulRank() )
   {
-      QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
-      int my_state_id = qhipster::mpi::Environment::GetStateId();
+      iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+      int my_state_id = iqs::mpi::Environment::GetStateId();
       std::size_t index = my_state_id % psi.GlobalSize();
       psi.Initialize("base",index);
       // At this point:  state_id=0 --> |0>

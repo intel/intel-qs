@@ -82,7 +82,7 @@ void GenerateGateSet(std::vector <std::pair<std::string,TM2x2<Type>>> &sqg,
 int main(int argc, char **argv)
 {
   unsigned myrank;
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   myrank = env.GetStateRank();
   
@@ -110,17 +110,17 @@ int main(int argc, char **argv)
   GenerateGateSet<Type>(sqg, cqg);
 
   // To generate a random state, we need to create a random number generator first.
-  qhipster::mpi::PoolPrint("---- State initialization |psi_1>.\n");
-  qhipster::RandomNumberGenerator<double> rnd_generator_1;
+  iqs::mpi::PoolPrint("---- State initialization |psi_1>.\n");
+  iqs::RandomNumberGenerator<double> rnd_generator_1;
   rnd_generator_1.SetSeedStreamPtrs(20971);
-  QubitRegister<ComplexDP> psi1(num_qubits, "base", 0, 2097152);
+  iqs::QubitRegister<ComplexDP> psi1(num_qubits, "base", 0, 2097152);
   psi1.SetRngPtr(&rnd_generator_1);
   psi1.Initialize("rand",1);
 
-  qhipster::mpi::PoolPrint("---- State initialization |psi_2>.\n");
-  qhipster::RandomNumberGenerator<double> rnd_generator_2;
+  iqs::mpi::PoolPrint("---- State initialization |psi_2>.\n");
+  iqs::RandomNumberGenerator<double> rnd_generator_2;
   rnd_generator_2.SetSeedStreamPtrs(20971);
-  QubitRegister<ComplexDP> psi2(num_qubits, "base", 0, 2097152);
+  iqs::QubitRegister<ComplexDP> psi2(num_qubits, "base", 0, 2097152);
   psi2.SetRngPtr(&rnd_generator_2);
   psi2.Initialize("rand",1);
 
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
   psi2.EnableStatistics();
 #endif
 
-  qhipster::mpi::PoolPrint("---- One-qubit gates.\n");
+  iqs::mpi::PoolPrint("---- One-qubit gates.\n");
 
   for(auto g: sqg)
   {
@@ -137,11 +137,11 @@ int main(int argc, char **argv)
     {
        psi1.Apply1QubitGate(pos, g.second);
        psi2.Apply1QubitGate(pos, g.second);
-       assert(psi1 == psi2);
+       assert(std::abs(std::norm(psi1.ComputeOverlap(psi2))-1)<1e-13);
     }
   }
 
-  qhipster::mpi::PoolPrint("---- Two-qubit gates.\n");
+  iqs::mpi::PoolPrint("---- Two-qubit gates.\n");
 
   for (auto &g : cqg)
   {
@@ -154,13 +154,13 @@ int main(int argc, char **argv)
         {
           psi1.ApplyControlled1QubitGate(q1, q2, m);
           psi2.ApplyControlled1QubitGate(q1, q2, m);
-          assert(psi1 == psi2);
+          assert(std::abs(std::norm(psi1.ComputeOverlap(psi2))-1)<1e-13);
         }
       }
     }
   }
 
-  qhipster::mpi::PoolPrint("---- End of test.\n");
+  iqs::mpi::PoolPrint("---- End of test.\n");
 
 #ifdef INTELQS_HAS_MPI
   psi2.GetStatistics();

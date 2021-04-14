@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////
 
   // Create the MPI environment, passing the same argument to all the ranks.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   // IQS is structured so that only 2^k ranks are used to store and manipulate
   // the quantum state. In case the number of ranks differ from a power of 2,
   // all ranks in excess are effectively excluded from the computations and called
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
  * In practice, the quantum state of N qubits is represented as a complex vector with
  * 2^N components.
  *
- * Each componenet corresponds to the probability amplitude of a specific computational
+ * Each component corresponds to the probability amplitude of a specific computational
  * basis state:
  *     ψ(k)=⟨k|ψ⟩
  * with the index k corresponding to the N-bit integer in decimal representation, and
@@ -70,13 +70,13 @@ int main(int argc, char **argv)
   // Allocate memory for the quantum register's state and initialize it to |0000>.
   // This can be achieved by using the codeword "base".
   int num_qubits = 4;
-  QubitRegister<ComplexDP> psi (num_qubits);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits);
   std::size_t index = 0;
   psi.Initialize("base", index);
 
   // The state can be initialized to a random state. To allow such initialization,
   // we need to declare a (pseudo) random number generator...
-  qhipster::RandomNumberGenerator<double> rng;
+  iqs::RandomNumberGenerator<double> rng;
   // ... and associate it (via pointer) to the quantum state.
   psi.SetRngPtr(&rng);
   // Set the seed:
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 // Display the quantum state
 /////////////////////////////////////////////////////////////////////////////////////////
 /* It is important to be able to access and visualize the quantum state.
- * IQS allows to access the single componenets of the state or to print a comprehensive
+ * IQS allows to access the single components of the state or to print a comprehensive
  * description.
  * What index is associated to state |1011⟩? In decimal representation one has:
  *     1011 → 1×2^0 + 0×2^1 + 1×2^2 + 1×2^3 = 1+4+8 = 13
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
   // Print to screen. The second argument is set to true if all ranks need to print.
   // If it is set to false, then only the main rank prints to screen.
-  qhipster::mpi::Print(buffer.str(),false);
+  iqs::mpi::Print(buffer.str(),false);
 
   // A complete description of the state is provided by the QubitRegister method Print().
   // One can provide a brief label to the state description.
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 /////////////////////////////////////////////////////////////////////////////////////////
 // Two-qubit gates
 /////////////////////////////////////////////////////////////////////////////////////////
-/* To achieve universal quantum computation, it is enought to implement one-qubit
+/* To achieve universal quantum computation, it is enough to implement one-qubit
  * gates and a single type of two-qubit gate. The essential requirement is that such
  * two-qubit gate is able to generate entanglement. Usually the controlled-not gate
  * (CNOT in the following) is the operation of choice.
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
   qubit = 0;
   psi.Apply1QubitGate(qubit,G);
   final_norm = psi.ComputeNorm();
-  qhipster::mpi::Print("State |psi> was multiplied by a 2x2 unitary matrix G.",false);
+  iqs::mpi::Print("State |psi> was multiplied by a 2x2 unitary matrix G.",false);
   if (initial_norm != final_norm && myid == 0)
       std::cout << "The application of G changed the norm of state psi: from "
                 << initial_norm << " to " << final_norm << "\n\n";
