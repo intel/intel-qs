@@ -6,15 +6,17 @@
 /// @file qureg_fusion.cpp
 /// @brief Define the @c QubitRegister methods related to an optimization called 'fusion'.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 template <class Type>
 void QubitRegister<Type>::TurnOnFusion(unsigned log2llc)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
 #endif
   unsigned M = num_qubits - log2_nprocs;
 
@@ -54,7 +56,7 @@ template <class Type>
 void QubitRegister<Type>::ApplyFusedGates()
 {
   #if 0
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   if ( myrank==0 && fwindow.size() > 1) {
     printf("fused: ");
     for (auto &f : fwindow) {
@@ -93,5 +95,7 @@ void QubitRegister<Type>::ApplyFusedGates()
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

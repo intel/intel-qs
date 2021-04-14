@@ -22,7 +22,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-namespace qhipster {
+namespace iqs {
 
 namespace mpi {
 
@@ -179,7 +179,7 @@ void Environment::CommonInit(int flag)
 #else
   int threads_per_rank = (std::thread::hardware_concurrency() / 2) / num_ranks_per_node;
 #endif
-  assert(threads_per_rank == qhipster::openmp::omp_get_set_num_threads());
+  assert(threads_per_rank == iqs::openmp::omp_get_set_num_threads());
 #endif
 
   // start synching all threads
@@ -281,7 +281,7 @@ void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
   //  state_id =  0  0  0  0  1  1  1  1  .  .
 
   num_states = new_num_states;
-  int num_ranks_per_state = qhipster::floor_power_of_two(world_size/num_states);
+  int num_ranks_per_state = iqs::floor_power_of_two(world_size/num_states);
   my_state_id = world_rank / num_ranks_per_state;
   // Reset useful_rank.
   useful_rank = true;
@@ -376,25 +376,25 @@ void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
   std::stringstream buffer;
 #ifndef NDEBUG
   // Print to screen all information, useful for debug.
-  buffer    <<  "world_rank: " << std::setw(4) << qhipster::toString(world_rank) << " ,"
-            <<  " state_rank: " << std::setw(4) << qhipster::toString(my_state_rank)
-            <<  " (state " << std::setw(3) << qhipster::toString(my_state_id) 
-            <<  " of " << std::setw(3) << qhipster::toString(num_states) << ")"
-            <<  " my_node_id: " << std::setw(4) << qhipster::toString(my_node_id)
-            <<  " , num_nodes: " << std::setw(4) << qhipster::toString(num_nodes)
-            <<  " , ranks/node: " << std::setw(2) << qhipster::toString(num_ranks_per_node) 
-            <<  " , threads/rank: " << std::setw(2) << qhipster::toString(threads_per_rank)
+  buffer    <<  "world_rank: " << std::setw(4) << iqs::toString(world_rank) << " ,"
+            <<  " state_rank: " << std::setw(4) << iqs::toString(my_state_rank)
+            <<  " (state " << std::setw(3) << iqs::toString(my_state_id) 
+            <<  " of " << std::setw(3) << iqs::toString(num_states) << ")"
+            <<  " my_node_id: " << std::setw(4) << iqs::toString(my_node_id)
+            <<  " , num_nodes: " << std::setw(4) << iqs::toString(num_nodes)
+            <<  " , ranks/node: " << std::setw(2) << iqs::toString(num_ranks_per_node) 
+            <<  " , threads/rank: " << std::setw(2) << iqs::toString(threads_per_rank)
             <<  (useful_rank ? " --useful" : " --dummy");
 #else
   // Print to screen a few information
-  buffer    <<  "world_rank: " << std::setw(4) << qhipster::toString(world_rank)
+  buffer    <<  "world_rank: " << std::setw(4) << iqs::toString(world_rank)
             <<  "/" << world_size << " ,"
-            <<  " state_rank: " << std::setw(4) << (IsUsefulRank() ? qhipster::toString(my_state_rank) : "   -")
+            <<  " state_rank: " << std::setw(4) << (IsUsefulRank() ? iqs::toString(my_state_rank) : "   -")
             <<  "/" << num_ranks_per_state << " ,"
-            <<  " node_id: " << std::setw(4) << qhipster::toString(my_node_id) 
-            <<  "/" << qhipster::toString(num_nodes)
-            <<  " , ranks/node: " << std::setw(2) << qhipster::toString(num_ranks_per_node) 
-            <<  " , threads/rank: " << std::setw(2) << qhipster::toString(threads_per_rank)
+            <<  " node_id: " << std::setw(4) << iqs::toString(my_node_id) 
+            <<  "/" << iqs::toString(num_nodes)
+            <<  " , ranks/node: " << std::setw(2) << iqs::toString(num_ranks_per_node) 
+            <<  " , threads/rank: " << std::setw(2) << iqs::toString(threads_per_rank)
             <<  (useful_rank ? " --useful" : " --dummy");
 #endif
   if (do_print_info==true)
@@ -471,14 +471,14 @@ Type Environment::IncoherentSumOverAllStatesOfPool(Type local_value)
   // Therefore we can simply accumulate from all ranks and divide by:
   //   (number of states) * (num ranks per state) = (size of pool communicator)
   Type global_value ;
-  MPI_Comm comm = qhipster::mpi::Environment::GetPoolComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetPoolComm();
   MPI_Allreduce_x(&local_value, &global_value, 1, MPI_SUM, comm);
-  global_value /= Type(qhipster::mpi::Environment::GetStateSize());
+  global_value /= Type(iqs::mpi::Environment::GetStateSize());
 
 // If one were to compute the average instead of the sum, we need to divide by:
 //    (number of states) * (num ranks per state) = (size of pool communicator)
-//  global_value /= Type(qhipster::mpi::Environment::GetPoolSize());
-//  global_value /= Type(qhipster::mpi::Environment::GetNumStates());
+//  global_value /= Type(iqs::mpi::Environment::GetPoolSize());
+//  global_value /= Type(iqs::mpi::Environment::GetNumStates());
   assert( GetStateSize() * GetNumStates() == GetPoolSize() );
   return global_value;
 }
@@ -616,6 +616,6 @@ void Print(std::string s, MPI_Comm comm, bool all)
 /////////////////////////////////////////////////////////////////////////////////////////
 
 }	// end namespace mpi
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /////////////////////////////////////////////////////////////////////////////////////////

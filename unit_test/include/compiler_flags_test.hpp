@@ -15,7 +15,7 @@ class CompileFlagTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
   }
 };
@@ -25,7 +25,7 @@ class CompileFlagTest : public ::testing::Test
 
 TEST_F(CompileFlagTest, AllFlags)
 {
-  if (qhipster::mpi::Environment::GetPoolRank() == 0)
+  if (iqs::mpi::Environment::GetPoolRank() == 0)
   {
     std::cout << "             |----------------------------|----------|\n"
               << "             |        Compiler Flag       | defined? |\n"
@@ -85,7 +85,7 @@ TEST_F(CompileFlagTest, AllFlags)
 #endif
     std::cout << "             |----------------------------|----------|\n";
   }
-  qhipster::mpi::PoolBarrier();
+  iqs::mpi::PoolBarrier();
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@
 #define noexcept
 #endif
 
-namespace qhipster {
+namespace iqs {
 
 /// \class AlignedAllocator
 /// @brief An allocator returning aligned memory
@@ -135,7 +135,7 @@ class AlignedAllocator
 };
 
 
-}	// namespace qhipster
+}	// namespace iqs
 
 #if __cplusplus < 201103L
 #undef noexcept

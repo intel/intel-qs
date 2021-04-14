@@ -33,9 +33,9 @@ jobs:
 
       - name: configure
         shell: bash -l {0}
-        run: mkdir build && cd build && CXX=g++ cmake PYTHON_EXECUTABLE=/usr/share/miniconda/envs/test/bin/python -DIqsMPI=OFF -DIqsPython=ON -DIqsUtest=OFF ..
+        run: mkdir build && cd build && which python && whereis python && CXX=g++ cmake PYTHON_EXECUTABLE=/usr/share/miniconda/envs/test/bin/python -DIqsMPI=OFF -DIqsPython=ON -DIqsUtest=OFF ..
       - name: build
         run: cmake --build build --target intelqs_py
 
       - name: unit test
-        run: cd unit_test && /usr/share/miniconda/envs/test/bin/python import_iqs.py
+        run: cd unit_test && which python && whereis python && ls ../build/lib && python import_iqs.py

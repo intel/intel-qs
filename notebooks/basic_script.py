@@ -17,7 +17,8 @@ rank = iqs.MPIEnvironment.GetRank()
 # The simulation of a 2-qubit system cannot be divided in more than 2 ranks.
 if iqs.MPIEnvironment.GetStateSize()>2:
     if rank==0:
-        print("No more than 2 useful ranks per state.")
+        print("This program simulate a 2-qubit system that cannot be distributed among more than 2 ranks.")
+        print("Please try using only 2 MPI processes.")
     iqs.EnvFinalize()
     exit()
 

@@ -36,6 +36,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 // Outside class QubitRegister.
 #include "include/conversion_test.hpp"
 #include "include/tinymatrix_test.hpp"
+#include "include/chi_matrix_test.hpp"
 #include "include/random_number_generator_test.hpp"
 #include "include/gate_counter_test.hpp"
 #include "include/permutation_test.hpp"
@@ -61,6 +62,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 // Noisy simulations and extra features.
 #include "include/qureg_permute_test.hpp"
 #include "include/noisy_simulation_test.hpp"
+#include "include/qureg_apply_channel.hpp"
 #include "include/qaoa_features_test.hpp"
 
 // Pool functionality of MPI environment.
@@ -73,7 +75,7 @@ ASSERT_NEAR(val1.imag(),val2.imag(),error);
 int main(int argc, char **argv)
 {
   // Initialize the MPI environmentk, if MPI exists.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   int my_rank_id = 0;
 #ifdef INTELQS_HAS_MPI
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank_id);
@@ -100,7 +102,7 @@ int main(int argc, char **argv)
       std::cout << "\n\n";
 
   // Finalize the MPI environment.
-//  qhipster::mpi::PoolBarrier();
+//  iqs::mpi::PoolBarrier();
 //  env.~Environment();
   return result;
 }

@@ -6,6 +6,8 @@
 /// @file qureg_expectval.cpp
 ///  @brief Define the @c QubitRegister methods for the expectation values of Pauli strings.
 
+namespace iqs {
+
 /// @brief Compute expectation value of Pauli X for qubit over the full-register state
 /// @param qubit index of the involved qubit
 /// @param coeff scalar coefficient that multiplies the expectation value (optional)
@@ -38,7 +40,7 @@ typename QubitRegister<Type>::BaseType
 QubitRegister<Type>::ExpectationValueY(unsigned qubit, BaseType coeff)
 {
 // G is matrix from change of basis Y --> Z , such that G^dagger.Z.G=Y
-  qhipster::TinyMatrix<Type, 2, 2, 32> G;
+  iqs::TinyMatrix<Type, 2, 2, 32> G;
   BaseType f = 1. / std::sqrt(2.);
   G(0, 0) = G(1, 0) = Type(f, 0.);
   G(0, 1) = Type(0.,-f);
@@ -115,7 +117,7 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
 // Recall that the special case with double Pauli matrix uses Apply2QubitGate()
 // that is currently available only for the single-MPI-rank case.
   unsigned nprocs = 1;
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 
   if (qubits.size()==0)
   {
@@ -132,13 +134,13 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
   }
 
 // G is matrix from change of basis Y --> Z, such that Ginv.Z.G = Y 
-  qhipster::TinyMatrix<Type, 2, 2, 32> G;
+  iqs::TinyMatrix<Type, 2, 2, 32> G;
   BaseType f = 1. / std::sqrt(2.);
   G(0, 0) = G(1, 0) = Type(f , 0.);
   G(0, 1) = Type(0.,-f);
   G(1, 1) = Type(0., f);
 // G^dagger = G^-1
-  qhipster::TinyMatrix<Type, 2, 2, 32> Ginv;
+  iqs::TinyMatrix<Type, 2, 2, 32> Ginv;
   Ginv(0, 0) = Ginv(0, 1) = Type(f , 0.);
   Ginv(1, 0) = Type(0., f);
   Ginv(1, 1) = Type(0.,-f);
@@ -156,7 +158,7 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
   }  
 
 // compute the expectation value
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   BaseType local_value = 0;
   std::size_t glb_start = UL(myrank) * LocalSize();
 // integer in binary notation with 1 located at the position of the qubits
@@ -184,9 +186,9 @@ QubitRegister<Type>::ExpectationValue(std::vector<unsigned> &qubits,
 
   BaseType global_value ;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
   // MPI_Allreduce(&local_value, &global_value, 1, MPI_DOUBLE, MPI_SUM, comm);
-  qhipster::mpi::MPI_Allreduce_x(&local_value, &global_value, 1, MPI_SUM, comm);
+  iqs::mpi::MPI_Allreduce_x(&local_value, &global_value, 1, MPI_SUM, comm);
 #else
   global_value = local_value;
 #endif
@@ -372,8 +374,9 @@ QubitRegister<Type>::ExpectationValueZZ(unsigned qubit, unsigned qubit2, BaseTyp
   return this->ExpectationValue(qubits, observables, coeff);
 }
 
-
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

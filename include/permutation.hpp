@@ -11,6 +11,8 @@
 #include "utils.hpp"
 #include "conversion.hpp"
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // declaration and definition of class Permutation
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +96,7 @@ class Permutation
   {
     std::string s;
     for (std::size_t i = 0; i < map.size(); i++)
-        s += " " + qhipster::toString(map[i]);
+        s += " " + iqs::toString(map[i]);
     return s;
   }
 
@@ -103,7 +105,7 @@ class Permutation
   {
     std::string s;
     for (std::size_t i = 0; i < imap.size(); i++)
-        s += " " + qhipster::toString(imap[i]);
+        s += " " + iqs::toString(imap[i]);
     return s;
   }
 
@@ -400,5 +402,7 @@ class Permutation
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
+
+}	// end namespace iqs
 
 #endif	// header guard PERMUTATION_HPP

@@ -17,13 +17,13 @@ class SingleQubitGatesTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
 
     // All tests are skipped if the 10-qubit state is distributed in more than 2^9-1 ranks.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 511)
+    if (iqs::mpi::Environment::GetStateSize() > 511)
         GTEST_SKIP();
 
     G_(0, 0) = {0.592056606032915, 0.459533060553574}; 
@@ -44,7 +44,7 @@ TEST_F(SingleQubitGatesTest, PauliOperators)
 {
   // Recall that the qubits read from left to right, with the most significant
   // bit on the right (contrary to usual decimal representation).
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
   // |psi> = |1010010001> = |"1+4+32+512">
   ASSERT_DOUBLE_EQ( psi.ComputeNorm(), 1.);
   ASSERT_DOUBLE_EQ(psi.GetProbability(0), 1.);
@@ -78,7 +78,7 @@ TEST_F(SingleQubitGatesTest, PauliOperators)
 
 TEST_F(SingleQubitGatesTest, Rotations)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
   // |psi> = |1010010001> = |"1+4+32+512">
   // Check that Rx(t)=exp(-i t X/2)
   double angle = M_PI;
@@ -108,7 +108,7 @@ TEST_F(SingleQubitGatesTest, Rotations)
 TEST_F(SingleQubitGatesTest, CustomGate)
 {
   // |psi> = |1010010001> = |"1+4+32+512">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4+32+512);
   for(int qubit = 0; qubit < num_qubits_; qubit++)
   {
       psi.Apply1QubitGate(qubit, G_);
@@ -129,11 +129,11 @@ TEST_F(SingleQubitGatesTest, DeathTest)
 #endif
 
   // Skip death-tests if MPI size > 1.
-  if (qhipster::mpi::Environment::GetStateSize() > 1)
+  if (iqs::mpi::Environment::GetStateSize() > 1)
       GTEST_SKIP();
 
   // |psi> = |0000000000> = |"0">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
 
   // To switch off the warning message about DEATH test not being thread safe.
   ::testing::FLAGS_gtest_death_test_style = "threadsafe"; 

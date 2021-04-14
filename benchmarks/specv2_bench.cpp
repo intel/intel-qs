@@ -11,7 +11,7 @@ Thread count should be set by using export OMP_NUM_THREADS=<thread_count>.
 #include <vector>
 #include "../include/qureg.hpp"
 
-using qhipster::mpi::Environment;
+using iqs::mpi::Environment;
 
 template <typename Function>
 void benchmark(const std::vector<std::array<int, 2>> &pairs, const char *name, Function func)
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     std::cout << "State comparison will not be performed" << std::endl;
 
   // Comparison variables
-  QubitRegister<ComplexDP>* psi0 = nullptr;
+  iqs::QubitRegister<ComplexDP>* psi0 = nullptr;
   const double tol = 1e-9;
 
   std::vector<std::array<int, 2>> pairs;
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < 4; ++i)
   {
-    QubitRegister<ComplexDP> psi(nbits, "base", 0);
+      iqs::QubitRegister<ComplexDP> psi(nbits, "base", 0);
     if (i == 1)
     {
       // MPI use cases with more than two ranks need to be fixed
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     {
       if (i == 0)
       {
-        psi0 = new QubitRegister<ComplexDP>(psi);
+        psi0 = new iqs::QubitRegister<ComplexDP>(psi);
         continue;
       }
 

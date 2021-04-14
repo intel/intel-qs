@@ -25,7 +25,7 @@ class NoisySimulationTest : public ::testing::Test
 #endif
 
     // To ensure that each of two states has at least 2 amplitude per rank.
-    int min_num_qubits = qhipster::floor_power_of_two( num_ranks_) + 1;
+    int min_num_qubits = iqs::floor_power_of_two( num_ranks_) + 1;
     if (num_qubits_ < min_num_qubits)
         num_qubits_ = min_num_qubits;
   }
@@ -41,13 +41,13 @@ class NoisySimulationTest : public ::testing::Test
   // Just before the 'destructor'.
   void TearDown() override
   {
-     if (qhipster::mpi::Environment::GetNumStates() != 1)
-         qhipster::mpi::Environment::UpdateStateComm(1,false);
+     if (iqs::mpi::Environment::GetNumStates() != 1)
+         iqs::mpi::Environment::UpdateStateComm(1,false);
   }
 
   int num_qubits_= 6;
-  double T1_=6.;
-  double T2_=4.;
+  double T1_ = 6.;
+  double T2_ = 4.;
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
@@ -59,26 +59,26 @@ class NoisySimulationTest : public ::testing::Test
 
 TEST_F(NoisySimulationTest, OneStateAtATime)
 {
-  ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
+  ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Currently pool=state, but not always pool=MPI_COMM_WORLD since pool is
   // defined only for the useful ranks.
 
-  if (qhipster::mpi::Environment::IsUsefulRank() == false)
+  if (iqs::mpi::Environment::IsUsefulRank() == false)
       return;
 
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+8+16+32);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+8+16+32);
   // |psi> = |100111> = |"1+8+16+32">
   psi.ApplyHadamard(0);
   psi.ApplyHadamard(1);
   // |psi> = |-+0111>
 
-  QubitRegister<ComplexDP> noisy_psi (psi);
+  iqs::QubitRegister<ComplexDP> noisy_psi (psi);
   ASSERT_DOUBLE_EQ( noisy_psi.ComputeOverlap(psi).real(), 1.);
   // Set the dissipation and decoherence times.
-  noisy_psi.SetNoiseTimescales(T1_,T2_);
+  noisy_psi.SetNoiseTimescales(T1_, T2_);
   // Noise gates require random numbers.
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   noisy_psi.SetRngPtr(&rnd_generator);
   // A certain time duration is spend with all qubits idle.
@@ -92,17 +92,17 @@ TEST_F(NoisySimulationTest, OneStateAtATime)
 
 TEST_F(NoisySimulationTest, TwoStates)
 {
-  ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
+  ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = 2;
-  qhipster::mpi::Environment::UpdateStateComm(num_states, do_print_info_);
-  ASSERT_EQ( num_states, qhipster::mpi::Environment::GetNumStates() );
-  if (qhipster::mpi::Environment::IsUsefulRank() == false)
+  iqs::mpi::Environment::UpdateStateComm(num_states, do_print_info_);
+  ASSERT_EQ( num_states, iqs::mpi::Environment::GetNumStates() );
+  if (iqs::mpi::Environment::IsUsefulRank() == false)
       return;
 
-  int my_state_id = qhipster::mpi::Environment::GetStateId();
+  int my_state_id = iqs::mpi::Environment::GetStateId();
   std::size_t index = my_state_id;
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
 
   // The pool has two states, |0> and |1>.
   int qubit = 0;
@@ -111,28 +111,30 @@ TEST_F(NoisySimulationTest, TwoStates)
   ASSERT_DOUBLE_EQ( double(my_state_id), probability );
   // Sum up the probabilities incoherently.
   incoherent_sum
-    = qhipster::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
+    = iqs::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
   ASSERT_DOUBLE_EQ( incoherent_sum, 1. );
 
   // Now initialize all states of the pool to |"0">.
   psi.Initialize("base",0);
-  QubitRegister<ComplexDP> noisy_psi (psi);
+  iqs::QubitRegister<ComplexDP> noisy_psi (psi);
   // Noise gates require random numbers.
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   noisy_psi.SetRngPtr(&rnd_generator);
   // If purely dissipation, the population in state |0> should increase.
-  psi.SetNoiseTimescales(T1_,T1_/2.);
+  noisy_psi.SetNoiseTimescales(T1_, T1_/2);
   double duration=T1_;
   for (int q=0; q<num_qubits_; ++q)
+  {
       noisy_psi.ApplyNoiseGate(q,duration);
+  }
   probability = noisy_psi.GetProbability(qubit);
   incoherent_sum
-    = qhipster::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
+    = iqs::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
   double incoherent_average = incoherent_sum / double(num_states);
-//qhipster::mpi::PoolPrint("~~~~ prob : " + std::to_string(probability), true);//FIXME
-//qhipster::mpi::PoolPrint("~~~~ aver : " + std::to_string(incoherent_average), true);//FIXME
+//iqs::mpi::PoolPrint("~~~~ prob : " + std::to_string(probability), true);//FIXME
+//iqs::mpi::PoolPrint("~~~~ aver : " + std::to_string(incoherent_average), true);//FIXME
   ASSERT_GT( incoherent_average, accepted_error_ );
 }
 
@@ -140,22 +142,22 @@ TEST_F(NoisySimulationTest, TwoStates)
 
 TEST_F(NoisySimulationTest, OneStatePerRank)
 {
-  ASSERT_EQ( qhipster::mpi::Environment::GetNumStates(), 1);
+  ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = num_ranks_;
-  qhipster::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
-  ASSERT_EQ( qhipster::mpi::Environment::GetStateRank(), 0 );
-  ASSERT_EQ( qhipster::mpi::Environment::GetStateSize(), 1 );
-  ASSERT_EQ( qhipster::mpi::Environment::GetPoolRank(), pool_rank_id_ );
-  ASSERT_EQ( qhipster::mpi::Environment::GetPoolSize(), num_states );
+  iqs::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
+  ASSERT_EQ( iqs::mpi::Environment::GetStateRank(), 0 );
+  ASSERT_EQ( iqs::mpi::Environment::GetStateSize(), 1 );
+  ASSERT_EQ( iqs::mpi::Environment::GetPoolRank(), pool_rank_id_ );
+  ASSERT_EQ( iqs::mpi::Environment::GetPoolSize(), num_states );
 
   // Initialize all states in different computational basis states (if possible).
-  int my_state_id = qhipster::mpi::Environment::GetStateId();
+  int my_state_id = iqs::mpi::Environment::GetStateId();
   ASSERT_EQ( my_state_id , pool_rank_id_);
 
-  if ( qhipster::mpi::Environment::IsUsefulRank() )
+  if ( iqs::mpi::Environment::IsUsefulRank() )
   {
-      QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
+      iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
       ASSERT_EQ( psi.GlobalSize(), psi.LocalSize() );
       std::size_t index = my_state_id % psi.GlobalSize();
       psi.Initialize("base",index);
@@ -165,7 +167,7 @@ TEST_F(NoisySimulationTest, OneStatePerRank)
       double probability = psi.GetProbability(qubit);
       ASSERT_DOUBLE_EQ(probability, double(index%2));
       double incoherent_sum
-        = qhipster::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
+        = iqs::mpi::Environment::IncoherentSumOverAllStatesOfPool<double>(probability);
       if (num_states%2==0)
           ASSERT_DOUBLE_EQ( incoherent_sum, double(num_states  )/2. );
       else

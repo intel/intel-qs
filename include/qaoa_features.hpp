@@ -5,8 +5,9 @@
 
 #include "qureg.hpp"
 
-namespace qaoa
-{
+namespace iqs {
+
+namespace qaoa {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // This function uses the IQS vector not as a quantum state but as a vector of size
@@ -104,6 +105,8 @@ namespace qaoa
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-}		// namespace 'qaoa'
+}		// end namespace qaoa
+}		// end namespace iqs
+
 
 #endif		// end of guards QAOA_EXTRA_FEATURES_HPP

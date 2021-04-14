@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: namespace changed from openqu to qhipster
+// FIXME: namespace changed from openqu to iqs
 // FIXME: most of the code is not necessary
 
 /// @file alignedallocator_test.cpp
@@ -27,7 +27,7 @@ int main()
   // check for a number of repetitions whether alignment is okay
   const unsigned repetitions = 1000;
 
-  using Alloc = qhipster::AlignedAllocator<double, 64>;
+  using Alloc = iqs::AlignedAllocator<double, 64>;
 
   Alloc alloc;
 

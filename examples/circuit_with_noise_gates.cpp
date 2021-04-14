@@ -28,9 +28,9 @@
 int main(int argc, char **argv)
 {
   unsigned myrank=0, nprocs=1;
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   myrank = env.GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  nprocs = iqs::mpi::Environment::GetStateSize();
   if (env.IsUsefulRank() == false) return 0;
   int num_threads = 1;
 #ifdef _OPENMP
@@ -98,11 +98,11 @@ int main(int argc, char **argv)
 
 
   // ideal state
-  QubitRegister<ComplexDP> psi0(num_qubits);
+  iqs::QubitRegister<ComplexDP> psi0(num_qubits);
   // slow decoherence
-  NoisyQureg<ComplexDP> psi1(num_qubits, RNG_seed, T_1_slow, T_2_slow);
+  iqs::NoisyQureg<ComplexDP> psi1(num_qubits, RNG_seed, T_1_slow, T_2_slow);
   // fast decoherence
-  NoisyQureg<ComplexDP> psi2(num_qubits, RNG_seed, T_1_fast, T_2_fast);
+  iqs::NoisyQureg<ComplexDP> psi2(num_qubits, RNG_seed, T_1_fast, T_2_fast);
   psi0.Initialize("base", 0);
 
 

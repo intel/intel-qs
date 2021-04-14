@@ -1,5 +1,7 @@
 #include "../include/highperfkernels.hpp"
 
+namespace iqs {
+
 #define Specialization(MainLoop_) \
   frac_of_state_accessed = 1.; \
   /* Handling many special cases: should be easy to add  \
@@ -134,7 +136,7 @@
   
 
 // specialized loops with autovectorization
-TODO(Not using ICC vectorization: need to rewrite in intrincics)
+// TODO: Not using ICC vectorization: need to rewrite in intrincics
 // #define SIMD _Pragma("simd vectorlength(2) assert")
 #define SIMD 
 #define KeyLoop_TTTT(simdpragma, from, to, indsht0, indsht1, state0, state1, t00, t01, t10, t11) \
@@ -290,7 +292,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
              TM2x2<Type> const&m, 
              bool specialize, Timer *timer)
 {
-  TODO(Allow for case where state is not aligned: need SIMD ISA for un-aligned access);
+  // TODO: Allow for case where state is not aligned: need SIMD ISA for un-aligned access.
   if (specialize) // FIXME: this condition on the assertions was added later. Need to be validated.
   {
       assert((UL(state0) % 256) == 0);
@@ -318,18 +320,18 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
       nthreads = omp_get_num_threads();
   }
 #endif
-  TODO(Add nthreads check to clamp to smaller number if too little work)
-  TODO(Generalize for AVX3 cases so we check for pos <=1 etc)
+  // TODO: Add nthreads check to clamp to smaller number if too little work.
+  // TODO: Generalize for AVX3 cases so we check for pos <=1 etc.
 
   if(specialize == false)
   {
       frac_of_state_accessed = 1.;
       label = "general";
 
-      if((gend - gstart) / (1L << pos+1L) >= nthreads)
+      if((gend - gstart) / (1L << (pos+1L)) >= nthreads)
       {
 #pragma omp parallel for 
-          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1L))
+          for(std::size_t group = gstart; group < gend; group += (1L << (pos + 1L)))
           {
               for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
               {
@@ -343,7 +345,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
       }
       else
       {
-          for(std::size_t group = gstart; group < gend; group += (1L << pos + 1))
+          for(std::size_t group = gstart; group < gend; group += (1L << (pos + 1)))
           {
 #pragma omp parallel for
               for(std::size_t ind0 = group; ind0 < group + (1L << pos); ind0++)
@@ -520,3 +522,5 @@ template void ScaleState<ComplexSP>(std::size_t start, std::size_t end,
                                     ComplexSP *state, const ComplexSP &s, Timer *timer);
 template void ScaleState<ComplexDP>(std::size_t start, std::size_t end, 
                                     ComplexDP *state, const ComplexDP &s, Timer *timer);
+
+} // close namespace iqs

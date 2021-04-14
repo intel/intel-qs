@@ -27,7 +27,7 @@
 /// This header defines the class template @c TinyMatrix, which stores a matrix
 /// whose (small) dimensions are fixed at compile time
 
-namespace qhipster {
+namespace iqs {
 
 /// @brief A small matrix with dimensions fixed at compile time
 ///
@@ -40,151 +40,158 @@ template <class ValueType, unsigned M, unsigned N = M, unsigned align = alignof(
 class TinyMatrix
 {
  public:
-  /// the the of elements stored in the matrix
+  /// The type of elements stored in the matrix.
   using value_type = ValueType;
-  /// a pointer to elements of the matrix
+  /// A pointer to elements of the matrix.
   using pointer = ValueType*;
-  /// a pointer o elements of a const matrix
+  /// A pointer o elements of a const matrix.
   using const_pointer = ValueType const*;
-  /// a reference to elements of the matrix
+  /// A reference to elements of the matrix.
   using reference = ValueType&;
-  /// an integral type large enought to store the size of the matrix
+  /// An integral type large enought to store the size of the matrix.
   using size_type = unsigned;
 
-  /// the type for a row of the matrix
+  /// The type for a row of the matrix.
   using RowType = ValueType[N];
 
-  /// default-initizlize all matrix elements
-  TinyMatrix() { static_assert(N * M != 0, "a zero-dimensional matrix is not allowed"); }
+  /// Default-initialize all matrix elements.
+  TinyMatrix() { static_assert(N * M != 0, "A zero-dimensional matrix is not allowed."); }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// initialize from a C-style array of the same dimensions
+  /// Initialize from a C-style array of the same dimensions.
   template <class U>
-  // TinyMatrix(U const (init)[M][N])
   TinyMatrix(U init[M][N])
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = init[i][j];
+        for (size_type j = 0; j < this->numCols(); ++j)
+            data_[i][j] = init[i][j];
   }
 
-  /// initialize from an initializer list, i.e. a compile time given matrix
+  /// Initialize from an initializer list, i.e. a compile time given matrix.
   template <class U>
   TinyMatrix(std::initializer_list<std::initializer_list<U>> const& init)
   {
-    unsigned i = 0;
-    for (auto const& line : init) {
-      unsigned j = 0;
-      for (auto const& elem : line) data_[i][j++] = elem;
-      ++i;
+    size_type i = 0;
+    for (auto const& line : init)
+    {
+        size_type j = 0;
+        for (auto const& elem : line)
+            data_[i][j++] = elem;
+        ++i;
     }
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// copy from a matrix with a potentially different type and alignment
+  /// Copy from a matrix with a potentially different type and alignment.
   template <class U, unsigned alignrhs>
   TinyMatrix(TinyMatrix<U, M, N, alignrhs> const& rhs)
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = rhs(i, j);
+        for (size_type j = 0; j < this->numCols(); ++j)
+            data_[i][j] = rhs(i, j);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// the defaiult copy constructor
+  /// The default copy constructor.
   TinyMatrix(TinyMatrix const&) = default;
 
-  /// the default assignment
+  /// The default assignment.
   TinyMatrix& operator=(TinyMatrix const&) = default;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// assign from a matrix with a potentially different type and alignment
+  /// Assign from a matrix with a potentially different type and alignment.
   template <class U, unsigned alignrhs>
   TinyMatrix& operator=(TinyMatrix<U, M, N, alignrhs> const& rhs)
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = rhs(i, j);
+        for (size_type j = 0; j < this->numCols(); ++j)
+            data_[i][j] = rhs(i, j);
     return *this;
   }
 
-  /// assign from a C-style array
+  /// Assign from a C-style array.
   template <class U>
   TinyMatrix& operator=(U const (&rhs)[M][N])
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j) data_[i][j] = rhs[i][j];
+        for (size_type j = 0; j < this->numCols(); ++j)
+            data_[i][j] = rhs[i][j];
     return *this;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// the number of matrix rows
+  /// The number of matrix rows.
   constexpr size_type numRows() const { return M; }
-  /// the number of matrix columns
+
+  /// The number of matrix columns.
   constexpr size_type numCols() const { return N; }
-  /// \brief the size of the matrix, i.e. the number of matrix elements.
+
+  /// \brief The size of the matrix, i.e. the number of matrix elements.
   /// This is the same as number of rows times  number of columns
   constexpr size_type size() const { return N * M; }
-  /// access a matrix element of a const matrix
-  ///
-  /// \param i the row index
-  /// \param j the column index
-  ///
-  /// \pre i<numRows() & j<numCols()
-  value_type operator()(unsigned i, unsigned j) const
+
+  /// Access a matrix element of a const matrix
+  ///   \param i the row index
+  ///   \param j the column index
+  ///   \pre i<numRows() & j<numCols()
+  value_type operator()(size_type i, size_type j) const
   {
-    assert(i < this->numRows() && j < this->numCols());
+    assert(i < this->numRows() && "Row index out of range");
+    assert(j < this->numCols() && "Column index out of range");
     return data_[i][j];
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// access a matrix element
-  ///
-  /// \param i the row index
-  /// \param j the column index
-  ///
-  /// \pre i<numRows() & j<numCols()
-  reference operator()(unsigned i, unsigned j)
+  /// Access a matrix element.
+  ///   \param i the row index
+  ///   \param j the column index
+  ///   \pre i<numRows() & j<numCols()
+  reference operator()(size_type i, size_type j)
   {
-    assert(i < this->numRows() && j < this->numCols());
+    assert(i < this->numRows() && "Row index out of range");
+    assert(j < this->numCols() && "Column index out of range");
     return data_[i][j];
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// \brief compare two matrices element-wise for equality
+  /// Compare two matrices element-wise for equality.
   template <class U, unsigned alignrhs>
   bool operator==(TinyMatrix<U, M, N, alignrhs> const& rhs) const
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j)
-        if (data_[i][j] != rhs(i, j)) return false;
+        for (size_type j = 0; j < this->numCols(); ++j)
+            if (data_[i][j] != rhs(i, j))
+                return false;
     return true;
   }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-
-  /// \brief compare two matrices element-wise for inequality
+  /// Compare two matrices element-wise for inequality.
   template <class U, unsigned alignrhs>
   bool operator!=(TinyMatrix<U, M, N, alignrhs> const& rhs) const
   {
     return !(*this == rhs);
   }
 
-  /// \brief compare two matrices element-wise for equality
+/////////////////////////////////////////////////////////////////////////////////////////
+
+  /// Compare two matrices element-wise for equality.
   template <class U>
   bool operator==(U const (&rhs)[M][N])
   {
     for (size_type i = 0; i < this->numRows(); ++i)
-      for (size_type j = 0; j < this->numCols(); ++j)
-        if (data_[i][j] != rhs[i][j]) return false;
+        for (size_type j = 0; j < this->numCols(); ++j)
+            if (data_[i][j] != rhs[i][j]) return false;
     return true;
   }
 
-  /// \brief compare two matrices element-wise for inequality
+  /// Compare two matrices element-wise for inequality.
   template <class U>
   bool operator!=(U const (&rhs)[M][N])
   {
@@ -193,8 +200,9 @@ class TinyMatrix
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  /// obtain a pointer to the first element of the matrix
+  /// Obtain a pointer to the first element of the matrix
   const_pointer getPtr() const { return &data_[0][0]; }
+
   /// C-style array subscript
   ///
   /// the TinyMatrix can be indexed both using the mat(i,j) syntax or the
@@ -293,13 +301,13 @@ class TinyMatrix
 /////////////////////////////////////////////////////////////////////////////////////////
 
  std::string name;
- private:
+ protected:
   alignas(align == 0 ? 8 : align) ValueType data_[M][N];
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-}	// end namespace qhipster
+}	// end namespace iqs
 
 /// @}*/
 

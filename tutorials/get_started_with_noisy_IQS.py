@@ -24,25 +24,18 @@ import intelqs_py as iqs
 import numpy as np
 
 #################################################################################
-
-# Parse the required argument of this script: the number of MPI processes.
-if len(sys.argv) <= 1:
-    print('Usage: {} <num MPI procs>'.format(sys.argv[0]))
-    sys.exit(0)
-num_procs = int(sys.argv[1])
-num_qubits = 8
-
-#################################################################################
 # Setting the MPI environment
 #################################################################################
 
 # Initialize the MPI environment 
 iqs.EnvInit()
+num_procs = iqs.MPIEnvironment.GetSizeWorldComm()
+#print("size world comm =", iqs.MPIEnvironment.GetSizeWorldComm(), flush=True)
 
 # Utility function to print a message from the master process only.
 def info(message):
     if iqs.MPIEnvironment.GetPoolRank()==0 and iqs.MPIEnvironment.IsUsefulRank():
-        print(message)
+        print(message, flush=True)
 
 info("\nThis noisy simulation is thought to be run with MPI.")
 info("To do so, please set the option '-DIqsMPI=ON' when calling CMake.")
@@ -76,7 +69,8 @@ min_num_ensemble_states = 200
 num_ensemble_states = min_num_ensemble_states
 if min_num_ensemble_states%num_pool_states != 0:
     num_ensemble_states += num_pool_states-(min_num_ensemble_states%num_pool_states)
-assert num_ensemble_states%num_pool_states == 0
+if num_ensemble_states%num_pool_states != 0:
+    print('ERROR: the ensemble does not contain a number of states multiple of the pool')
 
 # IQS has functions that simplify some MPI instructions.
 # However, it is important to keep trace of the current rank.
@@ -114,6 +108,7 @@ rng.SetSeedStreamPtrs( rng_seed )
 # is determined, there is no stochasticity in the rotation angles across the ensemble.
 # The rotation angles must therefore be given as *pool* random numbers.
 
+num_qubits = 8
 x_angles = rng.GetUniformRandomNumbers(num_qubits, 0., np.pi, "pool");
 y_angles = rng.GetUniformRandomNumbers(num_qubits, 0., np.pi, "pool");
 z_angles = rng.GetUniformRandomNumbers(num_qubits, 0., np.pi, "pool");
@@ -127,7 +122,7 @@ if False:
 psi = iqs.QubitRegister(num_qubits, "base", 0, 0);
 
 # At this point we have one copy of the ideal state for each state in the pool.
-info("---- ideal circuit \n")
+info("\n---- ideal circuit \n")
 for q in range(num_qubits):
     psi.ApplyRotationX (q, x_angles[q])
     psi.ApplyRotationY (q, y_angles[q])

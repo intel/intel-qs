@@ -26,10 +26,10 @@ int main(int argc, char** argv)
       std::cout << "\n-- Without using the MPI environment of IQS --\n";
 #else
   // Initialize the MPI environmentk, if MPI exists.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   // These should work even without MPI.
-  pool_rank = qhipster::mpi::Environment::GetPoolRank();
-  pool_size  = qhipster::mpi::Environment::GetPoolSize();
+  pool_rank = iqs::mpi::Environment::GetPoolRank();
+  pool_size  = iqs::mpi::Environment::GetPoolSize();
   if (!pool_rank)
       std::cout << "\n-- Using the MPI environment of IQS --\n";
 #endif
@@ -68,20 +68,20 @@ int main(int argc, char** argv)
 
 #ifndef MPI_WITHOUT_IQS_ENV
 #if 10
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
   int num_qubits =26;
   if (!pool_rank)
       std::cout << "\nLet us initialize " << num_qubits << " qubits in |0>, "
                 << "and perform a single 1-qubit-gate per qubit.\n";
 
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
-  QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
 
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   if (!pool_rank) std::cout << "\nInitialization of the qubit register.\n";
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
   psi.TurnOnSpecialize();
   psi.EnableStatistics();

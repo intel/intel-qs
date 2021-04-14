@@ -17,17 +17,17 @@ class Apply1QGateTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 2^3 ranks.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 8)
+    if (iqs::mpi::Environment::GetStateSize() > 8)
         GTEST_SKIP();
 
-    std::cout << "state_rank_id = " << qhipster::mpi::Environment::GetStateRank() << "\n";//FIXME delete
-    qhipster::mpi::StateBarrier();
+    std::cout << "state_rank_id = " << iqs::mpi::Environment::GetStateRank() << "\n";//FIXME delete
+    iqs::mpi::StateBarrier();
   }
 
   const std::size_t num_qubits_ = 4;
@@ -49,7 +49,7 @@ TEST_F(Apply1QGateTest, Hadamard)
 {
   ComplexDP amplitude_0, amplitude_1;
   // Initial state |000>|0>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
   psi.ApplyHadamard(qubit_);
   ASSERT_DOUBLE_EQ(psi.ComputeNorm(), 1.);
   amplitude_0 = { 1./sqrt2_, 0 };
@@ -94,7 +94,7 @@ TEST_F(Apply1QGateTest, RotationX)
   double angle = 0.83;
   ComplexDP amplitude_0, amplitude_1;
   // Initial state |000>|0>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
   psi.ApplyRotationX(qubit_,angle);
   ASSERT_DOUBLE_EQ(psi.ComputeNorm(), 1.);
   amplitude_0 = { std::cos(angle/2.), 0                 };
@@ -137,7 +137,7 @@ TEST_F(Apply1QGateTest, RotationY)
   double angle = 0.75;
   ComplexDP amplitude_0, amplitude_1;
   // Initial state |000>|0>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
   psi.ApplyRotationY(qubit_,angle);
   ASSERT_DOUBLE_EQ(psi.ComputeNorm(), 1.);
   amplitude_0 = {  std::cos(angle/2.), 0.};
@@ -162,7 +162,7 @@ TEST_F(Apply1QGateTest, RotationZ)
   double angle = 0.35;
   ComplexDP amplitude_0, amplitude_1;
   // Initial state |000>|0>
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",j0_);
   psi.ApplyRotationZ(qubit_,angle);
   ASSERT_DOUBLE_EQ(psi.ComputeNorm(), 1.);
   amplitude_0 = {  std::cos(angle/2.), -std::sin(angle/2.) };
@@ -190,7 +190,7 @@ TEST_F(Apply1QGateTest, CustomGate)
   G(1, 0) = {0.658235557641767, 0.070882241549507}; 
   G(1, 1) = {0.649564427121402, 0.373855203932477};
   // |psi> = |1010> = |"1+4">
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",1+4);
   for(int qubit = 0; qubit < num_qubits_; qubit++)
   {
       psi.Apply1QubitGate(qubit, G);

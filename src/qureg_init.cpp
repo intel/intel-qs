@@ -15,14 +15,16 @@
 /// @file qureg_init.cpp
 /// @brief Define the @c QubitRegister methods to initialize the quantum register.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// Base constructor.
 template <class Type>
 QubitRegister<Type>::QubitRegister()
 {
   unsigned myrank=0, nprocs=1;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 
   timer = nullptr;
   gate_counter = nullptr;
@@ -50,13 +52,13 @@ template <class Type>
 void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
 
   // FIXME GG: I believe this limits the use of "resize" to adding a single qubit
   if(GlobalSize()) assert(GlobalSize() * 2UL == new_num_amplitudes);
-  num_qubits = qhipster::ilog2(new_num_amplitudes);
+  num_qubits = iqs::ilog2(new_num_amplitudes);
 
   local_size_  = UL(1L << UL(num_qubits - log2_nprocs));
   global_size_ = UL(1L << UL(num_qubits));
@@ -93,11 +95,11 @@ template <class Type>
 void QubitRegister<Type>::Initialize(std::size_t new_num_qubits, std::size_t tmp_spacesize_)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0, num_ranks_per_node=1;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
-  assert(new_num_qubits>log2_nprocs);
-  num_ranks_per_node = qhipster::mpi::Environment::GetNumRanksPerNode();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
+  assert(new_num_qubits>log2_nprocs && "Too few qubits for this number of ranks");
+  num_ranks_per_node = iqs::mpi::Environment::GetNumRanksPerNode();
   unsigned M = new_num_qubits - log2_nprocs;
 
   assert(new_num_qubits > 0);
@@ -148,9 +150,9 @@ template <class Type>
 void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_spacesize_)
 {
   unsigned myrank=0, nprocs=1, num_ranks_per_node=1;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  num_ranks_per_node = qhipster::mpi::Environment::GetNumRanksPerNode();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  num_ranks_per_node = iqs::mpi::Environment::GetNumRanksPerNode();
 
   imported_state = false;
   specialize = false;
@@ -224,9 +226,9 @@ template <class Type>
 void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 {
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
   unsigned nthreads = 1;
 #ifdef _OPENMP
 #pragma omp parallel
@@ -265,7 +267,7 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
       // base_index=num_states: individual random states, use local RNG stream
       //                        (and reduced fast-forward)
       // Any other values return error.
-      assert(base_index==0 || base_index==qhipster::mpi::Environment::GetNumStates() );
+      assert(base_index==0 || base_index==iqs::mpi::Environment::GetNumStates() );
 
       // Parallel initialization using open-source parallel RNG or VRL (if MKL is used).
       // TODO: with GCC, using OpenMP code below produces a SEGMENTATION FAULT result.
@@ -290,7 +292,7 @@ void QubitRegister<Type>::Initialize(std::string style, std::size_t base_index)
 
           // Since the threads are not executed in order, we copy the rng stream per thread.
           // at this point every copy is independent of each other and from the original.
-          qhipster::RandomNumberGenerator<BaseType> thread_rng ( rng_ptr_);
+          iqs::RandomNumberGenerator<BaseType> thread_rng ( rng_ptr_);
 
           // Fast forward for the thread:
           std::size_t num_skip = 2UL * beginning;
@@ -345,7 +347,7 @@ if (beginning != end) printf( (buffer.str()).c_str() );
   // Balanced superposition of all basis states.
   else if (style == "++++")
   {
-      Type amplitude = {1./std::sqrt( GlobalSize() ),0.};
+      Type amplitude = {BaseType(1./std::sqrt( GlobalSize() )), 0.};
       std::size_t lcl = LocalSize();
 #pragma omp parallel for
       for (std::size_t i = 0; i < lcl; i++)
@@ -353,7 +355,7 @@ if (beginning != end) printf( (buffer.str()).c_str() );
   }
 
 #ifdef INTELQS_HAS_MPI
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 #endif
 
 #if 0
@@ -395,7 +397,7 @@ template <class Type>
 void QubitRegister<Type>::TurnOnSpecialize()
 {
   int myrank=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
+  myrank = iqs::mpi::Environment::GetStateRank();
   if (do_print_extra_info && !myrank)
       printf("Specialization is on\n");
   specialize = true;
@@ -407,7 +409,7 @@ template <class Type>
 void QubitRegister<Type>::TurnOffSpecialize()
 {
   unsigned myrank=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
+  myrank = iqs::mpi::Environment::GetStateRank();
   if (do_print_extra_info && !myrank)
       printf("Specialization is off\n");
   specialize = false;
@@ -436,7 +438,7 @@ template <class Type>
 void QubitRegister<Type>::TurnOnSpecializeV2()
 {
   int myrank=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
+  myrank = iqs::mpi::Environment::GetStateRank();
   if (do_print_extra_info && !myrank)
     printf("Specialization v2 is on\n");
   specialize2 = true;
@@ -447,7 +449,7 @@ template <class Type>
 void QubitRegister<Type>::TurnOffSpecializeV2()
 {
   unsigned myrank=0;
-  myrank = qhipster::mpi::Environment::GetStateRank();
+  myrank = iqs::mpi::Environment::GetStateRank();
   if (do_print_extra_info && !myrank)
     printf("Specialization v2 is off\n");
   specialize2 = false;
@@ -469,5 +471,6 @@ QubitRegister<Type>::~QubitRegister()
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
 
+} // end namespace iqs
 
 /// @}

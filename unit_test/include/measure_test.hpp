@@ -19,11 +19,11 @@ class MeasureTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
       GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 8 ranks.
-    if (qhipster::mpi::Environment::GetStateSize() > 8)
+    if (iqs::mpi::Environment::GetStateSize() > 8)
       GTEST_SKIP();
   }
 
@@ -36,7 +36,7 @@ class MeasureTest : public ::testing::Test
 
 TEST_F(MeasureTest, GetProbability)
 {
-  QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",10);
   psi.ApplyHadamard(2);
   psi.ApplyHadamard(3);
   // |psi> = |01+-> = H2.H3|"2+8">

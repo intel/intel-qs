@@ -8,6 +8,8 @@
 /// @file qureg_utils.cpp
 /// @brief Define the @c QubitRegister methods used as basic operations.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Overload operator 'compare'.
 ///
@@ -56,8 +58,8 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxAbsDiff(QubitRegi
 
   BaseType glb_maxabsdiff ;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&lcl_maxabsdiff, &glb_maxabsdiff, 1, MPI_MAX, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&lcl_maxabsdiff, &glb_maxabsdiff, 1, MPI_MAX, comm);
 #else
   glb_maxabsdiff = lcl_maxabsdiff;
 #endif
@@ -89,7 +91,7 @@ Type QubitRegister<Type>::GetGlobalAmplitude
   local_index = global_index % local_size_;
   // Broadcast the value to all ranks.
   amplitude = state[local_index];
-  qhipster::mpi::MPI_Bcast_x(&amplitude, hosting_rank, qhipster::mpi::Environment::GetStateComm());
+  iqs::mpi::MPI_Bcast_x(&amplitude, hosting_rank, iqs::mpi::Environment::GetStateComm());
 #else
   amplitude = state[global_index];
 #endif
@@ -111,7 +113,7 @@ void QubitRegister<Type>::SetGlobalAmplitude(std::size_t global_index, Type valu
   std::size_t local_index, hosting_rank;
   hosting_rank = global_index/local_size_;
   local_index = global_index % local_size_;
-  if (hosting_rank == qhipster::mpi::Environment::GetStateRank())
+  if (hosting_rank == iqs::mpi::Environment::GetStateRank())
       state[local_index] = value;
 #else
   state[global_index] = value;
@@ -145,8 +147,8 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::MaxL2NormDiff(QubitR
 
   BaseType glb_diff;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&lcl_diff, &glb_diff, 1, MPI_MAX, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&lcl_diff, &glb_diff, 1, MPI_MAX, comm);
 #else
   glb_diff = lcl_diff;
 #endif
@@ -189,8 +191,8 @@ typename QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
 
   BaseType global_normsq;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&local_normsq, &global_normsq, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&local_normsq, &global_normsq, 1, MPI_SUM, comm);
 #else
   global_normsq = local_normsq;
 #endif
@@ -231,9 +233,9 @@ Type QubitRegister<Type>::ComputeOverlap( QubitRegister<Type> &psi)
   
   BaseType global_over_re(0.) , global_over_im(0.) ;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&local_over_re, &global_over_re, 1, MPI_SUM, comm);
-  qhipster::mpi::MPI_Allreduce_x(&local_over_im, &global_over_im, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&local_over_re, &global_over_re, 1, MPI_SUM, comm);
+  iqs::mpi::MPI_Allreduce_x(&local_over_im, &global_over_im, 1, MPI_SUM, comm);
 #else
   global_over_re = local_over_re;
   global_over_im = local_over_im;
@@ -270,8 +272,8 @@ double QubitRegister<Type>::Entropy()
 
   double global_Hp;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&local_Hp, &global_Hp, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&local_Hp, &global_Hp, 1, MPI_SUM, comm);
 #else
   global_Hp = local_Hp;
 #endif
@@ -347,9 +349,9 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
   double global_entropy;
   double global_avgselfinfo;
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  qhipster::mpi::MPI_Allreduce_x(&entropy, &global_entropy, 1, MPI_SUM, comm);
-  qhipster::mpi::MPI_Allreduce_x(&avgselfinfo, &global_avgselfinfo, 1, MPI_SUM, comm);
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  iqs::mpi::MPI_Allreduce_x(&entropy, &global_entropy, 1, MPI_SUM, comm);
+  iqs::mpi::MPI_Allreduce_x(&avgselfinfo, &global_avgselfinfo, 1, MPI_SUM, comm);
 #else
   global_entropy = entropy;
   global_avgselfinfo = avgselfinfo;
@@ -373,7 +375,7 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
 
       m[i] *= factor[i];
 #ifdef INTELQS_HAS_MPI
-      qhipster::mpi::MPI_Allreduce_x(&(m[i]), &(global_m[i]), 1, MPI_SUM, comm);
+      iqs::mpi::MPI_Allreduce_x(&(m[i]), &(global_m[i]), 1, MPI_SUM, comm);
 #else
       global_m[i] = m[i];
 #endif
@@ -436,12 +438,12 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
   TODO(Second argument of Print() is not used!)
   BaseType cumulative_probability = 0;
 
-  int my_rank = qhipster::mpi::Environment::GetStateRank();
-  int nprocs = qhipster::mpi::Environment::GetStateSize();
+  int my_rank = iqs::mpi::Environment::GetStateRank();
+  int nprocs = iqs::mpi::Environment::GetStateSize();
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
 #endif
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 
   int tag;
   if (my_rank == 0)
@@ -502,7 +504,7 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
       printf("]; %% cumulative probability = %lf\n", (double)glb_cumulative_probability);
   }
 
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
 }
 
 
@@ -513,8 +515,8 @@ template <class Type>
 void QubitRegister<Type>::dumpbin(std::string fn)
 {
 #ifdef INTELQS_HAS_MPI
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
-  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+  unsigned myrank = iqs::mpi::Environment::GetStateRank();
   MPI_Status status;
   MPI_File fh;
   MPI_File_open(comm, (char *)fn.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY,
@@ -524,9 +526,9 @@ void QubitRegister<Type>::dumpbin(std::string fn)
   MPI_Offset offset = size * UL(myrank * sizeof(Type));
 
   double t0 = sec();
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   MPI_File_write_at(fh, offset, (void *)(&(state[0])), size, MPI_DOUBLE_COMPLEX, &status);
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   double t1 = sec();
   MPI_File_close(&fh);
   if (myrank == 0)
@@ -547,8 +549,8 @@ template <class Type>
 void QubitRegister<Type>::EnableStatistics()
 {
   int myrank=0, nprocs=1;
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 
   assert(timer == nullptr);
   timer = new Timer(num_qubits, myrank, nprocs);
@@ -602,5 +604,7 @@ void QubitRegister<Type>::ResetStatistics()
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

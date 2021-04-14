@@ -4,7 +4,7 @@
 #ifndef GATE_SPEC_HPP
 #define GATE_SPEC_HPP
 
-namespace qhipster {
+namespace iqs {
 
 /// @brief Known 1-qubit gate types used internally with specialization v2
 enum class GateSpec1Q { 
@@ -26,6 +26,6 @@ enum class GateSpec2Q {
 
 GateSpec1Q ConvertSpec2to1(GateSpec2Q spec);
 
-}
+} // end namespace iqs
 
 #endif

@@ -7,6 +7,8 @@
 /// @brief Define the @c QubitRegister methods related to implementing simulations
 /// in presence of noise.
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Set the timescale of dissipation and decoherence.
 /// @param T1 dissipation time
@@ -72,7 +74,7 @@ void QubitRegister<Type>::ApplyNoiseGate(unsigned qubit, BaseType duration)
   B = { std::cos(v_X)*std::cos(v_Y) , -std::sin(v_X)*std::sin(v_Y) };
   C = { std::cos(v_X)*std::sin(v_Y) , -std::sin(v_X)*std::cos(v_Y) };
 
-  qhipster::TinyMatrix<Type, 2, 2, 32> U_noise;
+  iqs::TinyMatrix<Type, 2, 2, 32> U_noise;
   U_noise(0, 0) = A*B;
   U_noise(0, 1) = -std::conj(A)*std::conj(C);
   U_noise(1, 0) = A*C;
@@ -87,5 +89,7 @@ void QubitRegister<Type>::ApplyNoiseGate(unsigned qubit, BaseType duration)
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /// @}

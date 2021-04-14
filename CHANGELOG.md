@@ -4,27 +4,33 @@ All notable changes to this project will be documented in this file.
 
 ----
 
-## [ next ] - [ TBD ]
+## [ 2.1.0 ] - [ 2021-04-xx ]
 
 ### Added
 - Python bindings with MPI
 - new gate specialization for OpenMP performance improvement
 - distributed implementation of SWAP-type gates
-- class `Permutation` and `PermuteQubits` method to manipulate the representation
+- class `Permutation` and method `PermuteQubits` to manipulate the representation
   of quantum states and possibly reduce the overhead from MPI communication
+- class `ChiMatrix` to represent quantum channels and method `ApplyChannel`
+  to simulate 1- and 2-qubit channels
+- extra examples and tutorials
+- ReadTheDocs for easy-to-navigate documentation
 
 ### Changed
 - CMake build is now modular
+- the library is part of namespace `iqs`
 
 ### Removed
 
 ### Fixed
 - when compiling with GCC, the option `-O3` is used for performance improvement
-- several minor bugs
+- a few minor bugs
+- update examples to current syntax
 
 ----
 
-## [ 2.0.0 ] - [ 2020-12-12 ]
+## [ 2.0.0 ] - [ 2019-12-12 ]
 
 ### Added
 - pool of state functionality: parallel execution of multiple circuits

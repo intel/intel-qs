@@ -17,13 +17,13 @@ class ApplySwapGateTest : public ::testing::Test
   void SetUp() override
   {
     // All tests are skipped if the rank is dummy.
-    if (qhipster::mpi::Environment::IsUsefulRank() == false)
+    if (iqs::mpi::Environment::IsUsefulRank() == false)
         GTEST_SKIP();
 
     // All tests are skipped if the 4-qubit state is distributed in more than 2^3 ranks.
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
-    if (qhipster::mpi::Environment::GetStateSize() > 512)
+    if (iqs::mpi::Environment::GetStateSize() > 512)
         GTEST_SKIP();
   }
 
@@ -42,7 +42,7 @@ TEST_F(ApplySwapGateTest, Emulation)
 
   // Initial state |0010000000>
   std::size_t index = 4;
-  QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
   ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index), amplitude_1, accepted_error_);
 
   ASSERT_EQ( (*psi.qubit_permutation)[1], 1);
@@ -66,16 +66,16 @@ TEST_F(ApplySwapGateTest, Emulation)
 TEST_F(ApplySwapGateTest, Explicit3QubitExample)
 {
   // At most 4 MPI processes, or skip the test.
-  if (qhipster::mpi::Environment::GetStateSize() > 4)
+  if (iqs::mpi::Environment::GetStateSize() > 4)
       GTEST_SKIP();
 
   // Print explit state to screen?
   bool print_state = false;
 
   unsigned num_qubits = 3;
-  QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits, "base", 0);
   // |psi> = {1,0,0,0,0,0,0,0}
-  unsigned myrank = qhipster::mpi::Environment::GetStateRank();
+  unsigned myrank = iqs::mpi::Environment::GetStateRank();
   std::size_t glb_index;
   std::size_t lcl_start_index = myrank * psi.LocalSize();
   for (std::size_t j=0; j<psi.LocalSize(); ++j)
@@ -111,16 +111,16 @@ TEST_F(ApplySwapGateTest, Explicit3QubitExample)
 TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
 {
   std::size_t rng_seed = 7777;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   // The "rand" style cannot be used directly in the creation of the state.
-  QubitRegister<ComplexDP> psi_1(num_qubits_, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi_1(num_qubits_, "base", 0);
   psi_1.SetRngPtr(&rnd_generator);
   // |psi_1> = |random>
   psi_1.Initialize("rand", 1);
 
   // |psi_2> = |psi_1> = |random>
-  QubitRegister<ComplexDP> psi_2(psi_1);
+  iqs::QubitRegister<ComplexDP> psi_2(psi_1);
 
   // Compare two implementations of the SWAP gate.
   unsigned qubit1 = 2, qubit2 = num_qubits_-1;
@@ -141,8 +141,8 @@ TEST_F(ApplySwapGateTest, ComparisonWithThreeCnots)
   // Check that the max abs difference amplitude by amplitude.
   ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
 
-  // TODO: add the SWAP between (probably) distributed qubits, like n-1 and n-2.
   // Compare two implementations of the SWAP gate.
+  // Qubits like n-1 and n-2 are (probably) distributed/glbal qubits.
   qubit1 = num_qubits_-1;
   qubit1 = num_qubits_-2;
   qubit2 = num_qubits_-3;
@@ -166,16 +166,16 @@ TEST_F(ApplySwapGateTest, TestForDistributedImplementation)
   unsigned num_qubits = 17;
 #endif
   std::size_t rng_seed = 12345;
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(rng_seed);
   // The "rand" style cannot be used directly in the creation of the state.
-  QubitRegister<ComplexDP> psi_1(num_qubits, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi_1(num_qubits, "base", 0);
   psi_1.SetRngPtr(&rnd_generator);
   // |psi_1> = |random>
   psi_1.Initialize("rand", 1);
 
   // |psi_2> = |psi_1> = |random>
-  QubitRegister<ComplexDP> psi_2(psi_1);
+  iqs::QubitRegister<ComplexDP> psi_2(psi_1);
   // Compare two implementations of the SWAP gate.
   unsigned qubit1 = 2, qubit2 = num_qubits-1;
   psi_1.ApplySwap(qubit1, qubit2);
@@ -196,7 +196,7 @@ TEST_F(ApplySwapGateTest, TestForDistributedImplementation)
   ASSERT_DOUBLE_EQ(psi_2.MaxAbsDiff(psi_1), 0 );
 
   // Compare two implementations of the SWAP gate.
-//  qubit1 = num_qubits-1; // FIXME: uncomment when global-global SWAP is available
+  qubit1 = num_qubits-1;
   qubit2 = num_qubits-2;
   psi_1.ApplySwap(qubit1, qubit2);
   psi_2.ApplyCPauliX(qubit1, qubit2);

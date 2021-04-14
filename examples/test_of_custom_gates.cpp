@@ -23,18 +23,10 @@
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
-  if (env.IsUsefulRank() == false) return 0;
+  iqs::mpi::Environment env(argc, argv);
   unsigned myrank = env.GetStateRank();
+  unsigned nprocs = iqs::mpi::Environment::GetStateSize();
 
-#pragma omp parallel
-#pragma omp master
-  {
-    int nthreads = omp_get_num_threads();
-    fprintf(stdout, "OMP number of threads = %d \n", nthreads);
-  }
-
-  
 /// --- PARAMETERS ------------------------------------------- ///
   int num_qubits = 8;
   int num_gates = 1;
@@ -42,19 +34,30 @@ int main(int argc, char **argv)
   std::size_t tmp_size = 0;
   if(argc != 2)
   {
-     fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
-     exit(1);
+      if (!myrank)
+          fprintf(stderr, "usage: %s <num_qubits> \n", argv[0]);
+      exit(1);
   }
   else
   {
-    int _qubits = atoi(argv[1]);
+      int _qubits = atoi(argv[1]);
+      if ((_qubits <= 0) || (_qubits > 1000000))
+      {
+          fprintf(stderr, "<num_qubits> was (%d) which is invalid or negative.\n", _qubits);
+          exit(1);
+      }
+      num_qubits = (unsigned)_qubits; 
+  }
+  if (env.IsUsefulRank() == false) return 0;
 
-    if ((_qubits <= 0) || (_qubits > 1000000)) {
-      fprintf(stderr, "<num_qubits> was (%d) which is invalid or negative.\n", _qubits);
-      exit(1);
-    }
-    
-    num_qubits = (unsigned)_qubits; 
+#pragma omp parallel
+#pragma omp master
+  {
+    int nthreads = 1;
+#ifdef _OPENMP
+    nthreads = omp_get_num_threads();
+#endif
+    fprintf(stdout, "OMP number of threads = %d \n", nthreads);
   }
   
   TM2x2<ComplexDP> G;
@@ -69,8 +72,8 @@ int main(int argc, char **argv)
 // Initialize the qubit register in state |A>, then apply the custom one-qubit gate G
 // to each qubit sequentially.
 
-  QubitRegister<ComplexDP> psi_A(num_qubits, "base", 0);
-//  QubitRegister<ComplexDP> psi_A(num_qubits, "rand", -1);
+  iqs::QubitRegister<ComplexDP> psi_A(num_qubits, "base", 0);
+//  iqs::QubitRegister<ComplexDP> psi_A(num_qubits, "rand", -1);
 
   // with specialization
   psi_A.TurnOnSpecialize();
@@ -107,13 +110,13 @@ int main(int argc, char **argv)
       }
   }
 
-  qhipster::RandomNumberGenerator<double> rnd_generator;
+  iqs::RandomNumberGenerator<double> rnd_generator;
   rnd_generator.SetSeedStreamPtrs(7777);
-  QubitRegister<ComplexDP> psi_B(num_qubits, "base", 0 );
+  iqs::QubitRegister<ComplexDP> psi_B(num_qubits, "base", 0 );
   psi_B.SetRngPtr(&rnd_generator);
   psi_B.Initialize("rand",1);
 
-  QubitRegister<ComplexDP> psi_C(psi_B);
+  iqs::QubitRegister<ComplexDP> psi_C(psi_B);
 
   {
     // no specialization

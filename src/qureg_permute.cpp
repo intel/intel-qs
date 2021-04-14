@@ -3,6 +3,8 @@
 
 #include "../include/qureg.hpp"
 
+namespace iqs {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <class Type>
@@ -10,7 +12,7 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map, std::s
 {
   assert(num_qubits == new_map.size());
 
-  unsigned nprocs = qhipster::mpi::Environment::GetStateSize();
+  unsigned nprocs = iqs::mpi::Environment::GetStateSize();
 
   if (nprocs==1)
   // Single-node implementation.
@@ -23,7 +25,7 @@ void QubitRegister<Type>::PermuteQubits(std::vector<std::size_t> new_map, std::s
       Permutation &qubit_permutation_old = *qubit_permutation;
       Permutation qubit_permutation_new(new_map, style_of_map);
 
-      std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+      std::size_t M = this->num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
       std::vector<std::size_t> int_1_imap, int_2_imap;
       qubit_permutation_old.ObtainIntemediateInverseMaps(qubit_permutation_new.map, M, int_1_imap, int_2_imap);
 
@@ -64,7 +66,7 @@ void QubitRegister<Type>::PermuteLocalQubits(std::vector<std::size_t> new_map, s
   // Verify that new map mantains the current distinction between local and global qubits.
   // and that only the local qubits are (eventually) updated.
   std::vector<std::size_t> & old_inverse_map = qubit_permutation->imap;
-  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = this->num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   std::vector<bool> local(new_inverse_map.size(), 0);
   for (unsigned pos=0; pos<M; ++pos)
       local[new_inverse_map[pos]] = 1;
@@ -119,7 +121,7 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   // and that only the global qubits are (eventually) updated.
   std::vector<std::size_t> old_direct_map = qubit_permutation->map;
   std::vector<std::size_t> old_inverse_map = qubit_permutation->imap;
-  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = this->num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   std::vector<bool> global(new_inverse_map.size(), 0);
   for (unsigned pos=M; pos<num_qubits; ++pos)
       global[new_inverse_map[pos]] = 1;
@@ -144,7 +146,7 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   // When more than two qubits change position, the content of MPI ranks are not simply
   // exchanged in paris, but one may have longer cycles like A-->B-->C-->D-->A
   // myrank sends to destination and receives from source
-  std::size_t myrank = qhipster::mpi::Environment::GetStateRank();
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
   std::size_t source(0), destination(0);
   std::size_t glb_start = UL(myrank) * LocalSize(); // based on the position
   
@@ -164,7 +166,7 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
   }
   
   MPI_Status status;
-  MPI_Comm comm = qhipster::mpi::Environment::GetStateComm();
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
 
   Type *tmp_state = TmpSpace();
   std::size_t lcl_size = LocalSize();
@@ -174,7 +176,7 @@ void QubitRegister<Type>::PermuteGlobalQubits(std::vector<std::size_t> new_map, 
       // As tag, we use the source of the corresponding communication.
       std::size_t sendtag(myrank), recvtag(source);
       //printf("%d --> myrank = %d --> %d\n", destination, myrank, source);
-      qhipster::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, sendtag,
+      iqs::mpi::MPI_Sendrecv_x(&(state[c])    , lcl_chunk, destination, sendtag,
                                     &(tmp_state[0]), lcl_chunk, source, recvtag,
                                     comm, &status);
       #pragma omp parallel for 
@@ -197,7 +199,7 @@ void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfQubitPairs(std::vector<s
   std::vector<unsigned> exchanged_qubits(num_qubits);
   unsigned num_pairs = 0;
   unsigned old_position, new_position, partner_qubit;
-  std::size_t M = this->num_qubits - qhipster::ilog2(qhipster::mpi::Environment::GetStateSize());
+  std::size_t M = this->num_qubits - iqs::ilog2(iqs::mpi::Environment::GetStateSize());
   for (unsigned qubit=0; qubit<num_qubits; ++qubit)
   {
       if (exchanged_qubits[qubit]!=0)
@@ -230,5 +232,7 @@ void QubitRegister<Type>::PermuteByLocalGlobalExchangeOfQubitPairs(std::vector<s
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs
 
 /////////////////////////////////////////////////////////////////////////////////////////

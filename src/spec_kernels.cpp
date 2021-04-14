@@ -1,5 +1,7 @@
 #include "../include/spec_kernels.hpp"
 
+namespace iqs {
+
 // Declare loops
 #define PARALLEL_FOR_1D                                   \
   _Pragma("omp parallel for")                             \
@@ -11,12 +13,12 @@
 #define PARALLEL_FOR_2D                                   \
   _Pragma("omp parallel for collapse(2)")                 \
   for(std::size_t group = gstart; group < gend;           \
-      group += (1L << pos + 1L))                          \
+      group += (1L << (pos + 1L)))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
 #define SERIAL_FOR_2D                                     \
   for(std::size_t group = gstart; group < gend;           \
-      group += (1L << pos + 1L))                          \
+      group += (1L << (pos + 1L)))                          \
     for(std::size_t ind0 = 0; ind0 < (1L << pos); ind0++)
 
 #define PARALLEL_FOR_3D                             \
@@ -448,3 +450,5 @@ template void Loop_TN<ComplexDP>(ComplexDP *state,
                                  std::size_t c31, std::size_t c32, 
                                  std::size_t index_shift, GateSpec2Q spec, 
                                  Timer *timer, double angle);
+
+} // close namespace iqs

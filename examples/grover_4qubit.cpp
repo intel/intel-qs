@@ -22,7 +22,7 @@
 int main(int argc, char **argv)
 {
   // Create the MPI environment, passing the same argument to all the ranks.
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   // qHiPSTER is structured so that only even number of ranks are used to store
   // and manipulate the quantum state. In case the number of ranks is not supported,
   // try to decrease it by 1 until it is.
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
       // The state is initialized as a computational basis state (using the keyword "base")
       // corresponding to the index 0. The index corresponds to a N-bit integer in decimal
       // representation. With N qubits there are 2^N indices, from 0 to 2^{N-1}.
-      QubitRegister<ComplexDP> psig(Ngrover, "base", 0);
+      iqs::QubitRegister<ComplexDP> psig(Ngrover, "base", 0);
 	  
       psig.Print("Initial State =");
 

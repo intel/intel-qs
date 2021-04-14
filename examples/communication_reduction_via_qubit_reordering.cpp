@@ -32,7 +32,7 @@
 
 int main(int argc, char **argv)
 {
-  qhipster::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv);
   if (env.IsUsefulRank() == false) return 0;
   int myrank = env.GetStateRank();
   if (myrank==0)
@@ -60,6 +60,7 @@ int main(int argc, char **argv)
   }
 
 
+#ifdef _OPENMP
 #pragma omp parallel
 #pragma omp master
   {
@@ -67,6 +68,7 @@ int main(int argc, char **argv)
     if (myrank==0)
       fprintf(stdout, "OMP number of threads = %d \n", nthreads);
   }
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +79,7 @@ int main(int argc, char **argv)
   double duration_inverse_order;
 
   // We consider a simple circuit, with Hadamard, X, Y, Z acting on the last 10 qubits.
-  QubitRegister<ComplexDP> psi_trivial_order(num_qubits, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi_trivial_order(num_qubits, "base", 0);
   psi_trivial_order.ApplyPauliZ(num_qubits-1); // dummy operation to avoid the first MPI communication during timing
 
   std::vector<std::size_t> original_map = psi_trivial_order.qubit_permutation->map;
@@ -91,7 +93,7 @@ int main(int argc, char **argv)
   }
  
   // Simulate circuit.
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   gettimeofday(&time, (struct timezone*)0);
   start =  time.tv_sec + time.tv_usec * 1.0e-6;
   for (int q=num_qubits-10; q<num_qubits; ++q)
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
     psi_trivial_order.ApplyPauliY(q);
     psi_trivial_order.ApplyPauliZ(q);
   } 
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   gettimeofday(&time, (struct timezone*)0);
   end =  time.tv_sec + time.tv_usec * 1.0e-6;
   if (myrank==0)
@@ -109,11 +111,11 @@ int main(int argc, char **argv)
   
 /////////////////////////////////////////////////////////////////////////////////////////
 
-  QubitRegister<ComplexDP> psi_inverse_order(num_qubits, "base", 0);
+  iqs::QubitRegister<ComplexDP> psi_inverse_order(num_qubits, "base", 0);
   psi_inverse_order.PermuteQubits(new_map, "direct");
   psi_trivial_order.ApplyPauliZ(0); // dummy operation to avoid the first MPI communication during timing
   // Simulate circuit.
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   gettimeofday(&time, (struct timezone*)0);
   start =  time.tv_sec + time.tv_usec * 1.0e-6;
   for (int q=num_qubits-10; q<num_qubits; ++q)
@@ -123,7 +125,7 @@ int main(int argc, char **argv)
     psi_inverse_order.ApplyPauliY(q);
     psi_inverse_order.ApplyPauliZ(q);
   } 
-  qhipster::mpi::StateBarrier();
+  iqs::mpi::StateBarrier();
   gettimeofday(&time, (struct timezone*)0);
   end =  time.tv_sec + time.tv_usec * 1.0e-6;
   if (myrank==0)

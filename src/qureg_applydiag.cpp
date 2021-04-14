@@ -12,13 +12,15 @@
 // - 'qubit' ro refer to program qubits
 /////////////////////////////////////////////////////////////////////////////////////////
 
+namespace iqs {
+
 template <class Type>
 void QubitRegister<Type>::ApplyDiagSimp(unsigned qubit_1, unsigned qubit_2,  TM4x4<Type> const &m)
 {
   unsigned myrank=0, nprocs=1;
 #ifdef INTELQS_HAS_MPI
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
 #endif
 
   Type d00 = m[0][0],
@@ -75,9 +77,9 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit_1, unsigned qubit_2,  TM4x4<T
 
   unsigned myrank=0, nprocs=1, log2_nprocs=0;
 #ifdef INTELQS_HAS_MPI
-  myrank = qhipster::mpi::Environment::GetStateRank();
-  nprocs = qhipster::mpi::Environment::GetStateSize();
-  log2_nprocs = qhipster::ilog2(nprocs);
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  log2_nprocs = iqs::ilog2(nprocs);
 #endif
   unsigned M = num_qubits - log2_nprocs;
 
@@ -226,3 +228,5 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit_1, unsigned qubit_2,  TM4x4<T
 
 template class QubitRegister<ComplexSP>;
 template class QubitRegister<ComplexDP>;
+
+} // end namespace iqs

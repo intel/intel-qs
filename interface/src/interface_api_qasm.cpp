@@ -12,7 +12,7 @@
 using namespace std;
 
 using Type = ComplexDP;
-extern QubitRegister<Type> *psi1;
+extern iqs::QubitRegister<Type> *psi1;
 
 // Constant defining the rotational angle of a T-dagger gate. Basically, -(pi/4).
 #define TDAG_THETA -0.785398163397448
