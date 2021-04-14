@@ -43,4 +43,4 @@ jobs:
         run: cmake --build build --target intelqs_py
 
       - name: unit test
-        run: cd unit_test && /usr/share/miniconda/envs/test/bin/python import_iqs.py
+        run: cd unit_test && python import_iqs.py
