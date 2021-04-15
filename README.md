@@ -15,6 +15,14 @@ Intel-QS uses the MPI (message-passing-interface) protocol to handle communicati
 resources used to store and manipulate quantum states.
 
 
+## Temporary notice: backward compatibility of April 2021 release
+
+Intel-QS team is aware of the importance of backward compatibility. We do our best to assure it.
+In the latest release we adopted good-coding practices and moved a few classes and methods under
+the namespace `iqs`. This may cause disruption in older programs. The fix is simple, add `iqs::`
+in front of declaration of objects like `QubitRegister`. Other namespaces like `qhipster` have
+been susbtituted with namespace `iqs` too.
+
 
 ## Build instructions
 
