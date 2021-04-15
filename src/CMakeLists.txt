@@ -7,7 +7,7 @@
 
 # Download and unpack eigen library at configure time.
 cmake_minimum_required(VERSION 3.12.0)
-include(${CMAKE_MODULE_PATH}/ExternalProject.cmake)
+include(../cmake/ExternalProject.cmake)
 ExternalProject_Add(deps-eigen
   GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
   PREFIX            "${CMAKE_BINARY_DIR}/deps/eigen-prefix/"
