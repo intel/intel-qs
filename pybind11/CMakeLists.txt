@@ -1,12 +1,12 @@
 ################################################################################
 # Build the Python library for the IQS wrapper.
 
-execute_process (
-    COMMAND bash -c "git submodule add -b stable git@github.com:pybind/pybind11.git extern/pybind11"
-    COMMAND bash -c "git submodule update --init"
-)
+#execute_process (
+#    COMMAND bash -c "git submodule add -b stable git@github.com:pybind/pybind11.git extern/pybind11"
+#    COMMAND bash -c "git submodule update --init"
+#)
 
-add_subdirectory(${PROJECT_BINARY_DIR}/extern/pybind11 ${PROJECT_BINARY_DIR}/extern/bin)
+add_subdirectory(${PROJECT_SOURCE_DIR}/extern/pybind11 ${PROJECT_BINARY_DIR}/extern/pybind11)
 
 if (NOT IqsMPI)
     set(NAME_PY_LIB intelqs_py)
