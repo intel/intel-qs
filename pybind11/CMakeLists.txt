@@ -2,7 +2,7 @@
 # Build the Python library for the IQS wrapper.
 
 execute_process (
-	#    COMMAND bash -c "git submodule add -b stable git@github.com:pybind/pybind11.git extern/pybind11"
+	COMMAND bash -c "git submodule add -b stable git@github.com:pybind/pybind11.git ${PROJECT_SOURCE_DIR}/extern/pybind11"
     COMMAND bash -c "git submodule update --init"
 )
 
