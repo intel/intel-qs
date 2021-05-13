@@ -6,7 +6,7 @@ execute_process (
     COMMAND bash -c "git submodule update --init"
 )
 
-add_subdirectory(extern/pybind11)
+add_subdirectory(${PROJECT_BINARY_DIR}/extern/pybind11 ${PROJECT_BINARY_DIR}/extern/bin)
 
 if (NOT IqsMPI)
     set(NAME_PY_LIB intelqs_py)
