@@ -508,7 +508,7 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 }
 
 
-template <class Type, class BaseType>
+template <class Type>
 std::string AmplitudesJSON(Type *state, std::size_t size, std::size_t num_elements,
                         Permutation *permutation,
                         int my_data_rank)
@@ -548,7 +548,7 @@ void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
 
       of_json_file.open(ofname, std::ofstream::app);
       of_json_file << "\t\"amplitudes\" :\n\t{" << std::endl;
-      std::string s = AmplitudesJSON<Type, BaseType>(state, LocalSize(), num_qubits,
+      std::string s = AmplitudesJSON<Type>(state, LocalSize(), num_qubits,
                                                      qubit_permutation, my_rank);
       of_json_file << s.c_str();
 
