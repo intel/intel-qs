@@ -353,6 +353,7 @@ class QubitRegister
   Type ComputeOverlap( QubitRegister<Type> &psi );
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});
+  void ExportAmplitudes(std::string ofname);
 
   double HP_Distrpair(unsigned position, TM2x2<Type> const&m,
                       // See Apply1QubitGate declaration below 
