@@ -510,7 +510,6 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 
 template <class Type, class BaseType>
 std::string AmplitudesJSON(Type *state, std::size_t size, std::size_t num_elements,
-                        BaseType &cumulative_probability,
                         Permutation *permutation,
                         int my_data_rank)
 {
@@ -533,8 +532,6 @@ std::string AmplitudesJSON(Type *state, std::size_t size, std::size_t num_elemen
 template <class Type>
 void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
 {
-  BaseType cumulative_probability = 0;
-
   int my_rank = iqs::mpi::Environment::GetStateRank();
   int nprocs = iqs::mpi::Environment::GetStateSize();
 #ifdef INTELQS_HAS_MPI
@@ -552,7 +549,7 @@ void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
       of_json_file.open(ofname, std::ofstream::app);
       of_json_file << "\t\"amplitudes\" :\n\t{" << std::endl;
       std::string s = AmplitudesJSON<Type, BaseType>(state, LocalSize(), num_qubits,
-                                                  cumulative_probability, qubit_permutation, my_rank);
+                                                     qubit_permutation, my_rank);
       of_json_file << s.c_str();
 
 #ifdef INTELQS_HAS_MPI
@@ -580,7 +577,7 @@ void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
   else
   {
 #ifdef INTELQS_HAS_MPI
-      std::string s = AmplitudesJSON(state, LocalSize(), num_qubits, cumulative_probability, qubit_permutation, my_rank);
+      std::string s = AmplitudesJSON(state, LocalSize(), num_qubits, qubit_permutation, my_rank);
       std::size_t len = s.length() + 1;
       tag = 1000 + my_rank;
 #ifdef BIGMPI
@@ -593,12 +590,6 @@ void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
 #endif
   }
 
-  BaseType glb_cumulative_probability;
-#ifdef INTELQS_HAS_MPI
-  MPI_Reduce(&cumulative_probability, &glb_cumulative_probability, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
-#else
-  glb_cumulative_probability = cumulative_probability;
-#endif
   if (my_rank == 0)
   {
       assert(my_rank==0);
