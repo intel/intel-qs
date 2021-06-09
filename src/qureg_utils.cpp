@@ -518,8 +518,8 @@ std::string AmplitudesJSON(Type *state, std::size_t size, std::size_t num_elemen
     // std::string bin = dec2bin(myrank * size + i, num_qubits, false);
     std::string bin = permutation->data2program((std::size_t)my_data_rank * size + i);
     char s[4096];
-    sprintf(s, "\t\t\"%s\" : %-13.8lf + i * %-13.8lf,\n",
-            (const char *)bin.c_str(), std::real(state[i]), std::imag(state[i]) );
+    sprintf(s, "\t\t\"%s\" : [%-13.8lf, %-13.8lf, %lf],\n",
+            (const char *)bin.c_str(), std::real(state[i]), std::imag(state[i]), std::norm(state[i]));
     str = str + s;
   }
   // remove the last trailing comma
