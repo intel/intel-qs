@@ -49,7 +49,7 @@ template <typename T, unsigned int Alignment>
 class AlignedAllocator
 {
  private:
-  T const* memory_pointer = nullptr;
+  T* memory_pointer = nullptr;
  public:
 
   typedef T* pointer;
