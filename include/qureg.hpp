@@ -413,7 +413,7 @@ class QubitRegister
 };
 
 template <typename Type>
-bool QubitRegister<Type>::do_print_extra_info = true;
+bool QubitRegister<Type>::do_print_extra_info = false;
 
 template <typename Type>
 using BaseType = typename QubitRegister<Type>::BaseType;
