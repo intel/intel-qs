@@ -48,6 +48,8 @@ namespace iqs {
 template <typename T, unsigned int Alignment>
 class AlignedAllocator
 {
+ private:
+  T* memory_pointer;
  public:
 
   typedef T* pointer;
@@ -65,11 +67,13 @@ class AlignedAllocator
   };
 
   AlignedAllocator() noexcept {}
-  AlignedAllocator(AlignedAllocator const&) noexcept {}
+  AlignedAllocator(T* memory_ptr) noexcept { memory_pointer = memory_ptr; }
+  AlignedAllocator(AlignedAllocator const& other) noexcept { memory_pointer = other.memory_pointer; }
 
   template <typename U>
-  AlignedAllocator(AlignedAllocator<U, Alignment> const&) noexcept
+  AlignedAllocator(AlignedAllocator<U, Alignment> const& other) noexcept
   {
+    memory_pointer = other.memory_pointer;
   }
 
   pointer allocate(size_type n)
@@ -78,13 +82,18 @@ class AlignedAllocator
 
     static_assert(isPowerOf2(Alignment), "Alignment not a power of 2");
 
+    if ( memory_pointer != nullptr ) {
+      p = reinterpret_cast<pointer>(memory_pointer);
+    }
+    else {
 #ifdef _WIN32
-    p = reinterpret_cast<pointer>(_aligned_malloc(n * sizeof(T), Alignment));
-    if (p == 0) throw std::bad_alloc();
+      p = reinterpret_cast<pointer>(_aligned_malloc(n * sizeof(T), Alignment));
+      if (p == 0) throw std::bad_alloc();
 #else
-    if (posix_memalign(reinterpret_cast<void**>(&p), Alignment, n * sizeof(T)))
-      throw std::bad_alloc();
+      if (posix_memalign(reinterpret_cast<void**>(&p), Alignment, n * sizeof(T)))
+        throw std::bad_alloc();
 #endif
+    }
     return p;
   }
 
@@ -92,8 +101,10 @@ class AlignedAllocator
   {
 #ifdef _WIN32
     _aligned_free(p);
+//    std::cout << "_aligned_free: " << p << std::endl;
 #else
     std::free(p);
+//    std::cout << "std::free: " << p << std::endl;
 #endif
   }
 
