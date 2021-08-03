@@ -29,6 +29,7 @@ jobs:
           conda activate /usr/share/miniconda/envs/test
       - name: Install MPICH
         run: | 
+          sudo apt-get update
           sudo apt-get install mpich
           which mpic++
           mpic++ --version
