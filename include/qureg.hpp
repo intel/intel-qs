@@ -140,7 +140,7 @@ class QubitRegister
   QubitRegister(std::size_t num_qubits, Type *state, std::size_t tmp_spacesize_ = 0);
   ~QubitRegister();
 
-  // allocation & initialization
+  // Allocation & initialization
   void AllocateAdditionalQubit();
   void Allocate(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
   void Initialize(std::size_t new_num_qubits, std::size_t tmp_spacesize_);
@@ -165,7 +165,7 @@ class QubitRegister
   // Useful for python/numpy bindings and other buffer protocols
   Type *RawState() { return state; }
 
-  // bit manipulation
+  // Bit manipulation
   inline bool check_bit(std::size_t variable, std::size_t position) const
   {
     std::size_t one = (std::size_t)1, position_long = UL(position);

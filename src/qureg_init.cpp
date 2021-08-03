@@ -335,13 +335,8 @@ if (beginning != end) printf( (buffer.str()).c_str() );
   else if (style == "base")
   {
       assert(base_index < GlobalSize());
-
-      std::size_t whereid = base_index / LocalSize();
-      if (whereid == myrank)
-      {
-          std::size_t lclind = (base_index % LocalSize());
-          state[lclind] = {1.0, 0.0};
-      }
+      // Recall that amplitudes may be stored differently depending on the qubit_permutation
+      this->SetGlobalAmplitude(base_index, {1.0, 0.0});
   }
   ///////////////////////////////////////////////////////////////////////////////////////
   // Balanced superposition of all basis states.
