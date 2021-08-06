@@ -44,7 +44,7 @@ do { \
 int main(int argc, char** argv)
 {
   // Initialize the MPI environmentk, if MPI exists.
-  iqs::mpi::Environment env(argc, argv);
+  iqs::mpi::Environment env(argc, argv, false);
   // These should work even without MPI.
   int pool_rank = iqs::mpi::Environment::GetPoolRank();
   int pool_size  = iqs::mpi::Environment::GetPoolSize();

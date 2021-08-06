@@ -51,7 +51,7 @@ class Environment
   /// It receives the same argc and argv arguments passed to the main function.
   /// If MPI is present, but has not been initialized, then MPI_Init will be called.
 
-  Environment(int& argc, char**& argv);
+  Environment(int& argc, char**& argv, bool silent = false);
   Environment();
 
   /// Finalize the MPI Environment
@@ -137,6 +137,7 @@ class Environment
   static int my_node_id;
   static int num_states;
   static int my_state_id;
+  static bool silent; // suppresses all outputs, default: false
 
 #ifdef INTELQS_HAS_MPI
   MPI_Request synch_request;
