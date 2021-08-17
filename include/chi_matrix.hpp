@@ -1,7 +1,8 @@
 /// @file chi_matrix.hpp
 /// @brief Declare the @c ChiMatrix class.
 
-#pragma once
+#ifndef IQS_CHI_MATRIX_HPP
+#define IQS_CHI_MATRIX_HPP
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // declaration and definition of class ChiMatrix
@@ -183,4 +184,4 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-
+#endif // header guards IQS_CHI_MATRIX_HPP
