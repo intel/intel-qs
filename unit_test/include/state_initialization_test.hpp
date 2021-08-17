@@ -204,6 +204,51 @@ TEST_F(StateInitializationTest, SuperpositionOfAllComputationalStates)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(StateInitializationTest, ComputationalBasisStateWithQubitPermutation)
+{
+  std::size_t index = 1+4+32+256+512; // global index using trivial qubit order
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_, "base", index);
+  // |psi> = |1010010011> = |"1+4+32+256+512">
+  ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index), ComplexDP(1, 0), accepted_error_);
+
+  // Valid only with trivial permutation
+  std::size_t myrank = iqs::mpi::Environment::GetStateRank();
+  std::size_t whereid = index /psi.LocalSize();
+  if (whereid == myrank)
+  {
+      std::size_t lclind = (index % psi.LocalSize());
+      ASSERT_COMPLEX_NEAR(psi[lclind], ComplexDP(1, 0), accepted_error_);
+  }
+
+  // Define and apply qubit permutation
+  //                                                 |--------|
+  std::vector<std::size_t>  map = {0, 1, 2, 3, 4, 5, 9, 7, 8, 6};
+  psi.PermuteQubits(map, "direct");
+  ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index), ComplexDP(1, 0), accepted_error_);
+  std::size_t index_after_permutation = psi.qubit_permutation->program2data_(index);
+  whereid = index_after_permutation/psi.LocalSize();
+  if (whereid == myrank)
+  {
+      std::size_t lclind = (index_after_permutation % psi.LocalSize());
+      ASSERT_COMPLEX_NEAR(psi[lclind], ComplexDP(1, 0), accepted_error_);
+  }
+
+  // Qubit permutation as above, reinitialize the state
+  index = 1+64; // 2^0+2^6
+  psi.Initialize ("base", index);
+  //
+  ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(index), ComplexDP(1, 0), accepted_error_);
+  index_after_permutation = psi.qubit_permutation->program2data_(index);
+  whereid = index_after_permutation/psi.LocalSize();
+  if (whereid == myrank)
+  {
+      std::size_t lclind = (index_after_permutation % psi.LocalSize());
+      ASSERT_COMPLEX_NEAR(psi[lclind], ComplexDP(1, 0), accepted_error_);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 TEST_F(StateInitializationTest, DeathTest)
 {
   // Skip death-tests if compiler flag NDEBUG is defined.

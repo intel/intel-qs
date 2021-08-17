@@ -67,7 +67,7 @@ This directory is used to collect all the files generated during the installatio
 ```bash
   mkdir build
   cd build
-  CXX=g++ cmake -DIqsMPI=ON -DIqsUtest=ON -DIqsPython=ON -DBuildExample=ON ..
+  CXX=g++ cmake -DIqsMPI=ON -DIqsUtest=ON -DIqsPython=ON -DBuildExamples=ON ..
   make
 ```
 The install is customizable and, above, we have chosen to use MPI, compile the

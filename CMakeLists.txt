@@ -329,3 +329,16 @@ else()
 endif()
 
 ################################################################################
+# Save user's options in 'config.status' file
+
+set(CONFIG_STATUS_CONTENT "User-defined cmake options:\n\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsMKL    = " ${IqsMKL} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsMPI    = " ${IqsMPI} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsUtest  = " ${IqsUtest} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsPython = " ${IqsPython} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNative = " ${IqsNative} "\n\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "BuildExamples  = " ${BuildExamples} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "BuildInterface = " ${BuildInterface})
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config.status ${CONFIG_STATUS_CONTENT} )
+
+################################################################################
