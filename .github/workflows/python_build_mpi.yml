@@ -30,7 +30,7 @@ jobs:
       - name: Install MPICH
         run: | 
           sudo apt-get update
-          sudo apt-get install mpich
+          sudo apt-get install --yes --no-install-recommends libmpich-dev mpich
           which mpic++
           mpic++ --version
 
