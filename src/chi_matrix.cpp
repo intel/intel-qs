@@ -229,10 +229,14 @@ namespace iqs {
   }
   
   // used specializations
-  template class ChiMatrix<ComplexDP, 1, 32>;
-  template class ChiMatrix<ComplexDP, 2, 32>;
-  template class ChiMatrix<ComplexDP, 4, 32>;
-  template class ChiMatrix<ComplexDP, 2, 8>;
+  template class ChiMatrix<ComplexDP,  1, 32>;
+  template class ChiMatrix<ComplexDP,  2, 32>;
+  template class ChiMatrix<ComplexDP,  4, 32>;
+  template class ChiMatrix<ComplexDP, 16, 32>;
+  template class ChiMatrix<ComplexDP,  2 , 8>;
+
+  template class ChiMatrix<ComplexSP,  4, 32>;
+  template class ChiMatrix<ComplexSP, 16, 32>;
 }	// end namespace iqs
 
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@ endif()
 
 pybind11_add_module(${NAME_PY_LIB} SHARED
                     intelqs_py.cpp
+                    ../src/chi_matrix.cpp
                     ../src/qaoa_features.cpp)
 
 target_link_libraries(${NAME_PY_LIB} PRIVATE iqs)
