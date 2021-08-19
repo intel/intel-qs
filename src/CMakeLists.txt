@@ -22,6 +22,7 @@ message(STATUS "Eigen library is downloaded in: ${PROJECT_BINARY_DIR}/deps/eigen
 ################################################################################
 
 set(IQS_FILES 
+  chi_matrix.cpp
   highperfkernels.cpp
   spec_kernels.cpp
   qureg_apply1qubitgate.cpp

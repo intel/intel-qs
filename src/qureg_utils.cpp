@@ -1,7 +1,7 @@
 #include <climits>
 
 #include "../include/qureg.hpp"
-
+#include <fstream>
 /// \addtogroup qureg
 /// @{
 
@@ -508,6 +508,98 @@ void QubitRegister<Type>::Print(std::string x, std::vector<std::size_t> qubits)
 }
 
 
+template <class Type>
+std::string AmplitudesJSON(Type *state, std::size_t size, std::size_t num_elements,
+                        Permutation *permutation,
+                        int my_data_rank)
+{
+  std::string str;
+  for (std::size_t i = 0; i < size; i++) {
+    // std::string bin = dec2bin(myrank * size + i, num_qubits, false);
+    std::string bin = permutation->data2program((std::size_t)my_data_rank * size + i);
+    char s[4096];
+    sprintf(s, "\t\t\"%s\" : [%-13.8lf, %-13.8lf, %lf],\n",
+            (const char *)bin.c_str(), std::real(state[i]), std::imag(state[i]), std::norm(state[i]));
+    str = str + s;
+  }
+  // remove the last trailing comma
+  if (my_data_rank == iqs::mpi::Environment::GetStateSize() - 1){
+    str = str.substr(0, str.size() - 2) + "\n";
+  }
+  return std::string(str);
+}
+
+template <class Type>
+void QubitRegister<Type>::ExportAmplitudes(std::string ofname)
+{
+  int my_rank = iqs::mpi::Environment::GetStateRank();
+  int nprocs = iqs::mpi::Environment::GetStateSize();
+#ifdef INTELQS_HAS_MPI
+  MPI_Comm comm = iqs::mpi::Environment::GetStateComm();
+#endif
+  iqs::mpi::StateBarrier();
+
+  int tag;
+  std::ofstream of_json_file;
+
+  if (my_rank == 0)
+  {
+      assert(qubit_permutation);
+
+      of_json_file.open(ofname, std::ofstream::app);
+      of_json_file << "\t\"amplitudes\" :\n\t{" << std::endl;
+      std::string s = AmplitudesJSON<Type>(state, LocalSize(), num_qubits,
+                                                     qubit_permutation, my_rank);
+      of_json_file << s.c_str();
+
+#ifdef INTELQS_HAS_MPI
+      for (std::size_t i = 1; i < nprocs; i++)
+      {
+          std::size_t len;
+          tag = 1000+i;
+#ifdef BIGMPI
+          MPIX_Recv_x(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
+#else
+          MPI_Recv(&len, 1, MPI_LONG, i, tag, comm, MPI_STATUS_IGNORE);
+#endif //BIGMPI
+          s.resize(len);
+          tag = i;
+#ifdef BIGMPI
+          MPIX_Recv_x((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
+#else
+          MPI_Recv((void *)(s.c_str()), len, MPI_CHAR, i, tag, comm, MPI_STATUS_IGNORE);
+#endif //BIGMPI
+          of_json_file << s.c_str();
+      }
+#endif
+      of_json_file.close();
+  }
+  else
+  {
+#ifdef INTELQS_HAS_MPI
+      std::string s = AmplitudesJSON(state, LocalSize(), num_qubits, qubit_permutation, my_rank);
+      std::size_t len = s.length() + 1;
+      tag = 1000 + my_rank;
+#ifdef BIGMPI
+      MPIX_Send_x(&len, 1, MPI_LONG, 0, tag, comm);
+      MPIX_Send_x(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
+#else
+      MPI_Send(&len, 1, MPI_LONG, 0, tag, comm);
+      MPI_Send(const_cast<char *>(s.c_str()), len, MPI_CHAR, 0, my_rank, comm);
+#endif //BIGMPI
+#endif
+  }
+
+  if (my_rank == 0)
+  {
+      assert(my_rank==0);
+      of_json_file.open(ofname, std::ofstream::app );
+      of_json_file << "\t}\n";
+      of_json_file.close();
+  }
+
+  iqs::mpi::StateBarrier();
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Only used for the MPI implementation.
 //------------------------------------------------------------------------------
