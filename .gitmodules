@@ -2,3 +2,7 @@
 	path = extern/pybind11
 	url = git@github.com:pybind/pybind11.git
 	branch = stable
+[submodule "extern/eigen"]
+	path = extern/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+	branch = master

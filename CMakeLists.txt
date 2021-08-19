@@ -50,6 +50,8 @@ option(BuildExamples "Build the Examples" OFF)
 option(BuildInterface "Build the QASM Interface" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
 
+option(EigenSubmodule "Eigen as submodule?" ON)
+
 ################################################################################
 # Enable MPI, yes or not?
 ################################################################################

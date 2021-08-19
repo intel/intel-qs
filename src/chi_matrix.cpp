@@ -9,7 +9,8 @@
 
 #include <typeinfo>
 
-#include "Dense"  // Eigen
+//#include "Dense"  // Eigen
+#include "../extern/eigen/Eigen/Dense"  // Eigen
 
 #include "tinymatrix.hpp"
 #include "utils.hpp"
