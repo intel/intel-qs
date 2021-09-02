@@ -42,7 +42,7 @@ class NoisySimulationTest : public ::testing::Test
   void TearDown() override
   {
      if (iqs::mpi::Environment::GetNumStates() != 1)
-         iqs::mpi::Environment::UpdateStateComm(1,false);
+         iqs::mpi::Environment::UpdateStateComm(1);
   }
 
   int num_qubits_= 6;
@@ -51,7 +51,6 @@ class NoisySimulationTest : public ::testing::Test
   double accepted_error_ = 1e-15;
   int pool_rank_id_;
   int num_ranks_;
-  bool do_print_info_ = true;	// Whether printing info when the PoolComm is restructured.
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -95,7 +94,7 @@ TEST_F(NoisySimulationTest, TwoStates)
   ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = 2;
-  iqs::mpi::Environment::UpdateStateComm(num_states, do_print_info_);
+  iqs::mpi::Environment::UpdateStateComm(num_states);
   ASSERT_EQ( num_states, iqs::mpi::Environment::GetNumStates() );
   if (iqs::mpi::Environment::IsUsefulRank() == false)
       return;
@@ -145,7 +144,7 @@ TEST_F(NoisySimulationTest, OneStatePerRank)
   ASSERT_EQ( iqs::mpi::Environment::GetNumStates(), 1);
   // Update state commutator.
   int num_states = num_ranks_;
-  iqs::mpi::Environment::UpdateStateComm(num_states,do_print_info_);
+  iqs::mpi::Environment::UpdateStateComm(num_states);
   ASSERT_EQ( iqs::mpi::Environment::GetStateRank(), 0 );
   ASSERT_EQ( iqs::mpi::Environment::GetStateSize(), 1 );
   ASSERT_EQ( iqs::mpi::Environment::GetPoolRank(), pool_rank_id_ );

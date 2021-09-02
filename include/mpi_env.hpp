@@ -51,7 +51,7 @@ class Environment
   /// It receives the same argc and argv arguments passed to the main function.
   /// If MPI is present, but has not been initialized, then MPI_Init will be called.
 
-  Environment(int& argc, char**& argv);
+  Environment(int& argc, char**& argv, bool is_verbose = true);
   Environment();
 
   /// Finalize the MPI Environment
@@ -67,7 +67,7 @@ class Environment
   // One needs to know what he/she is doing to call this method.
   /// Update the state and pool communicators.
   /// @pre This can only be called when all ranks are still active.
-  static void UpdateStateComm (int num_states, bool do_print_info=true);
+  static void UpdateStateComm (int num_states);
   /////////////////////////////////////
 
   /// Check whether the rank is useful or not.
@@ -137,6 +137,7 @@ class Environment
   static int my_node_id;
   static int num_states;
   static int my_state_id;
+  static bool is_verbose; // Enable description of MPI ranks, default: true
 
 #ifdef INTELQS_HAS_MPI
   MPI_Request synch_request;

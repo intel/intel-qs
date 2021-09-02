@@ -32,15 +32,15 @@ namespace mpi {
 
 #ifndef INTELQS_HAS_MPI
 
-Environment::Environment(int&, char**&)
-{ useful_rank = true; }
+Environment::Environment(int&, char**&, bool is_verbose)
+{ useful_rank = true; this->is_verbose = is_verbose; }
 
 Environment::Environment()
-{ useful_rank = true; }
+{ useful_rank = true; this->is_verbose = true; }
 
 Environment::~Environment() {}
 
-void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
+void Environment::UpdateStateComm(int new_num_states)
 { assert(new_num_states==1);  printf("MPI not enabled.\n"); }
 
 int Environment::GetPoolRank() {return 0;}
@@ -119,6 +119,7 @@ void Environment::Finalize()
 /////////////////////////////////////////////////////////////////////////////////////////
 
 bool Environment::useful_rank = true;
+bool Environment::is_verbose = false;
 
 int Environment::num_ranks_per_node = 1;
 int Environment::num_nodes = 1;
@@ -186,7 +187,7 @@ void Environment::CommonInit(int flag)
   // MPI_Ibarrier(MPI_COMM_WORLD, &synch_request);
 }
 
-Environment::Environment(int& argc, char**& argv) : inited_(false)
+Environment::Environment(int& argc, char**& argv, bool is_verbose) : inited_(false)
 {
   int flag;
   QHIPSTER_MPI_CHECK_RESULT(MPI_Initialized,(&flag))
@@ -194,6 +195,7 @@ Environment::Environment(int& argc, char**& argv) : inited_(false)
     QHIPSTER_MPI_CHECK_RESULT(MPI_Init,(&argc, &argv))
     inited_ = true;
   }
+  this->is_verbose = is_verbose;
   CommonInit(flag);
 }
 
@@ -234,7 +236,7 @@ Environment::~Environment()
 /////////////////////////////////////////////////////////////////////////////////////////
 
 // NOTE: One needs to know what he/she is doing to call this method!
-void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
+void Environment::UpdateStateComm(int new_num_states)
 {
   // To make the implementation more resistant, we impose a few constraints:
   // 1. same number of ranks per node;
@@ -397,7 +399,7 @@ void Environment::UpdateStateComm(int new_num_states, bool do_print_info)
             <<  " , threads/rank: " << std::setw(2) << iqs::toString(threads_per_rank)
             <<  (useful_rank ? " --useful" : " --dummy");
 #endif
-  if (do_print_info==true)
+  if (is_verbose==true)
       Print(buffer.str(), MPI_COMM_WORLD);
 }
 
