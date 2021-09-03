@@ -212,7 +212,7 @@ double QubitRegister<Type>::HP_Distrpair(unsigned control_position, unsigned tar
       }
   }
 
-  double netsize = 2.0 * sizeof(Type) * 2.0 * D(lcl_size_half), netbw = netsize / tnet;
+  double netsize = 2.0 * sizeof(Type) * 2.0 * double(lcl_size_half), netbw = netsize / tnet;
   if (timer) timer->record_cm(tnet, netbw);
 #endif
 

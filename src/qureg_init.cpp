@@ -168,13 +168,13 @@ void QubitRegister<Type>::Allocate(std::size_t new_num_qubits, std::size_t tmp_s
   {
       double MB = 1024.0 * 1024.0;
       double s;
-      s = D(num_ranks_per_node) * D(nbytes);
+      s = double(num_ranks_per_node) * double(nbytes);
       printf("Total storage per node  = %.2lf MB \n", s / MB);
-      s = D(num_ranks_per_node) * D(LocalSize()) * D(sizeof(state[0]));
+      s = double(num_ranks_per_node) * double(LocalSize()) * double(sizeof(state[0]));
       printf("      storage per state = %.2lf MB \n", s / MB);
       if (nprocs > 1)
       {
-          s = D(num_ranks_per_node) * D(TmpSize()) * D(sizeof(state[0]));
+          s = double(num_ranks_per_node) * double(TmpSize()) * double(sizeof(state[0]));
           printf("      temporary storage = %.5lf MB \n", s / MB);
       }
   }
