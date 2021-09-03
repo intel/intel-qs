@@ -14,7 +14,6 @@
 #define INFO(x) DO_PRAGMA(message("\033[30;46mINFO\033[0m - " #x))
 #endif
 
-#define D(x) ((double)(x))
 #define UL(x) ((std::size_t)(x))
 #define sec() time_in_seconds()
 #define xstr(s) __str__(s)

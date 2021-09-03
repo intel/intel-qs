@@ -240,7 +240,7 @@ class Timer
     iqs::mpi::Barrier();
     double now = Wtime();
     curiter->second.total += (now - start);
-    curiter->second.flops += D(UL(1) << UL(num_qubits - 1)) * 38.0;
+    curiter->second.flops += double(UL(1) << UL(num_qubits - 1)) * 38.0;
     curiter->second.gflops = curiter->second.flops / curiter->second.total / 1e9;
   }
 

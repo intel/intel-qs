@@ -68,7 +68,7 @@ This directory is used to collect all the files generated during the installatio
   mkdir build
   cd build
   CXX=g++ cmake -DIqsMPI=ON -DIqsUtest=ON -DIqsPython=ON -DBuildExamples=ON ..
-  make
+  make -j10
 ```
 The install is customizable and, above, we have chosen to use MPI, compile the
 unit tests (based on [GoogleTest framework](https://github.com/google/googletest)),

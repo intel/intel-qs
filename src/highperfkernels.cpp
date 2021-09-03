@@ -228,9 +228,9 @@ void Loop_SN(std::size_t start, std::size_t end, Type *state0, Type *state1,
   {
       ttot = sec() - ttmp1;
       double datab = ((state0 == state1) ? 2.0 : 4.0) * 
-                     frac_of_state_accessed * sizeof(state0[0]) * D(end - start);
+                     frac_of_state_accessed * sizeof(state0[0]) * double(end - start);
       // printf("datab=%lf len=%lu time=%lf bw=%lf\n", datab, end-start, ttot, datab / ttot / 1e9);
-      double flops = D(1L << 19) * 38.0;
+      double flops = double(1L << 19) * 38.0;
       double gflops = flops / ttot / 1e9;
       // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
       //        label.c_str(), ttot, datab / ttot / 1e9);
@@ -367,8 +367,8 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
   if(timer)
   {
       ttot = sec() - ttmp1;     
-      double datab = 2.0 * frac_of_state_accessed * sizeof(state0[0]) * D(gend - gstart);
-      double flops = D(1L << 19) * 38.0;
+      double datab = 2.0 * frac_of_state_accessed * sizeof(state0[0]) * double(gend - gstart);
+      double flops = double(1L << 19) * 38.0;
       double gflops = flops / ttot / 1e9;
       // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
       //         label.c_str(), ttot, datab / ttot / 1e9);
@@ -476,8 +476,8 @@ void Loop_TN(Type *state,
   {
     ttot = sec() - ttmp1;
     double datab =
-      4.0 * sizeof(state[0]) * D((c12 - c11) / c13) * D((c22 - c21) / c23) * D(c32 - c31);
-    double flops = D(1L << 19) * 38.0;
+      4.0 * sizeof(state[0]) * double((c12 - c11) / c13) * double((c22 - c21) / c23) * double(c32 - c31);
+    double flops = double(1L << 19) * 38.0;
     double gflops = flops / ttot / 1e9;
     // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
     //        "ScaleState", ttot, datab / ttot / 1e9);
@@ -509,8 +509,8 @@ void ScaleState(std::size_t start, std::size_t end, Type *state,
   }
   if (timer) {
     ttot = sec() - ttmp1;
-    double datab = 2.0 * sizeof(state[0]) * D(end - start);
-    double flops = D(1L << 19) * 38.0;
+    double datab = 2.0 * sizeof(state[0]) * double(end - start);
+    double flops = double(1L << 19) * 38.0;
     double gflops = flops / ttot / 1e9;
     // printf("label=%s ttot = %.4lfs bw = %.2lf GB/s\n",
     //        "ScaleState", ttot, datab / ttot / 1e9);

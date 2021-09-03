@@ -236,9 +236,9 @@ void Loop_SN(std::size_t gstart, std::size_t gend,
   {
     ttot = sec() - ttmp1;
     double datab = ((state0 == state1) ? 2.0 : 4.0) *
-        sizeof(state0[0]) * D(gend - gstart);
+        sizeof(state0[0]) * double(gend - gstart);
     
-    double flops = D(1L << 19) * 38.0;
+    double flops = double(1L << 19) * 38.0;
     double gflops = flops / ttot / 1e9;
 
     timer->record_sn(ttot, datab / ttot);
@@ -326,7 +326,7 @@ void Loop_DN(std::size_t gstart, std::size_t gend, std::size_t pos,
  if(timer)
   {
       ttot = sec() - ttmp1;     
-      double datab = 2.0 * sizeof(state0[0]) * D(gend - gstart);
+      double datab = 2.0 * sizeof(state0[0]) * double(gend - gstart);
       timer->record_dn(ttot, datab / ttot);
   }
 }
@@ -411,7 +411,7 @@ void Loop_TN(Type *state,
   {
     ttot = sec() - ttmp1;
     double datab =
-      4.0 * sizeof(state[0]) * D((c12 - c11) / c13) * D((c22 - c21) / c23) * D(c32 - c31);
+      4.0 * sizeof(state[0]) * double((c12 - c11) / c13) * double((c22 - c21) / c23) * double(c32 - c31);
     timer->record_tn(ttot, datab / ttot);
   }
 }
