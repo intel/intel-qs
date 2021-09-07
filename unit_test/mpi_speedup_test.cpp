@@ -25,8 +25,8 @@ int main(int argc, char** argv)
   if (!pool_rank)
       std::cout << "\n-- Without using the MPI environment of IQS --\n";
 #else
-  // Initialize the MPI environmentk, if MPI exists.
-  iqs::mpi::Environment env(argc, argv);
+  // Initialize the MPI environment (verbose mode), if MPI exists.
+  iqs::mpi::Environment env(argc, argv, true);
   // These should work even without MPI.
   pool_rank = iqs::mpi::Environment::GetPoolRank();
   pool_size  = iqs::mpi::Environment::GetPoolSize();

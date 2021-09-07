@@ -146,11 +146,11 @@ static void cfft(iqs::QubitRegister<Type> &x)
     y[k] = {0, 0};
     for (int j = 0; j < N; j++)
     {
-      double arg = 2.0 * M_PI * D(j) * D(k) / D(N);
+      double arg = 2.0 * M_PI * double(j) * double(k) / double(N);
       Type e = Type(std::cos(arg), std::sin(arg));
       y[k] += x[j] * e;
     }
-    y[k] /= std::sqrt(D(N));
+    y[k] /= std::sqrt(double(N));
   }
 #if 0
 // Original code was:
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
   {
     using Type = ComplexSP;
 
-    if (myrank == 0) std::cout << "state initialization (single precision)\n";
+    if (myrank == 0) std::cout << "\nstate initialization (single precision)\n";
     iqs::RandomNumberGenerator<float> rng_sp;
     rng_sp.SetSeedStreamPtrs(777);
     iqs::QubitRegister<Type> psi1(num_qubits, "base", 0);
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
   {
     using Type = ComplexDP;
 
-    if (myrank == 0) std::cout << "state initialization (double precision)\n";
+    if (myrank == 0) std::cout << "\nstate initialization (double precision)\n";
     iqs::RandomNumberGenerator<double> rng_dp;
     rng_dp.SetSeedStreamPtrs(777);
     iqs::QubitRegister<Type> psi1(num_qubits, "base", 0);

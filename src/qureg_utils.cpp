@@ -282,7 +282,7 @@ double QubitRegister<Type>::Entropy()
  
   if (timer)
   {
-      double datab = D(sizeof(state[0])) * D(lcl) / ttot;
+      double datab = double(sizeof(state[0])) * double(lcl) / ttot;
       timer->record_sn(ttot, datab / ttot);
       timer->Stop();
   }
@@ -299,7 +299,7 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
   std::vector <double> stats;
 
   std::size_t lcl = LocalSize();
-  double two2n = D(GlobalSize());
+  double two2n = double(GlobalSize());
   
   double entropy = 0, avgselfinfo=0,
          m2 = 0, m3 = 0, m4 = 0, m5 = 0, m6 = 0, 
@@ -370,8 +370,8 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
   for(auto i = 0; i < m.size(); i++)
   {
       auto k = i + 2;
-      factorial *= D(k);
-      factor[i] = pow(two2n, D(k - 1)) / factorial;
+      factorial *= double(k);
+      factor[i] = pow(two2n, double(k - 1)) / factorial;
 
       m[i] *= factor[i];
 #ifdef INTELQS_HAS_MPI
@@ -386,7 +386,7 @@ std::vector<double> QubitRegister<Type>::GoogleStats()
 
   if (timer)
   {
-      double datab = D(sizeof(state[0])) * D(lcl) / ttot;
+      double datab = double(sizeof(state[0])) * double(lcl) / ttot;
       timer->record_sn(ttot, datab / ttot);
       timer->Stop();
   }
@@ -625,7 +625,7 @@ void QubitRegister<Type>::dumpbin(std::string fn)
   MPI_File_close(&fh);
   if (myrank == 0)
   {
-      double bw = D(UL(sizeof(state[0])) * size) / (t1 - t0) / 1e6;
+      double bw = double(UL(sizeof(state[0])) * size) / (t1 - t0) / 1e6;
       printf("Dumping state to %s took %lf sec (%lf MB/s)\n", (const char *)fn.c_str(), (double)(t1 - t0), (double)bw);
   }
 #else

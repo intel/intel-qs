@@ -288,7 +288,7 @@ namespace utest
     {
         state.resize(1 << p.num_elements);
         for (std::size_t i = 0; i < state.size(); i++)
-            state[i] = {D(i % 3), D(i % 16)};
+            state[i] = {double(i % 3), double(i % 16)};
     }
  
     // Permute the order of the entries according to the Permutation pnew.
@@ -324,8 +324,8 @@ namespace utest
         }
         std::uint64_t t1 = __rdtsc();
         double s1 = iqs::sec();
-        double bw = D(state.size()) * D(sizeof(state[0])) * 2.0 / D(s1 - s0);
-        if (do_print) printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", D(t1 - t0) / D(state.size()), bw / 1e9);
+        double bw = double(state.size()) * double(sizeof(state[0])) * 2.0 / double(s1 - s0);
+        if (do_print) printf("cycles per shuffle: %.2lf bw=%.2lf GB/s\n", double(t1 - t0) / double(state.size()), bw / 1e9);
     
         p = pnew;
         state = state_new;
