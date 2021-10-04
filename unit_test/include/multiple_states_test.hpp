@@ -36,7 +36,7 @@ class MultipleStatesTest : public ::testing::Test
   {
     // This kind of tests makes no sense without MPI and at least 2 ranks.
     if (num_ranks_<2)
-        GTEST_SKIP();
+        GTEST_SKIP() << "INFO: test is meaningful only if at least 2 ranks are used.";
   }
 
   // Just before the 'destructor'.

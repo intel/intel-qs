@@ -25,7 +25,7 @@ class QaoaFeaturestest : public ::testing::Test
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
     if (iqs::mpi::Environment::GetStateSize() > 32)
-        GTEST_SKIP();
+        GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
   }
 
   const std::size_t num_qubits_ = 6;

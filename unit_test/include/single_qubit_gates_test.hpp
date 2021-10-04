@@ -24,7 +24,7 @@ class SingleQubitGatesTest : public ::testing::Test
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
     if (iqs::mpi::Environment::GetStateSize() > 511)
-        GTEST_SKIP();
+        GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
 
     G_(0, 0) = {0.592056606032915, 0.459533060553574}; 
     G_(0, 1) = {-0.314948020757856, -0.582328159830658};
@@ -125,7 +125,7 @@ TEST_F(SingleQubitGatesTest, DeathTest)
 {
   // Skip death-tests if compiler flag NDEBUG is defined.
 #ifdef NDEBUG
-  GTEST_SKIP();
+  GTEST_SKIP() << "INFO: test skipped when compiler flag NDEBUG is not defined.";
 #endif
 
   // Skip death-tests if MPI size > 1.

@@ -134,7 +134,7 @@ TEST_F(GateCounterTest, CustomTwoQubitGates)
 {
   // Arbitrary two-qubit gates are implemented only when StateSize=1.
   if (iqs::mpi::Environment::GetStateSize() > 1)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: arbitrary 2-qubit gates require non-distributed states.";
 
   int expected_counter = 0;
   // |psi> = |1010010000> = |"1+4+32">
@@ -149,7 +149,7 @@ TEST_F(GateCounterTest, CustomTwoQubitGates)
 
 TEST_F(GateCounterTest, ToffoliGate)
 {
-  GTEST_SKIP(); // FIXME: to check if action error comes from memory limits
+  GTEST_SKIP() << "INFO: ToffoliGate is a test under development."; // FIXME: to check if action error comes from memory limits
   // |psi> = |0000000000> = |"0">
   std::cout << "Checkpoint A\n"; // FIXME: to check origin of github action error
   iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
