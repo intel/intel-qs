@@ -136,6 +136,9 @@ void chimatrix_testassign()
 template <class T>
 void chimatrix_testeigen()
 {
+#ifndef IQS_WITH_NOISE
+  GTEST_SKIP() << "INFO: Library Eigen is not used for noiseless simulations";
+#else
   iqs::ChiMatrix<T, 2> chimat2 = {{T(1.), T(3.)}, {T(3.), T(7.)}};
   
   chimat2.SolveEigenSystem();
@@ -165,7 +168,7 @@ void chimatrix_testeigen()
   This eigenvectors are already standardized, but one still needs to normalize them:
   (normalized) Eigenvectors: [-2.69121547  1.11473795]  and  [-1.11473795 -2.69121547] 
   */
-
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
