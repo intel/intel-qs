@@ -36,6 +36,12 @@ TEST_F(CompileFlagTest, AllFlags)
     std::cout << "             |            INTELQS_HAS_MPI |          |\n";
 #endif
 //
+#ifdef IQS_WITH_NOISE
+    std::cout << "             |             IQS_WITH_NOISE |    X     |\n";
+#else
+    std::cout << "             |             IQS_WITH_NOISE |          |\n";
+#endif
+//
 #ifdef USE_MKL
     std::cout << "             |                    USE_MKL |    X     |\n";
 #else

@@ -24,7 +24,7 @@ class Apply1QGateTest : public ::testing::Test
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
     if (iqs::mpi::Environment::GetStateSize() > 8)
-        GTEST_SKIP();
+        GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
 
     std::cout << "state_rank_id = " << iqs::mpi::Environment::GetStateRank() << "\n";//FIXME delete
     iqs::mpi::StateBarrier();

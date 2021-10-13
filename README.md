@@ -48,6 +48,7 @@ The following packages are required by the installation:
 *  optional: MKL for distributed random number generation
 *  optional: PyBind11 (installed via conda, not pip) required by the Python binding of Intel-QS
 *  optional: GoogleTest (automatically installed if needed during the build) required by the unit tests
+*  optional: Eigen (library to solve eigensystems) required for simulations with realistic noise
 
 The first step is cloning the repository:
 ```bash
@@ -67,12 +68,14 @@ This directory is used to collect all the files generated during the installatio
 ```bash
   mkdir build
   cd build
-  CXX=g++ cmake -DIqsMPI=ON -DIqsUtest=ON -DIqsPython=ON -DBuildExamples=ON ..
+  CXX=g++ cmake -DIqsMPI=ON -DIqsUtest=ON -DIqsPython=ON -DIqsNoise=OFF -DBuildExamples=ON ..
   make -j10
 ```
 The install is customizable and, above, we have chosen to use MPI, compile the
 unit tests (based on [GoogleTest framework](https://github.com/google/googletest)),
 create a Python library via [PyBind11](https://github.com/pybind/pybind11),
+not include the possibility of simulating noisiy gates as quantum channels
+(feature that would need library [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page)),
 and compile a set of C++ examples.
 
 To re-build Intel-QS with different settings or options, we recommend to delete all content of the

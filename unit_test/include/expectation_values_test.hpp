@@ -22,7 +22,7 @@ class ExpectationValuesTest : public ::testing::Test
 
     // All tests are skipped if the 4-qubit state is distributed in more than 8 ranks.
     if (iqs::mpi::Environment::GetStateSize() > 8)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
   }
 
   const std::size_t num_qubits_ = 6;

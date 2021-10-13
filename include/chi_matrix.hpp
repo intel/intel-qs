@@ -22,6 +22,9 @@
 ///  (2)   chi = \sum_k  E_k  |E_k> <E_k|
 /// where |E_k> represents the matrix  \sum_i E_k,i . \sigma_i
 ///
+/// NOTE: The eigenvalues and eigenvectors have to be explicitly computed by calling
+///       method SolveEigenSystem() after initializing all values of the chi matrix.
+///
 /// NOTE: The eigenvectors |E_k> are defined up to a scalar factor.
 ///       However eq.(2) can be used to determine the eigenvectors up to a phase.
 ///       We call this procedure 'standardization'.
@@ -69,12 +72,12 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
   /// Initialize from a C-style array of the same dimensions.
   template <class U>
   ChiMatrix(U init[M][M])
-  : TinyMatrix<ValueType, M, M, align>::TinyMatrix(init) { this->SolveEigenSystem(); }
+  : TinyMatrix<ValueType, M, M, align>::TinyMatrix(init) { }
 
   /// Initialize from an initializer list, i.e. a compile time given matrix.
   template <class U>
   ChiMatrix(std::initializer_list<std::initializer_list<U>> const& init)
-  : TinyMatrix<ValueType, M, M, align>::TinyMatrix(init) { this->SolveEigenSystem(); }
+  : TinyMatrix<ValueType, M, M, align>::TinyMatrix(init) { }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +88,11 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
     for (size_type i = 0; i < this->numRows(); ++i)
         for (size_type j = 0; j < this->numCols(); ++j)
             this->data_[i][j] = rhs(i, j);
-    this->SolveEigenSystem();
+   // If present, copy also quantities related to the eigensystem. 
+   evalues_ = rhs.GetEigenValues();
+   eprobs_ = rhs.GetEigenProbabilities();
+   ecumprobs_ = rhs.GetEigenCumulativeProbabilities();
+   evectors_ = rhs.GetEigenVectors();
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -134,22 +141,47 @@ class ChiMatrix : public TinyMatrix<ValueType, M, M, align>
   void Print(bool with_eigensystem = true);
 
 /////////////////////////////////////////////////////////////////////////////////////////
+// NOTE: The following methods may be invoked many times in IQS user's program.
+//       To avoid unnecessaary overhead, the code does not impose checks on the index k.
+//       This also require that method ChiMatrix::SolveEigenSystem() has been called.
 
   /// Return the k-th eigenvalue.
   value_type GetEigenValue(size_type k) const
   { return evalues_[k]; }
 
+  /// Return all eigenvalues.
+  std::vector<value_type> GetEigenValues() const
+  { return evalues_; }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// Return the probability of the k-th eigenvalue.
   base_type GetEigenProbability(size_type k) const
   { return eprobs_[k]; }
+
+  /// Return the probability of all eigenvalues.
+  std::vector<base_type> GetEigenProbabilities() const
+  { return eprobs_; }
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
   /// Return the cumulative probability of the k-th eigenvalue.
   base_type GetEigenCumulativeProbability(size_type k) const
   { return ecumprobs_[k]; }
 
+  /// Return the cumulative probability all eigenvalue.
+  std::vector<base_type> GetEigenCumulativeProbabilities() const
+  { return ecumprobs_; }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
   /// Return the k-th eigenvector.
   std::vector<value_type> GetEigenVector(size_type k) const
   { return evectors_[k]; }
+
+  /// Return all eigenvector.
+  std::vector<std::vector<value_type>> GetEigenVectors() const
+  { return evectors_; }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
