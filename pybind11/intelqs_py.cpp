@@ -210,6 +210,7 @@ std::cout << "ciao\n";
         .def("ApplyPauliSqrtY", &QubitRegister<ComplexDP>::ApplyPauliSqrtY)
         .def("ApplyPauliSqrtZ", &QubitRegister<ComplexDP>::ApplyPauliSqrtZ)
         .def("ApplyT", &QubitRegister<ComplexDP>::ApplyT)
+        .def("ApplyRotationXY", &QubitRegister<ComplexDP>::ApplyRotationXY)
         .def("ApplyHadamard", &QubitRegister<ComplexDP>::ApplyHadamard)
         // Two-qubit gates:
         .def("ApplySwap", &QubitRegister<ComplexDP>::ApplySwap)
