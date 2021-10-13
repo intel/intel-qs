@@ -351,6 +351,7 @@ class QubitRegister
   std::vector<double> GoogleStats();
   void Normalize();
   BaseType ComputeNorm();
+  void AmplitudeWiseScalarMultiplication(Type factor);
   Type ComputeOverlap( QubitRegister<Type> &psi );
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});

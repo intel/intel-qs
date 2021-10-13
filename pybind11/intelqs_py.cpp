@@ -328,6 +328,7 @@ std::cout << "ciao\n";
         .def("CollapseQubit", &QubitRegister<ComplexDP>::CollapseQubit)
           // Recall that the collapse selects: 'false'=|0> , 'true'=|1>
         .def("Normalize", &QubitRegister<ComplexDP>::Normalize)
+        .def("AmplitudeWiseScalarMultiplication", &QubitRegister<ComplexDP>::AmplitudeWiseScalarMultiplication)
         .def("ExpectationValue", &QubitRegister<ComplexDP>::ExpectationValue)
         // Other quantum operations:
         .def("ComputeNorm", &QubitRegister<ComplexDP>::ComputeNorm)

@@ -163,16 +163,23 @@ template <class Type>
 void QubitRegister<Type>::Normalize() 
 {
   BaseType global_norm = ComputeNorm();
-  std::size_t lcl = LocalSize();
+  Type inverse_global_norm(1/global_norm, 0);
+  AmplitudeWiseScalarMultiplication(inverse_global_norm);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Scalar multiplication amplitude-by-amplitude
+template <class Type>
+void QubitRegister<Type>::AmplitudeWiseScalarMultiplication(Type factor)
+{
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd
 #else
 #pragma omp parallel for 
 #endif
-  for(std::size_t i = 0; i < lcl; i++)
-  {
-     state[i] = state[i] / global_norm;
-  }
+  for(std::size_t i = 0; i < LocalSize(); i++)
+     state[i] = state[i] * factor;
 }
 
 
