@@ -124,9 +124,9 @@ look to our [contributing policy](CONTRIBUTING.md) and also to the
 For any bug, we use GitHub issues [GitHub issues](https://github.com/iqusoft/intel-qs/issues). Please submit your request there.
 
 If you have a question or want to discuss something, feel free to send an email to
-[Justin Hogaboam](justin.w.hogaboam@intel.com),
-[Gian Giacomo Guerreschi](gian.giacomo.guerreschi@intel.com), or to
-[Fabio Baruffa](fabio.baruffa@intel.com).
+[Justin Hogaboam](mailto:justin.w.hogaboam@intel.com),
+[Gian Giacomo Guerreschi](mailto:gian.giacomo.guerreschi@intel.com), or to
+[Fabio Baruffa](mailto:fabio.baruffa@intel.com).
 
 
 
