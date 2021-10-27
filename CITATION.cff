@@ -1,0 +1,67 @@
+# YAML 1.2
+---
+cff-version: "1.2.0"
+message: "When using Intel Quantum Simulator for research projects, please cite it as below."
+title: "Intel Quantum Simulator"
+abstract: "Intel Quantum Simulator (Intel-QS), also known as qHiPSTER (The Quantum High Performance Software Testing Environment), is a simulator of quantum circuits optimized to take maximum advantage of multi-core and multi-nodes architectures. It is based on a complete representation of the qubit state, but avoids the explicit representation of gates and other quantum operations in terms of matrices. Intel-QS uses the MPI (message-passing-interface) protocol to handle communication between the distributed resources used to store and manipulate quantum states."
+authors:
+  - family-names: Guerreschi
+    given-names: "Gian Giacomo"
+    orcid: "https://orcid.org/0000-0002-5579-451X"
+  - family-names: Hogaboam
+    given-names: Justin
+  - family-names: Baruffa
+    given-names: Fabio
+  - family-names: Sawaya
+    given-names: "Nicolas P. D."
+    orcid: "https://orcid.org/0000-0001-8510-8480"
+date-released: 2017-11-06
+keywords: 
+  - "quantum computing"
+  - "high performance computing"
+  - "cloud computing"
+  - "quantum circuits"
+  - "intel quantum simulator"
+license: "Apache-2.0"
+repository-code: "https://github.com/iqusoft/intel-qs"
+version: "2.1.0"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Guerreschi
+    given-names: "Gian Giacomo"
+    orcid: "https://orcid.org/0000-0002-5579-451X"
+  - family-names: Hogaboam
+    given-names: Justin
+  - family-names: Baruffa
+    given-names: Fabio
+  - family-names: Sawaya
+    given-names: "Nicolas P. D."
+    orcid: "https://orcid.org/0000-0001-8510-8480"
+  doi: "10.1088/2058-9565/ab8505"
+  url: "https://doi.org/10.1088/2058-9565/ab8505"
+  journal: "Quantum Science and Technology"
+  month: 7
+  title: "Intel Quantum Simulator: a cloud-ready high-performance simulator of quantum circuits"
+  issue: 3
+  volume: 5
+  year: 2020
+references:
+  - type: article
+    scope: "The original implementation is described here."
+    authors:
+      - family-names: Smelyanskiy
+        given-names: Mikhail
+        orcid: "https://orcid.org/0000-0002-2433-6110"
+      - family-names: Sawaya
+        given-names: "Nicolas P. D."
+        orcid: "https://orcid.org/0000-0001-8510-8480"
+      - family-names: Aspuru-Guzik
+        given-names: "Alán"
+        orcid: "https://orcid.org/0000-0002-8277-4434"
+    title: "qHiPSTER: The Quantum High Performance Software Testing Environment"
+    abstract: "We present qHiPSTER, the Quantum High Performance Software Testing Environment. qHiPSTER is a distributed high-performance implementation of a quantum simulator on a classical computer, that can simulate general single-qubit gates and two-qubit controlled gates. We perform a number of single- and multi-node optimizations, including vectorization, multi-threading, cache blocking, as well as overlapping computation with communication. Using the TACC Stampede supercomputer, we simulate quantum circuits (“quantum software”) of up to 40 qubits. We carry out a detailed performance analysis to show that our simulator achieves both high performance and high hardware efficiency, limited only by the sustainable memory and network bandwidth of the machine."
+    year: 2016
+    month: 5
+    url: "https://arxiv.org/abs/1601.07195"
+...
