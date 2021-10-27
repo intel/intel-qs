@@ -344,7 +344,7 @@ class QubitRegister
 
   // Utilities:
   bool operator==(const QubitRegister &rhs);
-  BaseType MaxAbsDiff(QubitRegister &x, Type sfactor = Type(1.0, 0.));
+  BaseType MaxAbsDiff(QubitRegister &x, Type sfactor = Type(1, 0));
   BaseType MaxL2NormDiff(QubitRegister &x);
   void dumpbin(std::string fn);
   double Entropy();
@@ -352,6 +352,7 @@ class QubitRegister
   void Normalize();
   BaseType ComputeNorm();
   void AmplitudeWiseScalarMultiplication(Type factor);
+  void AmplitudeWiseSum(QubitRegister<Type> &psi, Type factor = Type(1, 0));
   Type ComputeOverlap( QubitRegister<Type> &psi );
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});

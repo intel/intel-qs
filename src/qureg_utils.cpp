@@ -170,6 +170,8 @@ void QubitRegister<Type>::Normalize()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Scalar multiplication amplitude-by-amplitude
+///
+/// |this> ----> factor * |this>
 template <class Type>
 void QubitRegister<Type>::AmplitudeWiseScalarMultiplication(Type factor)
 {
@@ -179,7 +181,37 @@ void QubitRegister<Type>::AmplitudeWiseScalarMultiplication(Type factor)
 #pragma omp parallel for 
 #endif
   for(std::size_t i = 0; i < LocalSize(); i++)
-     state[i] = state[i] * factor;
+      state[i] = state[i] * factor;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Sum amplitude-by-amplitude
+///
+/// |this> ----> |this> + factor * |psi>
+template <class Type>
+void QubitRegister<Type>::AmplitudeWiseSum(QubitRegister<Type> &psi, Type factor)
+{
+  if (factor==Type(1, 0))
+  {
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+      for(std::size_t i = 0; i < LocalSize(); i++)
+          state[i] += psi[i];
+  }
+  else
+  {
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+      for(std::size_t i = 0; i < LocalSize(); i++)
+          state[i] += psi[i] * factor;
+  }
 }
 
 
