@@ -47,7 +47,11 @@ set(IQS_FILES
   gate_spec.cpp
   CACHE INTERNAL "" FORCE)
 
-add_library(iqs SHARED ${IQS_FILES})
+if(BUILD_STATIC)
+  add_library(iqs STATIC ${IQS_FILES})
+else()
+  add_library(iqs SHARED ${IQS_FILES})
+endif()
 
 add_dependencies(iqs deps-eigen)
 
