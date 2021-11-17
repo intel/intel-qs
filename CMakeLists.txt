@@ -50,6 +50,7 @@ option(IqsNoise "Enable stochastic simulation of noise channels?" OFF)
 option(BuildExamples "Build the Examples" OFF)
 option(BuildInterface "Build the QASM Interface" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
+option(IqsBuildAsStatic "Build IQS as a static library?" OFF)
 
 ################################################################################
 # Enable MPI, yes or not?
@@ -344,7 +345,8 @@ STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsMPI    = " ${Iq
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsUtest  = " ${IqsUtest} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsPython = " ${IqsPython} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNoise  = " ${IqsNoise} "\n")
-STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNative = " ${IqsNative} "\n\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNative = " ${IqsNative} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsBuildAsStatic = " ${IqsBuildAsStatic} "\n\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "BuildExamples  = " ${BuildExamples} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "BuildInterface = " ${BuildInterface})
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config.status ${CONFIG_STATUS_CONTENT} )

@@ -45,7 +45,11 @@ set(IQS_FILES
   gate_spec.cpp
   CACHE INTERNAL "" FORCE)
 
-add_library(iqs SHARED ${IQS_FILES})
+if(IqsBuildAsStatic)
+  add_library(iqs STATIC ${IQS_FILES})
+else()
+  add_library(iqs SHARED ${IQS_FILES})
+endif()
 
 target_include_directories(iqs PUBLIC ../include)
 target_include_directories(iqs INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
