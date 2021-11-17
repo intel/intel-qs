@@ -47,7 +47,7 @@ set(IQS_FILES
   gate_spec.cpp
   CACHE INTERNAL "" FORCE)
 
-if(BUILD_STATIC)
+if(IqsBuildAsStatic)
   add_library(iqs STATIC ${IQS_FILES})
 else()
   add_library(iqs SHARED ${IQS_FILES})
