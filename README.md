@@ -38,6 +38,19 @@ The complete guide to the installation can be found in
 
 At the end of the installation, the library object will be: `/builb/lib/libiqs.so`
 
+### Build Options
+
+The following are build options in cmake:
+
+* IqsMPI : Enables MPI
+* IqsMKL : Enables MKL
+* IqsPython : Enables Python wrapper
+* IqsUtest : Builds unit tests
+* IqsNative : Enables the latest vector instructions to be built in the build
+* IqsBuildAsStatic : Builds IQS as a static library instead of a shared library
+* BuildExamples : Builds the examples 
+* BuildInterface : Builds the QASM Interface
+
 
 ### Requirements
 
