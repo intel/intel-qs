@@ -169,6 +169,22 @@ void QubitRegister<Type>::Normalize()
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Initialization amplitude-by-amplitude of not-normalized, homogeneous state
+template <class Type>
+void QubitRegister<Type>::InitializationWithSameAmplitudeEverywhere(Type amplitude)
+{
+  std::size_t lcl = LocalSize();
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+  for(std::size_t i = 0; i < lcl; i++)
+      state[i] = amplitude;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Scalar multiplication amplitude-by-amplitude
 ///
 /// |this> ----> factor * |this>

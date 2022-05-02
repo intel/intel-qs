@@ -351,6 +351,7 @@ class QubitRegister
   std::vector<double> GoogleStats();
   void Normalize();
   BaseType ComputeNorm();
+  void InitializationWithSameAmplitudeEverywhere(Type amplitude);
   void AmplitudeWiseScalarMultiplication(Type factor);
   void AmplitudeWiseSum(QubitRegister<Type> &psi, Type factor = Type(1, 0));
   Type ComputeOverlap( QubitRegister<Type> &psi );
