@@ -26,7 +26,7 @@ lxml==4.6.3
 MarkupSafe==1.1.1
 mistune==0.8.4
 nbclient==0.5.1
-nbconvert==6.0.7
+nbconvert==6.3.0
 nbformat==5.0.8
 nbsphinx==0.8.0
 nest-asyncio==1.4.2
