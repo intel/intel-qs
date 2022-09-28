@@ -5,7 +5,7 @@
 if (IqsNoise)
     # Download and unpack eigen library at configure time.
     cmake_minimum_required(VERSION 3.12.0)
-    include(../cmake/ExternalProject.cmake)
+    include(ExternalProject)
     ExternalProject_Add(deps-eigen
       GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
       PREFIX            "${CMAKE_BINARY_DIR}/deps/eigen-prefix/"
