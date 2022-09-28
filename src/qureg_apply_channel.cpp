@@ -70,6 +70,7 @@ void QubitRegister<Type>::ApplyChannel(const unsigned qubit1, const unsigned qub
       ++k;
   // Matrix corresponding to the eigenvectors (seen as linear combinations of the Pauli matrices).
   std::vector<Type> estate = chi.GetEigenVector(k);
+  
   // Convert it into an explicit 4x4 matrix.
   // TODO: Verify the choice of the order of matrix elements used in Apply2QubitGate().
   //       Quantum info convention or that of IQS?
@@ -80,12 +81,12 @@ void QubitRegister<Type>::ApplyChannel(const unsigned qubit1, const unsigned qub
   //   { |0>_0 . |0>_1  ,  |0>_0 . |1>_1  ,  |1>_0 . |0>_1  ,  |1>_0 . |1>_1 }
   TM4x4<Type> matrix;
   matrix(0, 0) = estate[0] + estate[3] + estate[12] + estate[15];
-  matrix(1, 1) = estate[0] - estate[3] + estate[12] + estate[15];
+  matrix(1, 1) = estate[0] - estate[3] + estate[12] - estate[15];
   matrix(2, 2) = estate[0] + estate[3] - estate[12] - estate[15];
-  matrix(3, 3) = estate[0] - estate[3] + estate[12] - estate[15];
+  matrix(3, 3) = estate[0] - estate[3] - estate[12] + estate[15];
 
   matrix(0, 1) = estate[1] + estate[13] - Type(0., 1.)*(estate[2] + estate[14]);
-  matrix(0, 1) = std::conj( matrix(1, 0) );
+  matrix(1, 0) = std::conj( matrix(0, 1) );
   matrix(2, 3) = estate[1] - estate[13] - Type(0., 1.)*(estate[2] - estate[14]);
   matrix(3, 2) = std::conj( matrix(2, 3) );
 
@@ -98,6 +99,7 @@ void QubitRegister<Type>::ApplyChannel(const unsigned qubit1, const unsigned qub
   matrix(3, 1) = std::conj( matrix(1, 3) );
   matrix(3, 0) = std::conj( matrix(0, 3) );
   matrix(2, 1) = std::conj( matrix(1, 2) );
+
 
   // Apply the coresponding 2-qubit gate.
   QubitRegister<Type>::Apply2QubitGate(qubit1, qubit2, matrix);

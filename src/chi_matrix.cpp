@@ -112,7 +112,9 @@ namespace iqs {
         Gk += std::conj(evectors_[k][i]) * Gi;
       }
       // Rescale k-th eigenvector.
-      assert(std::imag(Gk)==0 && "Error: rescale factor is not real.");
+      // std::cout<<std::abs(std::imag(Gk))<<std::endl;
+
+      assert(std::abs(std::imag(Gk))<1.0e-14 && "Error: rescale factor is not real.");
       for (int i=0; i<M; ++i)
         if (std::abs(Gk)>0)
           evectors_[k][i] *= std::sqrt(evalues_[k]/Gk);
@@ -165,7 +167,7 @@ namespace iqs {
     ecumprobs_.clear();
     for (auto iter=evalues_.begin(); iter!=evalues_.end(); ++iter)
     {
-        assert(std::imag(*iter)==0 && "Eigenvalues of chi matrix must be real.");
+        assert(std::abs(std::imag(*iter))<1.0e-14 && "Eigenvalues of chi matrix must be real.");
         // The eigenvalues must be non-negative (FIXME: check this property).
         // Gian: At the moment I believe they can be negative too, look at amplitude-damping channel.
 //        assert(std::real(*iter)>=0 && "Eigenvalues of chi matrix must be non-negative.");
