@@ -80,7 +80,7 @@ TEST_F(QuregPermuteTest, PermuteLocalQubits)
   //       |--|     |--------|            |-------|
   map_  = {1, 0, 2, 6, 4, 5, 3, 7, 8, 9, 12, 11, 10, 13, 14, 15, 16, 17, 18, 19};
   if (12 > M_)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: number of local qubits should be larger than 12.";
   else
   {
       psi.PermuteLocalQubits(map_, "direct");

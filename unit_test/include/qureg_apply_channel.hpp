@@ -70,6 +70,9 @@ TEST_F(ApplyQuantumChannel, IdealHadamard)
 //    rho' = (1-p) rho + p/3 ( X.rho.X + Y.rho.Y + Z.rho.Z )
 TEST_F(ApplyQuantumChannel, DepolarizingChannel)
 {
+#ifndef IQS_WITH_NOISE
+  GTEST_SKIP() << "INFO: Library Eigen is not used for noiseless simulations";
+#else
   double p = 0.01;
   CM4x4<ComplexDP> chi;
   for (int i=0; i<4; ++i)
@@ -118,6 +121,7 @@ TEST_F(ApplyQuantumChannel, DepolarizingChannel)
                     << overlap_squared[t]/double(num_ensemble_states) << "\n";
       }
   }
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

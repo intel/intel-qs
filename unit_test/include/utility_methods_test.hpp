@@ -22,7 +22,7 @@ class UtilityMethodsTest : public ::testing::Test
 
     // All tests are skipped if the 4-qubit state is distributed in more than 2^3 ranks.
     if (iqs::mpi::Environment::GetStateSize() > 8)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
   }
 
   const std::size_t num_qubits_ = 4;
@@ -113,8 +113,51 @@ TEST_F(UtilityMethodsTest, SmallUtilityFunctions)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(UtilityMethodsTest, AddOthers)
+TEST_F(UtilityMethodsTest, AmplitudeWiseMultiplication)
 {
+  // |psi> is a random state (normalized)
+  std::size_t rng_seed = 7777;
+  iqs::RandomNumberGenerator<double> rnd_generator;
+  rnd_generator.SetSeedStreamPtrs(rng_seed);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits_, "base", 0);
+  psi.SetRngPtr(&rnd_generator);
+  psi.Initialize("rand", 1);
+  //
+  iqs::QubitRegister<ComplexDP> psi_copy(psi);
+  ComplexDP factor(0.4, 1.1);
+  psi.AmplitudeWiseScalarMultiplication(factor);
+  for (std::size_t i = 0; i < psi.LocalSize(); i++)
+  {
+      ASSERT_COMPLEX_NEAR(psi[i], (psi_copy[i]*factor), accepted_error_);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+TEST_F(UtilityMethodsTest, AmplitudeWiseSum)
+{
+  // |psi> and |phi> are random states (normalized)
+  std::size_t rng_seed = 7777;
+  iqs::RandomNumberGenerator<double> rnd_generator;
+  rnd_generator.SetSeedStreamPtrs(rng_seed);
+  iqs::QubitRegister<ComplexDP> psi(num_qubits_, "base", 0);
+  psi.SetRngPtr(&rnd_generator);
+  psi.Initialize("rand", 1);
+  //
+  iqs::QubitRegister<ComplexDP> phi(num_qubits_, "base", 0);
+  phi.SetRngPtr(&rnd_generator);
+  phi.Initialize("rand", 1);
+  //
+  EXPECT_NE(psi[0], phi[0]);
+  EXPECT_NE(psi[11], phi[1]);
+  //
+  iqs::QubitRegister<ComplexDP> psi_copy(psi);
+  ComplexDP factor(-0.2, 0.8);
+  psi.AmplitudeWiseSum(phi, factor);
+  for (std::size_t i = 0; i < psi.LocalSize(); i++)
+  {
+      ASSERT_COMPLEX_NEAR(psi[i], (psi_copy[i] + phi[i]*factor), accepted_error_);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

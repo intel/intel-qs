@@ -24,7 +24,7 @@ class ChunkingCommunicationTest : public ::testing::Test
     // In fact the MPI version needs to allocate eighth-the-local-storage for communication.
     // If the local storage is a eight amplitudes, this cannot be further divided.
     if (iqs::mpi::Environment::GetStateSize() > 2048)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
   }
 
   const std::size_t num_qubits_ = 14;

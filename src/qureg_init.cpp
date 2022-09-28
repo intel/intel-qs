@@ -343,10 +343,7 @@ if (beginning != end) printf( (buffer.str()).c_str() );
   else if (style == "++++")
   {
       Type amplitude = {BaseType(1./std::sqrt( GlobalSize() )), 0.};
-      std::size_t lcl = LocalSize();
-#pragma omp parallel for
-      for (std::size_t i = 0; i < lcl; i++)
-          state[i] = amplitude;
+      this->InitializationWithSameAmplitudeEverywhere(amplitude);
   }
 
 #ifdef INTELQS_HAS_MPI

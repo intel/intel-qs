@@ -46,6 +46,7 @@ option(IqsMPI "Enable MPI?" OFF)
 option(IqsMKL "Enable MKL?" OFF)
 option(IqsPython "Enable Python wrap?" OFF)
 option(IqsUtest "Enable unit test?" OFF)
+option(IqsNoise "Enable stochastic simulation of noise channels?" OFF)
 option(BuildExamples "Build the Examples" OFF)
 option(BuildInterface "Build the QASM Interface" OFF)
 option(IqsNative "Enable the latest vector instructions?" OFF)
@@ -131,6 +132,7 @@ endif()
 # Enable native compilation, yes or not?
 # This option allows AVX 256 and 512 instructions to be used.
 ################################################################################
+
 if (IqsNative)
     if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
         message(STATUS "Setting xhost...")
@@ -145,6 +147,7 @@ endif()
 ################################################################################
 # Enable compiler optimizations to fix GCC performance.
 ################################################################################
+
 if (CMAKE_CXX_COMPILER_ID MATCHES GNU)
    add_compile_options(-O3)
 endif()
@@ -283,6 +286,10 @@ add_compile_definitions(USE_MM_MALLOC)
 # library archive. Also, place the archive in the lib subdir. 
 ################################################################################
 
+if(IqsNoise)
+    add_compile_definitions(IQS_WITH_NOISE)
+endif()
+
 add_subdirectory(src)
 
 if(BuildExamples)
@@ -337,6 +344,7 @@ STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsMKL    = " ${Iq
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsMPI    = " ${IqsMPI} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsUtest  = " ${IqsUtest} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsPython = " ${IqsPython} "\n")
+STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNoise  = " ${IqsNoise} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsNative = " ${IqsNative} "\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "IqsBuildAsStatic = " ${IqsBuildAsStatic} "\n\n")
 STRING(CONCAT CONFIG_STATUS_CONTENT ${CONFIG_STATUS_CONTENT} "BuildExamples  = " ${BuildExamples} "\n")
