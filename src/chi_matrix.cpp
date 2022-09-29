@@ -9,7 +9,9 @@
 
 #include <typeinfo>
 
+#ifdef IQS_WITH_NOISE
 #include "Dense"  // Eigen
+#endif
 
 #include "tinymatrix.hpp"
 #include "utils.hpp"
@@ -63,6 +65,9 @@ namespace iqs {
   template <class ValueType, unsigned M, unsigned align>
   void ChiMatrix<ValueType, M, align>::SolveEigenSystem()
   {
+#ifndef IQS_WITH_NOISE
+    assert(0 && "Error: method ChiMatrix::EigensystemOfIdealHadamardChannel called in noiseless simulations.");
+#else
     // Initialize
     evalues_.assign(M, 0);
     evectors_.assign(M, evalues_);
@@ -122,6 +127,7 @@ namespace iqs {
 
     // Normalize the probabilities and renormalize the eigenvectors.
     this->NormalizeEigenProbAndRenormalizeEigenVect();
+#endif
   }
  
 /////////////////////////////////////////////////////////////////////////////////////////

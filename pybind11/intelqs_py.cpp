@@ -210,6 +210,7 @@ std::cout << "ciao\n";
         .def("ApplyPauliSqrtY", &QubitRegister<ComplexDP>::ApplyPauliSqrtY)
         .def("ApplyPauliSqrtZ", &QubitRegister<ComplexDP>::ApplyPauliSqrtZ)
         .def("ApplyT", &QubitRegister<ComplexDP>::ApplyT)
+        .def("ApplyRotationXY", &QubitRegister<ComplexDP>::ApplyRotationXY)
         .def("ApplyHadamard", &QubitRegister<ComplexDP>::ApplyHadamard)
         // Two-qubit gates:
         .def("ApplySwap", &QubitRegister<ComplexDP>::ApplySwap)
@@ -327,6 +328,7 @@ std::cout << "ciao\n";
         .def("CollapseQubit", &QubitRegister<ComplexDP>::CollapseQubit)
           // Recall that the collapse selects: 'false'=|0> , 'true'=|1>
         .def("Normalize", &QubitRegister<ComplexDP>::Normalize)
+        .def("AmplitudeWiseScalarMultiplication", &QubitRegister<ComplexDP>::AmplitudeWiseScalarMultiplication)
         .def("ExpectationValue", &QubitRegister<ComplexDP>::ExpectationValue)
         // Other quantum operations:
         .def("ComputeNorm", &QubitRegister<ComplexDP>::ComputeNorm)

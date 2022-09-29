@@ -163,6 +163,16 @@ template <class Type>
 void QubitRegister<Type>::Normalize() 
 {
   BaseType global_norm = ComputeNorm();
+  Type inverse_global_norm(1/global_norm, 0);
+  AmplitudeWiseScalarMultiplication(inverse_global_norm);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Initialization amplitude-by-amplitude of not-normalized, homogeneous state
+template <class Type>
+void QubitRegister<Type>::InitializationWithSameAmplitudeEverywhere(Type amplitude)
+{
   std::size_t lcl = LocalSize();
 #if defined(__ICC) || defined(__INTEL_COMPILER)
 #pragma omp parallel for simd
@@ -170,8 +180,53 @@ void QubitRegister<Type>::Normalize()
 #pragma omp parallel for 
 #endif
   for(std::size_t i = 0; i < lcl; i++)
+      state[i] = amplitude;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Scalar multiplication amplitude-by-amplitude
+///
+/// |this> ----> factor * |this>
+template <class Type>
+void QubitRegister<Type>::AmplitudeWiseScalarMultiplication(Type factor)
+{
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+  for(std::size_t i = 0; i < LocalSize(); i++)
+      state[i] = state[i] * factor;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Sum amplitude-by-amplitude
+///
+/// |this> ----> |this> + factor * |psi>
+template <class Type>
+void QubitRegister<Type>::AmplitudeWiseSum(QubitRegister<Type> &psi, Type factor)
+{
+  if (factor==Type(1, 0))
   {
-     state[i] = state[i] / global_norm;
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+      for(std::size_t i = 0; i < LocalSize(); i++)
+          state[i] += psi[i];
+  }
+  else
+  {
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#pragma omp parallel for simd
+#else
+#pragma omp parallel for 
+#endif
+      for(std::size_t i = 0; i < LocalSize(); i++)
+          state[i] += psi[i] * factor;
   }
 }
 
@@ -619,7 +674,7 @@ void QubitRegister<Type>::dumpbin(std::string fn)
 
   double t0 = sec();
   iqs::mpi::StateBarrier();
-  MPI_File_write_at(fh, offset, (void *)(&(state[0])), size, MPI_DOUBLE_COMPLEX, &status);
+  MPI_File_write_at(fh, offset, (void *)(&(state[0])), size, MPI_CXX_DOUBLE_COMPLEX, &status);
   iqs::mpi::StateBarrier();
   double t1 = sec();
   MPI_File_close(&fh);

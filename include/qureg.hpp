@@ -269,6 +269,7 @@ class QubitRegister
   void ApplyT(unsigned const qubit);
   void ApplyToffoli(unsigned const qubit1, unsigned const qubit2, unsigned const qubit3);
   void ApplyHadamard(unsigned const qubit);
+  void ApplyRotationXY(unsigned const qubit, BaseType phi, BaseType theta);
 
   void ApplyCRotationX(unsigned const control_qubit, unsigned const target_qubit,
                        BaseType theta);
@@ -343,13 +344,16 @@ class QubitRegister
 
   // Utilities:
   bool operator==(const QubitRegister &rhs);
-  BaseType MaxAbsDiff(QubitRegister &x, Type sfactor = Type(1.0, 0.));
+  BaseType MaxAbsDiff(QubitRegister &x, Type sfactor = Type(1, 0));
   BaseType MaxL2NormDiff(QubitRegister &x);
   void dumpbin(std::string fn);
   double Entropy();
   std::vector<double> GoogleStats();
   void Normalize();
   BaseType ComputeNorm();
+  void InitializationWithSameAmplitudeEverywhere(Type amplitude);
+  void AmplitudeWiseScalarMultiplication(Type factor);
+  void AmplitudeWiseSum(QubitRegister<Type> &psi, Type factor = Type(1, 0));
   Type ComputeOverlap( QubitRegister<Type> &psi );
 
   void Print(std::string x, std::vector<std::size_t> qbits = {});

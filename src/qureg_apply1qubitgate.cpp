@@ -452,6 +452,36 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/// @brief Apply rotation in the XY-plane
+/// @param qubit index of the involved qubit
+/// @param phi angle of the rotation axis w.r.t. X axis
+/// @param theta rotation angle
+///
+/// Explicitly, the gate corresponds to:\n
+///
+///     R_XY(phi, theta) = cos(theta/2) I -i sin(theta/2) (cos(phi) X + sin(phi) Y)
+///
+///                      = | c(t/2)         -i s(t/2) (c(p) -i s(p) |
+///                        | -i s(t/2) (c(p) +i s(p)         c(t/2) |
+///
+/// Or, in other format:
+///
+///     R_XY(phi, theta) = exp( -i theta/2 P)
+/// 
+/// with P = cos(phi) X + sin(phi) Y , which can be seen as a rotated Pauli matrix.
+template <class Type>
+void QubitRegister<Type>::ApplyRotationXY(unsigned const qubit, BaseType phi, BaseType theta)
+{
+  iqs::TinyMatrix<Type, 2, 2, 32> rxy;
+  rxy(0, 0) = Type(std::cos(theta / 2.), 0);
+  rxy(0, 1) = Type(-std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
+  rxy(0, 1) = Type( std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
+  rxy(1, 1) = Type(std::cos(theta / 2.), 0);
+  Apply1QubitGate(qubit, rxy);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 /// @brief Apply T gate
 /// @param qubit index of the involved qubit
 ///

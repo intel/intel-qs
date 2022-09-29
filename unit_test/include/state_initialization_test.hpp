@@ -22,7 +22,7 @@ class StateInitializationTest : public ::testing::Test
 
     // All tests are skipped if the 10-qubit state is distributed in more than 512 ranks.
     if (iqs::mpi::Environment::GetStateSize() > 512)
-      GTEST_SKIP();
+      GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
 
     G_(0, 0) = {0.592056606032915, 0.459533060553574}; 
     G_(0, 1) = {-0.314948020757856, -0.582328159830658};
@@ -253,7 +253,7 @@ TEST_F(StateInitializationTest, DeathTest)
 {
   // Skip death-tests if compiler flag NDEBUG is defined.
 #ifdef NDEBUG
-  GTEST_SKIP();
+  GTEST_SKIP() << "INFO: test is skipped when compiler flag NDEBUG is not defined.";
 #endif
 
   // Skip death-tests if MPI size > 1.

@@ -24,7 +24,7 @@ class Apply1QGateTest : public ::testing::Test
     // In fact the MPI version needs to allocate half-the-local-storage for communication.
     // If the local storage is a single amplitude, this cannot be further divided.
     if (iqs::mpi::Environment::GetStateSize() > 8)
-        GTEST_SKIP();
+        GTEST_SKIP() << "INFO: small state distributed among too many ranks.";
 
     std::cout << "state_rank_id = " << iqs::mpi::Environment::GetStateRank() << "\n";//FIXME delete
     iqs::mpi::StateBarrier();
@@ -177,6 +177,55 @@ TEST_F(Apply1QGateTest, RotationZ)
   amplitude_1 = {  std::cos(angle/2.), std::sin(angle/2.) };
   ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(j0_), amplitude_0, accepted_error_);
   ASSERT_COMPLEX_NEAR(psi.GetGlobalAmplitude(j1_), amplitude_1, accepted_error_);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Rotation in the XY-plane: exp( -i P theta/2 )
+// with P = cos(phi) X + sin(phi) Y
+// It can be decomposed in (time from right to left as for matrix multiplications):
+//   R_XY(phi, theta) = R_Z(phi).R_X(theta).R_Z(-phi)
+TEST_F(Apply1QGateTest, RotationXY)
+{
+  // Initial state |....> at random
+  iqs::RandomNumberGenerator<double> rng;
+  std::size_t seed = 777;
+  rng.SetSeedStreamPtrs(seed);
+  iqs::QubitRegister<ComplexDP> psi (num_qubits_);
+  psi.SetRngPtr(&rng);
+  psi.Initialize("rand", 0);
+  iqs::QubitRegister<ComplexDP> psi_0(psi);
+  // Apply rotation in the XY plane and then cancel it with two rotations.
+  double phi = 0.87;
+  double theta = 0.45;
+  unsigned qubit = 0;
+  psi.ApplyRotationXY(qubit, phi, theta);
+  psi.ApplyRotationZ(qubit, -phi);
+  psi.ApplyRotationX(qubit, -theta);
+  psi.ApplyRotationZ(qubit,  phi);
+  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  // Apply rotation in the XY plane and then cancel it with two rotations.
+  phi = 1.1;
+  theta = 0.13;
+  qubit = 3;
+  psi.ApplyRotationXY(qubit, phi, theta);
+  psi.ApplyRotationZ(qubit, -phi);
+  psi.ApplyRotationX(qubit, -theta);
+  psi.ApplyRotationZ(qubit,  phi);
+  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  // Special case phi=0 corresponding to a X rotation.
+  phi = 0.;
+  theta = 0.28;
+  qubit = 1;
+  psi.ApplyRotationXY(qubit, phi, theta);
+  psi.ApplyRotationX(qubit, -theta);
+  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  // Special case phi=pi/2 corresponding to a Y rotation.
+  phi = M_PI/2;
+  qubit = 2;
+  psi.ApplyRotationXY(qubit, phi, theta);
+  psi.ApplyRotationY(qubit, -theta);
+  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
 }
 
 //////////////////////////////////////////////////////////////////////////////
