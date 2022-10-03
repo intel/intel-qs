@@ -24,9 +24,10 @@ the namespace `iqs`. This may cause disruption in older programs. The fix is sim
 in front of declaration of objects like `QubitRegister`. Other namespaces like `qhipster` have
 been susbtituted with namespace `iqs` too.
 
-In **October 2022** we transfer the repo from `iqusoft` to `intel` to better assist the IQS users.
+In **October 2022** we transferred the repository from iqusoft to intel to better assist the IQS users.
 All links to the previous repository location are automatically redirected to this new location.
-However, we recommend updating the upstream URL via: `git remote set-url origin https://github.com/intel/intel-qs`.
+However, we recommend updating the URL in local clones via:
+`git remote set-url origin https://github.com/intel/intel-qs`.
 
 
 ## Build instructions
