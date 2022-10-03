@@ -1,5 +1,5 @@
-![C++ build with CMake](https://github.com/iqusoft/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg)
-![Python build (no MPI)](https://github.com/iqusoft/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
+![C++ build with CMake](https://github.com/intel/intel-qs/workflows/C++%20build%20with%20CMake/badge.svg)
+![Python build (no MPI)](https://github.com/intel/intel-qs/workflows/Python%20build%20(no%20MPI)/badge.svg)
 [![Published Dockerfile](https://img.shields.io/badge/docker%20build-passing-181717?style=flat-square&logo=github&labelColor=black&color=brightgreen)](https://github.com/iqusoft/intel-qs/blob/development/Dockerfile)
 [![Quantum Science and Technology](https://img.shields.io/static/v1?label=QST&message=doi:10.1088/2058-9565/ab8505&color=success)](https://iopscience.iop.org/article/10.1088/2058-9565/ab8505)
 [![arXiv](https://img.shields.io/static/v1?label=arXiv&message=1601.07195&color=success)](https://arxiv.org/abs/1601.07195)
@@ -15,13 +15,18 @@ Intel-QS uses the MPI (message-passing-interface) protocol to handle communicati
 resources used to store and manipulate quantum states.
 
 
-## Temporary notice: backward compatibility of April 2021 release
+## Temporary notice: backward compatibility
 
 Intel-QS team is aware of the importance of backward compatibility. We do our best to assure it.
-In the latest release we adopted good-coding practices and moved a few classes and methods under
+
+In **April 2021** we adopted good-coding practices and moved a few classes and methods under
 the namespace `iqs`. This may cause disruption in older programs. The fix is simple, add `iqs::`
 in front of declaration of objects like `QubitRegister`. Other namespaces like `qhipster` have
 been susbtituted with namespace `iqs` too.
+
+In **October 2022** we transfer the repo from `iqusoft` to `intel` to better assist the IQS users.
+All links to the previous repository location are automatically redirected to this new location.
+However, we recommend updating the upstream URL via: `git remote set-url origin https://github.com/intel/intel-qs`.
 
 
 ## Build instructions
