@@ -17,4 +17,4 @@ For contributions that require substantial changes or changes in many files, ple
 
 Creating your pull request from a fork? We suggest allowing edits from maintainers. Then, anyone with Write access to the upstream repository will be able to add commits to your branch. This can make the review process easier for maintainers since they can make a small change themselves instead of asking you to make the change.
 
-If you would like to contribute to IQS, please visit our wiki page [https://github.com/iqusoft/intel-qs/wiki/Contribute](https://github.com/iqusoft/intel-qs/wiki/Contribute).
+If you would like to contribute to IQS, please visit our wiki page [https://github.com/intel/intel-qs/wiki/Contribute](https://github.com/intel/intel-qs/wiki/Contribute).
