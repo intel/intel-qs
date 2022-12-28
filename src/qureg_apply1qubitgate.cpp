@@ -475,7 +475,7 @@ void QubitRegister<Type>::ApplyRotationXY(unsigned const qubit, BaseType phi, Ba
   iqs::TinyMatrix<Type, 2, 2, 32> rxy;
   rxy(0, 0) = Type(std::cos(theta / 2.), 0);
   rxy(0, 1) = Type(-std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
-  rxy(0, 1) = Type( std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
+  rxy(1, 0) = Type( std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
   rxy(1, 1) = Type(std::cos(theta / 2.), 0);
   Apply1QubitGate(qubit, rxy);
 }
