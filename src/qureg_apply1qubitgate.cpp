@@ -461,8 +461,8 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 ///
 ///     R_XY(phi, theta) = cos(theta/2) I -i sin(theta/2) (cos(phi) X + sin(phi) Y)
 ///
-///                      = | c(t/2)         -i s(t/2) (c(p) -i s(p) |
-///                        | -i s(t/2) (c(p) +i s(p)         c(t/2) |
+///                      = | c(t/2)         -i s(t/2) (c(p) -i s(p)) |
+///                        | -i s(t/2) (c(p) +i s(p))         c(t/2) |
 ///
 /// Or, in other format:
 ///
