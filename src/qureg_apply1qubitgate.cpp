@@ -461,8 +461,8 @@ void QubitRegister<Type>::ApplyHadamard(unsigned const qubit)
 ///
 ///     R_XY(phi, theta) = cos(theta/2) I -i sin(theta/2) (cos(phi) X + sin(phi) Y)
 ///
-///                      = | c(t/2)         -i s(t/2) (c(p) -i s(p) |
-///                        | -i s(t/2) (c(p) +i s(p)         c(t/2) |
+///                      = | c(t/2)         -i s(t/2) (c(p) -i s(p)) |
+///                        | -i s(t/2) (c(p) +i s(p))         c(t/2) |
 ///
 /// Or, in other format:
 ///
@@ -475,7 +475,7 @@ void QubitRegister<Type>::ApplyRotationXY(unsigned const qubit, BaseType phi, Ba
   iqs::TinyMatrix<Type, 2, 2, 32> rxy;
   rxy(0, 0) = Type(std::cos(theta / 2.), 0);
   rxy(0, 1) = Type(-std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
-  rxy(0, 1) = Type( std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
+  rxy(1, 0) = Type( std::sin(theta / 2.) * std::sin(phi), -std::sin(theta / 2.) * std::cos(phi) );
   rxy(1, 1) = Type(std::cos(theta / 2.), 0);
   Apply1QubitGate(qubit, rxy);
 }

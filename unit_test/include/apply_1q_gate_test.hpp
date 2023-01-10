@@ -203,7 +203,9 @@ TEST_F(Apply1QGateTest, RotationXY)
   psi.ApplyRotationZ(qubit, -phi);
   psi.ApplyRotationX(qubit, -theta);
   psi.ApplyRotationZ(qubit,  phi);
-  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).real() - 1) < accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).imag() - 0) < accepted_error_);
+  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() > 1.-accepted_error_);
   // Apply rotation in the XY plane and then cancel it with two rotations.
   phi = 1.1;
   theta = 0.13;
@@ -212,20 +214,23 @@ TEST_F(Apply1QGateTest, RotationXY)
   psi.ApplyRotationZ(qubit, -phi);
   psi.ApplyRotationX(qubit, -theta);
   psi.ApplyRotationZ(qubit,  phi);
-  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).real() - 1) < accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).imag() - 0) < accepted_error_);
   // Special case phi=0 corresponding to a X rotation.
   phi = 0.;
   theta = 0.28;
   qubit = 1;
   psi.ApplyRotationXY(qubit, phi, theta);
   psi.ApplyRotationX(qubit, -theta);
-  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).real() - 1) < accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).imag() - 0) < accepted_error_);
   // Special case phi=pi/2 corresponding to a Y rotation.
   phi = M_PI/2;
   qubit = 2;
   psi.ApplyRotationXY(qubit, phi, theta);
   psi.ApplyRotationY(qubit, -theta);
-  ASSERT_TRUE( psi.ComputeOverlap(psi_0).real() < 1.-accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).real() - 1) < accepted_error_);
+  ASSERT_TRUE( std::abs(psi.ComputeOverlap(psi_0).imag() - 0) < accepted_error_);
 }
 
 //////////////////////////////////////////////////////////////////////////////
