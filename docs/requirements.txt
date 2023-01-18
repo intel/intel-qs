@@ -6,7 +6,7 @@ beautifulsoup4==4.9.3
 bleach==3.3.0
 breathe==4.23.0
 bs4==0.0.1
-certifi==2020.6.20
+certifi==2022.12.07
 chardet==3.0.4
 commonmark==0.9.1
 decorator==4.4.2
@@ -20,7 +20,7 @@ ipython-genutils==0.2.0
 Jinja2==2.11.3
 jsonschema==3.2.0
 jupyter-client==6.1.7
-jupyter-core==4.6.3
+jupyter-core==4.11.2
 jupyterlab-pygments==0.1.2
 lxml==4.9.1
 MarkupSafe==1.1.1
