@@ -35,8 +35,9 @@ QubitRegister<Type>::QubitRegister()
 
   fusion = false;
 
-  Resize(1UL);
-  state_storage[0] = {1., 0.};
+  Resize(2UL);
+  state[0] = {1., 0.};
+  state[1] = {0., 0.};
 
   if (nprocs > 1) {
     fprintf(stderr,
@@ -57,7 +58,7 @@ void QubitRegister<Type>::Resize(std::size_t new_num_amplitudes)
   log2_nprocs = iqs::ilog2(nprocs);
 
   // FIXME GG: I believe this limits the use of "resize" to adding a single qubit
-  if(GlobalSize()) assert(GlobalSize() * 2UL == new_num_amplitudes);
+  // if(GlobalSize()) assert(GlobalSize() * 2UL == new_num_amplitudes);
   num_qubits = iqs::ilog2(new_num_amplitudes);
 
   local_size_  = UL(1L << UL(num_qubits - log2_nprocs));

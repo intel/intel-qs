@@ -37,6 +37,20 @@ class OneQubitRegisterTest : public ::testing::Test
 //////////////////////////////////////////////////////////////////////////////
 // Test macros:
 
+TEST_F(OneQubitRegisterTest, InitializeWithDefault)
+{
+  ComplexDP amplitude;
+
+  iqs::QubitRegister<ComplexDP> psi_0;
+  // |psi_0> = |0>
+  amplitude = psi_0.GetGlobalAmplitude(0);
+  ASSERT_DOUBLE_EQ(amplitude.real(), 1.);
+  ASSERT_DOUBLE_EQ(amplitude.imag(), 0.);
+  amplitude = psi_0.GetGlobalAmplitude(1);
+  ASSERT_DOUBLE_EQ(amplitude.real(), 0.);
+  ASSERT_DOUBLE_EQ(amplitude.imag(), 0.);
+}
+
 TEST_F(OneQubitRegisterTest, InitializeInComputationalBasis)
 {
   ComplexDP amplitude;
