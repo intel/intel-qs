@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>	// std::abs(), std::cos(), std::pow(), ...
+#include <iomanip>	// to use: setw() in making tables
 #include <iostream>
 
 // googletest
