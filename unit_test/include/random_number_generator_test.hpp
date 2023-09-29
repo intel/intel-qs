@@ -2,7 +2,7 @@
 #define RANDOM_NUMBER_GENERATOR_TEST_HPP
 
 #include <map>
-
+#include <iomanip>	// to use: setw() in making tables
 #include "../../include/qureg.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
