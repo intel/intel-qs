@@ -2,6 +2,7 @@
 #define RANDOM_NUMBER_GENERATOR_TEST_HPP
 
 #include <map>
+#include <iomanip>
 
 #include "../../include/qureg.hpp"
 
