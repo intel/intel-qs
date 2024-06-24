@@ -1,6 +1,7 @@
 #ifndef RANDOM_NUMBER_GENERATOR_TEST_HPP
 #define RANDOM_NUMBER_GENERATOR_TEST_HPP
 
+#include <iomanip>
 #include <map>
 
 #include "../../include/qureg.hpp"
@@ -85,7 +86,7 @@ TEST_F(RandomNumberGeneratorTest, Visualization)
             << "(each * corresponds to 100 draws)\n";
   for (auto p : histogram)
   {
-      std::cout << setw(2) << p.first << ' ' << std::string(p.second / 100, '*') << '\n';
+      std::cout << std::setw(2) << p.first << ' ' << std::string(p.second / 100, '*') << '\n';
   }
 }
 

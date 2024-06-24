@@ -113,9 +113,9 @@ TEST_F(SingleQubitGatesTest, CustomGate)
   {
       psi.Apply1QubitGate(qubit, G_);
   }
-  ASSERT_DOUBLE_EQ( psi.GetProbability(0), psi.GetProbability(2) );
   ASSERT_DOUBLE_EQ( psi.GetProbability(4), psi.GetProbability(6) );
   // The accepted error is sometimes exceeded when gcc is used.
+  ASSERT_NEAR( psi.GetProbability(0), psi.GetProbability(2), accepted_error_*10 );
   ASSERT_NEAR( psi.GetProbability(5), 1.-psi.GetProbability(8), accepted_error_*10 );
 }
 
