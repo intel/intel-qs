@@ -55,5 +55,5 @@ tornado==6.4.1
 traitlets==4.3.3
 urllib3==1.26.19
 webencodings==0.5.1
-zipp==3.4.0
+zipp==3.19.1
 exhale==0.2.3
