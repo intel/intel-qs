@@ -1,4 +1,5 @@
 name: Docker Image CI
+permissions: read-all
 
 on:
   push:
