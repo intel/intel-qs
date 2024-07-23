@@ -41,9 +41,9 @@ RUN tar -xzf cmake-3.15.2-Linux-x86_64.tar.gz -C /usr/local/ --strip-components=
 
 # Fetch and install the Intel MKL libraries required for building the Intel-QS simulator.
 WORKDIR swpkgs/mkl
-RUN wget "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
-RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+RUN wget "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
 RUN apt-get update
 RUN apt-get install -y intel-mkl-64bit-2019.2-057
