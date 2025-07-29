@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <map>
+#include <iomanip>
 
 #include "../../include/qureg.hpp"
 
