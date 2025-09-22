@@ -379,22 +379,22 @@ class QubitRegister
   {assert(rng_ptr_); rng_ptr_->SetSeedStreamPtrs(seed); }
 
   // Members
-  std::size_t num_qubits;
+  std::size_t num_qubits = 0;
   std::vector<Type, iqs::AlignedAllocator<Type, 256>> state_storage;
-  Type *state;
-  Permutation *qubit_permutation;
-  Timer *timer;
-  GateCounter *gate_counter;	// Count how many gates acted on given program qubits.
-  std::size_t llc_watermarkbit;
-  bool imported_state;
-  bool specialize;
+  Type *state = nullptr;
+  Permutation *qubit_permutation = nullptr;
+  Timer *timer = nullptr;
+  GateCounter *gate_counter = nullptr;	// Count how many gates acted on given program qubits.
+  std::size_t llc_watermarkbit = 0;
+  bool imported_state = false;
+  bool specialize = false;
   bool specialize2 = false;
   // Related to the simulation of quantum channels:
   BaseType overall_sign_of_channels = 1;
 
   // temporary buffer for fusion
-  bool fusion;
-  unsigned log2llc;
+  bool fusion = false;
+  unsigned log2llc = 0;
   std::vector<std::tuple<std::string, TM2x2<Type>, unsigned, unsigned>> fwindow;
 
   // set option of printing more info.

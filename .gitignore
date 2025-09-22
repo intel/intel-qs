@@ -6,3 +6,5 @@ docs/build
 venv
 docs/source/doxyoutput
 docs/source/api
+**/build/**
+**/bin/**

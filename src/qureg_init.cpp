@@ -194,9 +194,27 @@ template <class Type>
 QubitRegister<Type>::QubitRegister(std::size_t new_num_qubits, Type *state, 
                                    std::size_t tmp_spacesize_)
 {
+  unsigned myrank=0, nprocs=1, num_ranks_per_node=1;
+  myrank = iqs::mpi::Environment::GetStateRank();
+  nprocs = iqs::mpi::Environment::GetStateSize();
+  num_ranks_per_node = iqs::mpi::Environment::GetNumRanksPerNode();
+
   imported_state = true;
   Initialize(new_num_qubits, tmp_spacesize_);
+
+#ifdef USE_MM_MALLOC
   this->state = state;
+#else
+  // create a temporary vector to use AlignedAllocator with prepared memory block
+  std::vector<Type, iqs::AlignedAllocator<Type, 256>> tmp_storage(0, iqs::AlignedAllocator<Type, 256>(state));
+
+  std::size_t num_amplitudes = (nprocs == 1) ? LocalSize() : (LocalSize() + TmpSize());
+  tmp_storage.resize(num_amplitudes);
+
+  // move that memory block into our state_storage
+  state_storage = std::move(tmp_storage);
+  this->state = &state_storage[0];
+#endif
 }
 
 
