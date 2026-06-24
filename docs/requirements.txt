@@ -3,7 +3,7 @@ async-generator==1.10
 attrs==20.2.0
 Babel==2.9.1
 beautifulsoup4==4.9.3
-bleach==3.3.0
+bleach==6.4.0
 breathe==4.23.0
 bs4==0.0.1
 certifi==2024.7.4
