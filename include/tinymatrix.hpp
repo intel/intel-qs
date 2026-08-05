@@ -18,6 +18,7 @@
 #include <cassert>
 #include <initializer_list>
 #include <iostream>
+#include <stdexcept>
 
 /// \addtogroup util
 /// @{
@@ -141,8 +142,10 @@ class TinyMatrix
   ///   \pre i<numRows() & j<numCols()
   value_type operator()(size_type i, size_type j) const
   {
-    assert(i < this->numRows() && "Row index out of range");
-    assert(j < this->numCols() && "Column index out of range");
+    if (i >= this->numRows())
+      throw std::out_of_range("TinyMatrix row index out of range");
+    if (j >= this->numCols())
+      throw std::out_of_range("TinyMatrix column index out of range");
     return data_[i][j];
   }
 
@@ -154,8 +157,10 @@ class TinyMatrix
   ///   \pre i<numRows() & j<numCols()
   reference operator()(size_type i, size_type j)
   {
-    assert(i < this->numRows() && "Row index out of range");
-    assert(j < this->numCols() && "Column index out of range");
+    if (i >= this->numRows())
+      throw std::out_of_range("TinyMatrix row index out of range");
+    if (j >= this->numCols())
+      throw std::out_of_range("TinyMatrix column index out of range");
     return data_[i][j];
   }
 

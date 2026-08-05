@@ -96,16 +96,15 @@ PYBIND11_MODULE(intelqs_py, m)
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
-             if (i.first > 4) throw py::index_error();
-             if (i.second > 4) throw py::index_error();
-std::cout << "ciao\n";
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i) {
+               if (i.first < 0 || i.first >= 4) throw py::index_error();
+               if (i.second < 0 || i.second >= 4) throw py::index_error();
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
         .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
-             if (i.first > 4) throw py::index_error();
-             if (i.second > 4) throw py::index_error();
+               if (i.first < 0 || i.first >= 4) throw py::index_error();
+               if (i.second < 0 || i.second >= 4) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
 #if 0
@@ -147,15 +146,15 @@ std::cout << "ciao\n";
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
-             if (i.first > 16) throw py::index_error();
-             if (i.second > 16) throw py::index_error();
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i) {
+               if (i.first < 0 || i.first >= 16) throw py::index_error();
+               if (i.second < 0 || i.second >= 16) throw py::index_error();
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
         .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
-             if (i.first > 16) throw py::index_error();
-             if (i.second > 16) throw py::index_error();
+               if (i.first < 0 || i.first >= 16) throw py::index_error();
+               if (i.second < 0 || i.second >= 16) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
         .def("SolveEigenSystem", &iqs::ChiMatrix<ComplexDP,16,32>::SolveEigenSystem)

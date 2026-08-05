@@ -162,4 +162,17 @@ TEST_F(TinyMatrixTest, ComplexDP)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TEST_F(TinyMatrixTest, OutOfRangeAccess)
+{
+  iqs::TinyMatrix<double, 2, 3> mat;
+  const iqs::TinyMatrix<double, 2, 3>& const_mat = mat;
+
+  ASSERT_THROW(mat(2, 0), std::out_of_range);
+  ASSERT_THROW(mat(0, 3), std::out_of_range);
+  ASSERT_THROW(const_mat(2, 0), std::out_of_range);
+  ASSERT_THROW(const_mat(0, 3), std::out_of_range);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #endif	// header guard TINYMATRIX_TEST_HPP
