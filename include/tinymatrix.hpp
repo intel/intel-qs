@@ -139,7 +139,7 @@ class TinyMatrix
   /// Access a matrix element of a const matrix
   ///   \param i the row index
   ///   \param j the column index
-  ///   \pre i<numRows() & j<numCols()
+  ///   \throws std::out_of_range if i>=numRows() or j>=numCols()
   value_type operator()(size_type i, size_type j) const
   {
     if (i >= this->numRows())
@@ -154,7 +154,7 @@ class TinyMatrix
   /// Access a matrix element.
   ///   \param i the row index
   ///   \param j the column index
-  ///   \pre i<numRows() & j<numCols()
+  ///   \throws std::out_of_range if i>=numRows() or j>=numCols()
   reference operator()(size_type i, size_type j)
   {
     if (i >= this->numRows())
