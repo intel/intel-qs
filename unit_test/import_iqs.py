@@ -16,7 +16,8 @@ def assert_index_error(operation):
 for matrix_type, dimension in ((iqs.CM4x4, 4), (iqs.CM16x16, 16)):
 	matrix = matrix_type()
 	matrix[dimension - 1, dimension - 1] = 1 + 2j
-	assert matrix[dimension - 1, dimension - 1] == 1 + 2j
+	if matrix[dimension - 1, dimension - 1] != 1 + 2j:
+		raise AssertionError("Matrix element assignment/getitem failed")
 
 	for invalid_index in ((-1, 0), (0, -1), (dimension, 0), (0, dimension)):
 		assert_index_error(lambda index=invalid_index: matrix[index])
