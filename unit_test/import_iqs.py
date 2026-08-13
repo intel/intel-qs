@@ -10,7 +10,7 @@ def assert_index_error(operation):
 		operation()
 	except IndexError:
 		return
-	raise AssertionError("Invalid matrix index did not raise IndexError")
+	raise AssertionError("Invalid index did not raise IndexError")
 
 
 for matrix_type, dimension in ((iqs.CM4x4, 4), (iqs.CM16x16, 16)):
@@ -30,6 +30,16 @@ rank = iqs.MPIEnvironment.GetRank()
 print("Creation of a 2-qubit state at rank {}",format(rank));
 
 psi = iqs.QubitRegister(2, "base", 0, 0);
+
+one_qubit_psi = iqs.QubitRegister(1, "base", 0, 0)
+for invalid_operation in (
+	lambda: one_qubit_psi.ApplyHadamard(1),
+	lambda: one_qubit_psi.GetProbability(1),
+	lambda: one_qubit_psi.CollapseQubit(1, False),
+	lambda: one_qubit_psi.ApplyCPauliX(0, 1),
+	lambda: one_qubit_psi.ApplyCPauliX(1, 0),
+):
+	assert_index_error(invalid_operation)
 
 print("The IQS library was successfully imported and initialized.")
 

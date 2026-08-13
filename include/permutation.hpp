@@ -68,20 +68,17 @@ class Permutation
 
   unsigned operator[](std::size_t i) const
   {
-    assert(i < num_elements);
-    return (unsigned) map[i];
+    return (unsigned) map.at(i);
   }
 
   unsigned operator[](unsigned i) const
   {
-    assert(i < num_elements);
-    return map[i];
+    return map.at(i);
   }
 
   int operator[](int i) const
   {
-    assert(i < num_elements);
-    return (int)map[i];
+    return (int)map.at(i);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////////
