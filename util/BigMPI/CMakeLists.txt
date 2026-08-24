@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 set(PACKAGE_NAME BigMPI)
 find_package(MPI)
