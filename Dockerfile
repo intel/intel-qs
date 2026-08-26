@@ -34,10 +34,10 @@ RUN apt-get update && DEBIAN_FRONTEND=nonitneractive apt-get install -y mpich
 RUN apt-get update && apt-get install -y openssh-client
 RUN apt-get update && apt-get install -y openssh-server
 
-# Fetch and install CMake 3.15 as required by Intel-QS build process. 
-WORKDIR swpkgs/cmake3.15
-RUN wget "https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.tar.gz" 
-RUN tar -xzf cmake-3.15.2-Linux-x86_64.tar.gz -C /usr/local/ --strip-components=1 
+# Fetch and install CMake 3.16
+WORKDIR swpkgs/cmake3.16.0
+RUN wget "https://github.com/Kitware/CMake/releases/download/v3.16.0/cmake-3.16.0-Linux-x86_64.tar.gz" 
+RUN tar -xzf cmake-3.16.0-Linux-x86_64.tar.gz -C /usr/local/ --strip-components=1 
 
 # Fetch and install the Intel MKL libraries required for building the Intel-QS simulator.
 WORKDIR swpkgs/mkl
