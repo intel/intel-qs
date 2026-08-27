@@ -27,7 +27,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y build-essential g++ make
 
 # Fetch and install a generic MPI implementation.
-RUN apt-get update && DEBIAN_FRONTEND=nonitneractive apt-get install -y mpich
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mpich
 
 # Fetch and install OpenSSH (client/server) for interacting between
 # nodes of the cluster in a Docker swarm configuration.
@@ -59,6 +59,9 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git
 
+# Install pybind for Python IQS
+RUN apt-get install python3-pybind11 -y
+
 # Setup the local build environment for the simulation framework.
 WORKDIR /root/intelqs
 # Copy from docker host cwd everything (the git project files) into the container
@@ -82,14 +85,5 @@ LABEL mode="MPI" version="1.0" description="intel-qs built with MPI, no py inter
 
 # Install lib for missing pthread module [necessary?]
 RUN apt-get -y install libboost-all-dev
-
-# Install and configure conda env
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-RUN bash ~/miniconda.sh -b -p $HOME/miniconda
-ENV PATH="/root/miniconda/bin:$PATH"
-RUN /bin/bash -c ". ~/.bashrc && \
-		conda install -y pybind11"
-# The user may consider installing in the conda environment other libraries like:
-# notebook (to access Jupyter notebooks), numpy or matplotlib.
 
 # Dockerfile Ends here
