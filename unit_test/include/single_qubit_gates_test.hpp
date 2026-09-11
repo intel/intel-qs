@@ -121,28 +121,17 @@ TEST_F(SingleQubitGatesTest, CustomGate)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TEST_F(SingleQubitGatesTest, DeathTest)
+TEST_F(SingleQubitGatesTest, OutOfRangeQubit)
 {
-  // Skip death-tests if compiler flag NDEBUG is defined.
-#ifdef NDEBUG
-  GTEST_SKIP() << "INFO: test skipped when compiler flag NDEBUG is not defined.";
-#endif
-
-  // Skip death-tests if MPI size > 1.
-  if (iqs::mpi::Environment::GetStateSize() > 1)
-      GTEST_SKIP();
-
   // |psi> = |0000000000> = |"0">
   iqs::QubitRegister<ComplexDP> psi (num_qubits_,"base",0);
 
-  // To switch off the warning message about DEATH test not being thread safe.
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe"; 
   // Qubit index beyond the register size.
   int qubit = num_qubits_;
-  ASSERT_DEATH( psi.ApplyHadamard(qubit), "");
+  ASSERT_THROW( psi.ApplyHadamard(qubit), std::out_of_range);
   // Negative qubit index.
   qubit = -1;
-  ASSERT_DEATH( psi.ApplyHadamard(qubit), "");
+  ASSERT_THROW( psi.ApplyHadamard(qubit), std::out_of_range);
 }
 
 //////////////////////////////////////////////////////////////////////////////

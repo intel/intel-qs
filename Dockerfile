@@ -34,17 +34,16 @@ RUN apt-get update && DEBIAN_FRONTEND=nonitneractive apt-get install -y mpich
 RUN apt-get update && apt-get install -y openssh-client
 RUN apt-get update && apt-get install -y openssh-server
 
-# Fetch and install CMake 3.15 as required by Intel-QS build process. 
-WORKDIR swpkgs/cmake3.15
-RUN wget "https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.tar.gz" 
-RUN tar -xzf cmake-3.15.2-Linux-x86_64.tar.gz -C /usr/local/ --strip-components=1 
+# Fetch and install CMake 3.16
+WORKDIR swpkgs/cmake3.16.0
+RUN wget "https://github.com/Kitware/CMake/releases/download/v3.16.0/cmake-3.16.0-Linux-x86_64.tar.gz" 
+RUN tar -xzf cmake-3.16.0-Linux-x86_64.tar.gz -C /usr/local/ --strip-components=1 
 
 # Fetch and install the Intel MKL libraries required for building the Intel-QS simulator.
 WORKDIR swpkgs/mkl
-RUN wget "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
-RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-RUN rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-RUN sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+RUN apt-get install -y gpg
+RUN wget -qO - "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB" | gpg --dearmor -o /usr/share/keyrings/intel-sw-products.gpg
+RUN sh -c 'echo "deb [signed-by=/usr/share/keyrings/intel-sw-products.gpg] https://apt.repos.intel.com/mkl all main" > /etc/apt/sources.list.d/intel-mkl.list'
 RUN apt-get update
 RUN apt-get install -y intel-mkl-64bit-2019.2-057
 # Set the (global) environment variable MKLROOT to facilitate the build process.

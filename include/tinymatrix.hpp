@@ -18,6 +18,7 @@
 #include <cassert>
 #include <initializer_list>
 #include <iostream>
+#include <stdexcept>
 
 /// \addtogroup util
 /// @{
@@ -138,11 +139,13 @@ class TinyMatrix
   /// Access a matrix element of a const matrix
   ///   \param i the row index
   ///   \param j the column index
-  ///   \pre i<numRows() & j<numCols()
+  ///   \throws std::out_of_range if i>=numRows() or j>=numCols()
   value_type operator()(size_type i, size_type j) const
   {
-    assert(i < this->numRows() && "Row index out of range");
-    assert(j < this->numCols() && "Column index out of range");
+    if (i >= this->numRows())
+      throw std::out_of_range("TinyMatrix row index out of range");
+    if (j >= this->numCols())
+      throw std::out_of_range("TinyMatrix column index out of range");
     return data_[i][j];
   }
 
@@ -151,11 +154,13 @@ class TinyMatrix
   /// Access a matrix element.
   ///   \param i the row index
   ///   \param j the column index
-  ///   \pre i<numRows() & j<numCols()
+  ///   \throws std::out_of_range if i>=numRows() or j>=numCols()
   reference operator()(size_type i, size_type j)
   {
-    assert(i < this->numRows() && "Row index out of range");
-    assert(j < this->numCols() && "Column index out of range");
+    if (i >= this->numRows())
+      throw std::out_of_range("TinyMatrix row index out of range");
+    if (j >= this->numCols())
+      throw std::out_of_range("TinyMatrix column index out of range");
     return data_[i][j];
   }
 

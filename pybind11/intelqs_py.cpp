@@ -49,6 +49,46 @@ void EnvFinalizeDummyRanks()
   }
 }
 
+using QubitRegisterDP = QubitRegister<ComplexDP>;
+
+void ValidateQubitIndex(const QubitRegisterDP &register_, unsigned qubit)
+{
+    if (qubit >= register_.NumQubits())
+        throw py::index_error("Qubit index out of range");
+}
+
+template <typename Return, typename... Args>
+auto WithValidQubit(Return (QubitRegisterDP::*method)(unsigned, Args...))
+{
+    return [method](QubitRegisterDP &register_, unsigned qubit, Args... args) -> Return {
+        ValidateQubitIndex(register_, qubit);
+        return (register_.*method)(qubit, args...);
+    };
+}
+
+template <typename Return, typename... Args>
+auto WithValidQubits(Return (QubitRegisterDP::*method)(unsigned, unsigned, Args...))
+{
+    return [method](QubitRegisterDP &register_, unsigned qubit1, unsigned qubit2,
+                    Args... args) -> Return {
+        ValidateQubitIndex(register_, qubit1);
+        ValidateQubitIndex(register_, qubit2);
+        return (register_.*method)(qubit1, qubit2, args...);
+    };
+}
+
+template <typename Return>
+auto WithValidQubits(Return (QubitRegisterDP::*method)(unsigned, unsigned, unsigned))
+{
+    return [method](QubitRegisterDP &register_, unsigned qubit1, unsigned qubit2,
+                    unsigned qubit3) -> Return {
+        ValidateQubitIndex(register_, qubit1);
+        ValidateQubitIndex(register_, qubit2);
+        ValidateQubitIndex(register_, qubit3);
+        return (register_.*method)(qubit1, qubit2, qubit3);
+    };
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // PYBIND CODE for the Intel Quantum Simulator library
 //////////////////////////////////////////////////////////////////////////////
@@ -96,16 +136,15 @@ PYBIND11_MODULE(intelqs_py, m)
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
-             if (i.first > 4) throw py::index_error();
-             if (i.second > 4) throw py::index_error();
-std::cout << "ciao\n";
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i) {
+               if (i.first < 0 || i.first >= 4) throw py::index_error();
+               if (i.second < 0 || i.second >= 4) throw py::index_error();
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
         .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,4,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
-             if (i.first > 4) throw py::index_error();
-             if (i.second > 4) throw py::index_error();
+               if (i.first < 0 || i.first >= 4) throw py::index_error();
+               if (i.second < 0 || i.second >= 4) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
 #if 0
@@ -147,15 +186,15 @@ std::cout << "ciao\n";
         .def(py::init<>())
         .def(py::init<>())
         // Access element:
-        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, int column) {
-             if (i.first > 16) throw py::index_error();
-             if (i.second > 16) throw py::index_error();
+        .def("__getitem__", [](const iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i) {
+               if (i.first < 0 || i.first >= 16) throw py::index_error();
+               if (i.second < 0 || i.second >= 16) throw py::index_error();
              return a(i.first, i.second);
              }, py::is_operator())
         // Set element:
         .def("__setitem__", [](iqs::ChiMatrix<ComplexDP,16,32> &a, std::pair<py::ssize_t, py::ssize_t> i, ComplexDP value) {
-             if (i.first > 16) throw py::index_error();
-             if (i.second > 16) throw py::index_error();
+               if (i.first < 0 || i.first >= 16) throw py::index_error();
+               if (i.second < 0 || i.second >= 16) throw py::index_error();
              a(i.first, i.second) = value;
              }, py::is_operator())
         .def("SolveEigenSystem", &iqs::ChiMatrix<ComplexDP,16,32>::SolveEigenSystem)
@@ -200,32 +239,33 @@ std::cout << "ciao\n";
                 { sizeof(ComplexDP) });             /* Strides (in bytes) for each index */
         })
         // One-qubit gates:
-        .def("ApplyRotationX", &QubitRegister<ComplexDP>::ApplyRotationX)
-        .def("ApplyRotationY", &QubitRegister<ComplexDP>::ApplyRotationY)
-        .def("ApplyRotationZ", &QubitRegister<ComplexDP>::ApplyRotationZ)
-        .def("ApplyPauliX", &QubitRegister<ComplexDP>::ApplyPauliX)
-        .def("ApplyPauliY", &QubitRegister<ComplexDP>::ApplyPauliY)
-        .def("ApplyPauliZ", &QubitRegister<ComplexDP>::ApplyPauliZ)
-        .def("ApplyPauliSqrtX", &QubitRegister<ComplexDP>::ApplyPauliSqrtX)
-        .def("ApplyPauliSqrtY", &QubitRegister<ComplexDP>::ApplyPauliSqrtY)
-        .def("ApplyPauliSqrtZ", &QubitRegister<ComplexDP>::ApplyPauliSqrtZ)
-        .def("ApplyT", &QubitRegister<ComplexDP>::ApplyT)
-        .def("ApplyRotationXY", &QubitRegister<ComplexDP>::ApplyRotationXY)
-        .def("ApplyHadamard", &QubitRegister<ComplexDP>::ApplyHadamard)
+        .def("ApplyRotationX", WithValidQubit(&QubitRegisterDP::ApplyRotationX))
+        .def("ApplyRotationY", WithValidQubit(&QubitRegisterDP::ApplyRotationY))
+        .def("ApplyRotationZ", WithValidQubit(&QubitRegisterDP::ApplyRotationZ))
+        .def("ApplyPauliX", WithValidQubit(&QubitRegisterDP::ApplyPauliX))
+        .def("ApplyPauliY", WithValidQubit(&QubitRegisterDP::ApplyPauliY))
+        .def("ApplyPauliZ", WithValidQubit(&QubitRegisterDP::ApplyPauliZ))
+        .def("ApplyPauliSqrtX", WithValidQubit(&QubitRegisterDP::ApplyPauliSqrtX))
+        .def("ApplyPauliSqrtY", WithValidQubit(&QubitRegisterDP::ApplyPauliSqrtY))
+        .def("ApplyPauliSqrtZ", WithValidQubit(&QubitRegisterDP::ApplyPauliSqrtZ))
+        .def("ApplyT", WithValidQubit(&QubitRegisterDP::ApplyT))
+        .def("ApplyRotationXY", WithValidQubit(&QubitRegisterDP::ApplyRotationXY))
+        .def("ApplyHadamard", WithValidQubit(&QubitRegisterDP::ApplyHadamard))
         // Two-qubit gates:
-        .def("ApplySwap", &QubitRegister<ComplexDP>::ApplySwap)
-        .def("ApplyCRotationX", &QubitRegister<ComplexDP>::ApplyCRotationX)
-        .def("ApplyCRotationY", &QubitRegister<ComplexDP>::ApplyCRotationY)
-        .def("ApplyCRotationZ", &QubitRegister<ComplexDP>::ApplyCRotationZ)
-        .def("ApplyCPauliX", &QubitRegister<ComplexDP>::ApplyCPauliX)
-        .def("ApplyCPauliY", &QubitRegister<ComplexDP>::ApplyCPauliY)
-        .def("ApplyCPauliZ", &QubitRegister<ComplexDP>::ApplyCPauliZ)
-        .def("ApplyCPauliSqrtZ", &QubitRegister<ComplexDP>::ApplyCPauliSqrtZ)
-        .def("ApplyCHadamard", &QubitRegister<ComplexDP>::ApplyCHadamard)
+        .def("ApplySwap", WithValidQubits(&QubitRegisterDP::ApplySwap))
+        .def("ApplyCRotationX", WithValidQubits(&QubitRegisterDP::ApplyCRotationX))
+        .def("ApplyCRotationY", WithValidQubits(&QubitRegisterDP::ApplyCRotationY))
+        .def("ApplyCRotationZ", WithValidQubits(&QubitRegisterDP::ApplyCRotationZ))
+        .def("ApplyCPauliX", WithValidQubits(&QubitRegisterDP::ApplyCPauliX))
+        .def("ApplyCPauliY", WithValidQubits(&QubitRegisterDP::ApplyCPauliY))
+        .def("ApplyCPauliZ", WithValidQubits(&QubitRegisterDP::ApplyCPauliZ))
+        .def("ApplyCPauliSqrtZ", WithValidQubits(&QubitRegisterDP::ApplyCPauliSqrtZ))
+        .def("ApplyCHadamard", WithValidQubits(&QubitRegisterDP::ApplyCHadamard))
         // Custom 1-qubit gate and controlled 2-qubit gates:
         .def("Apply1QubitGate",
              [](QubitRegister<ComplexDP> &a, unsigned qubit,
                 py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+                ValidateQubitIndex(a, qubit);
                py::buffer_info buf = matrix.request();
                if (buf.ndim != 2)
                    throw std::runtime_error("Number of dimensions must be two.");
@@ -243,6 +283,8 @@ std::cout << "ciao\n";
         .def("ApplyControlled1QubitGate",
              [](QubitRegister<ComplexDP> &a, unsigned control, unsigned qubit,
                 py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+                ValidateQubitIndex(a, control);
+                ValidateQubitIndex(a, qubit);
                py::buffer_info buf = matrix.request();
                if (buf.ndim != 2)
                    throw std::runtime_error("Number of dimensions must be two.");
@@ -262,17 +304,21 @@ std::cout << "ciao\n";
 #if 1
         .def("ApplyChannel",
              [](QubitRegister<ComplexDP> &a, unsigned qubit, iqs::ChiMatrix<ComplexDP,4,32> chi) {
+            ValidateQubitIndex(a, qubit);
                a.ApplyChannel(qubit, chi);
              }, "Apply 1-qubit channel provided via its chi-matrix.")
         .def("ApplyChannel",
              [](QubitRegister<ComplexDP> &a, unsigned qubit1, unsigned qubit2,
                 iqs::ChiMatrix<ComplexDP,16,32> chi) {
+            ValidateQubitIndex(a, qubit1);
+            ValidateQubitIndex(a, qubit2);
                a.ApplyChannel(qubit1, qubit2, chi);
              }, "Apply 2-qubit channel provided via its chi-matrix.")
 #else
         .def("ApplyChannel",
              [](QubitRegister<ComplexDP> &a, unsigned qubit,
                 py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+                ValidateQubitIndex(a, qubit);
                py::buffer_info buf = matrix.request();
                if (buf.ndim != 2)
                    throw std::runtime_error("Number of dimensions must be two.");
@@ -290,6 +336,8 @@ std::cout << "ciao\n";
         .def("ApplyChannel",
              [](QubitRegister<ComplexDP> &a, unsigned qubit1, unsigned qubit2,
                 py::array_t<ComplexDP, py::array::c_style | py::array::forcecast> matrix ) {
+                ValidateQubitIndex(a, qubit1);
+                ValidateQubitIndex(a, qubit2);
                py::buffer_info buf = matrix.request();
                if (buf.ndim != 2)
                    throw std::runtime_error("Number of dimensions must be two.");
@@ -309,7 +357,7 @@ std::cout << "ciao\n";
              }, "Apply 1-qubit channel provided via its chi-matrix.")
 #endif
         // Three-qubit gates:
-        .def("ApplyToffoli", &QubitRegister<ComplexDP>::ApplyToffoli)
+    .def("ApplyToffoli", WithValidQubits(&QubitRegisterDP::ApplyToffoli))
         // State initialization:
         .def("Initialize",
                (void (QubitRegister<ComplexDP>::*)(std::string, std::size_t ))
@@ -324,12 +372,18 @@ std::cout << "ciao\n";
         .def("SetRngPtr", &QubitRegister<ComplexDP>::SetRngPtr)
         .def("SetSeedRngPtr", &QubitRegister<ComplexDP>::SetSeedRngPtr)
         // State measurement and collapse:
-        .def("GetProbability", &QubitRegister<ComplexDP>::GetProbability)
-        .def("CollapseQubit", &QubitRegister<ComplexDP>::CollapseQubit)
+        .def("GetProbability", WithValidQubit(&QubitRegisterDP::GetProbability))
+        .def("CollapseQubit", WithValidQubit(&QubitRegisterDP::CollapseQubit))
           // Recall that the collapse selects: 'false'=|0> , 'true'=|1>
         .def("Normalize", &QubitRegister<ComplexDP>::Normalize)
         .def("AmplitudeWiseScalarMultiplication", &QubitRegister<ComplexDP>::AmplitudeWiseScalarMultiplication)
-        .def("ExpectationValue", &QubitRegister<ComplexDP>::ExpectationValue)
+        .def("ExpectationValue",
+             [](QubitRegisterDP &a, std::vector<unsigned> qubits,
+                     std::vector<unsigned> observables, QubitRegisterDP::BaseType coeff) {
+               for (unsigned qubit : qubits)
+                         ValidateQubitIndex(a, qubit);
+               return a.ExpectationValue(qubits, observables, coeff);
+             })
         // Other quantum operations:
         .def("ComputeNorm", &QubitRegister<ComplexDP>::ComputeNorm)
         .def("ComputeOverlap", &QubitRegister<ComplexDP>::ComputeOverlap)
@@ -338,7 +392,7 @@ std::cout << "ciao\n";
         .def("GetT2", &QubitRegister<ComplexDP>::GetT2)
         .def("GetTphi", &QubitRegister<ComplexDP>::GetTphi)
         .def("SetNoiseTimescales", &QubitRegister<ComplexDP>::SetNoiseTimescales)
-        .def("ApplyNoiseGate", &QubitRegister<ComplexDP>::ApplyNoiseGate)
+        .def("ApplyNoiseGate", WithValidQubit(&QubitRegisterDP::ApplyNoiseGate))
         // Utility functions:
         .def("Print",
              [](QubitRegister<ComplexDP> &a, std::string description) {
